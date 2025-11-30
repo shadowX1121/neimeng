@@ -7,7 +7,7 @@ const isDark = useDark();
 const toggleDark = useToggle(isDark);
 
 const goAbout = () => {
-    router.push("/about");
+    router.push("/login");
 };
 </script>
 

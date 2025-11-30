@@ -1,14 +1,15 @@
 {
     "extends": "@vue/tsconfig/tsconfig.dom.json",
     "compilerOptions": {
-        "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
-        "types": ["vite/client"],
+        // "incremental": true, // 启用增量构建
+        // "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+        "types": ["vite/client", "vue"],
 
         /* Linting */
         "strict": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
-        "erasableSyntaxOnly": true,
+        // "erasableSyntaxOnly": true,
         "noFallthroughCasesInSwitch": true,
         "noUncheckedSideEffectImports": true,
 
