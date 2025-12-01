@@ -22,11 +22,11 @@ request.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 // 响应拦截
 request.interceptors.response.use(
     (response: AxiosResponse) => {
-        const { code, message } = response.data;
+        const { code, msg } = response.data;
         if (code === 200) {
             return response.data;
         } else {
-            if (message) ElMessage.error(message);
+            if (msg) ElMessage.error(msg);
             if (code === 401 || code === 403) {
                 // 跳转登录页
             }

@@ -2,6 +2,13 @@
 import request from "../request";
 import type { ResponseData } from "@/types/request";
 export const userApi = {
+    login: (params: any): Promise<ResponseData<any>> => {
+        return request.request({
+            url: "/api/user/login",
+            method: "POST",
+            data: params,
+        });
+    },
     getInfo: (): Promise<ResponseData<any>> => {
         return request.request({
             url: "/api/user/info",

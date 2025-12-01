@@ -1,6 +1,34 @@
 <script setup lang="ts">
 import { ref } from "vue";
-const name = ref("");
+import { mockApi } from "@/api/index";
+import router from "@/router";
+
+const name = ref(""); // 用户名
+const password = ref(""); // 密码
+// 登录点击事件
+const login = async () => {
+    try {
+        const { code } = await mockApi.mock(
+            {
+                name: name.value,
+                password: password.value,
+            },
+            null
+        );
+        if (code === 200) {
+            // 登录成功
+            // 跳转页面
+            // 获取用户信息
+            // 存储用户信息
+            // 跳转页面
+            console.log("登录成功");
+
+            router.push("/about");
+        }
+    } catch (error) {
+        console.log(error);
+    }
+};
 </script>
 <template>
     <div class="login-page">
@@ -8,14 +36,29 @@ const name = ref("");
             <img src="@/assets/images/login-left.png" alt="" />
         </div>
         <div class="login-right">
-            <div>
+            <div class="login-box">
                 <h1>欢迎登录</h1>
-                <el-input v-model="name" placeholder="请输入账号登录名" />
                 <el-input
+                    class="m-b-16"
                     v-model="name"
+                    size="large"
+                    placeholder="请输入账号登录名"
+                />
+                <el-input
+                    v-model="password"
                     type="password"
+                    size="large"
                     placeholder="请输入密码"
                 />
+                <el-button
+                    class="login-button"
+                    size="large"
+                    type="primary"
+                    :disabled="!name || !password"
+                    @click="login"
+                >
+                    登录
+                </el-button>
             </div>
         </div>
     </div>
@@ -26,6 +69,7 @@ const name = ref("");
     align-items: center;
     width: 100%;
     height: 100%;
+    min-width: 960px;
     background: url("@/assets/images/login-bg.png");
     background-size: cover;
     background-repeat: no-repeat; /* 防止重复 */
@@ -43,6 +87,26 @@ const name = ref("");
         height: 100%;
         width: 42%;
         background: rgba(255, 255, 255, 0.7);
+        .login-box {
+            width: 320px;
+            padding: 48px 40px;
+        }
+        h1 {
+            margin-top: 0;
+            margin-bottom: 32px;
+            font-family: PingFang SC, PingFang SC;
+            font-weight: 600;
+            font-size: 24px;
+            color: #000000;
+            text-align: center;
+        }
+        .el-input {
+            width: 320px;
+        }
+    }
+    .login-button {
+        margin-top: 64px;
+        width: 320px;
     }
 }
 </style>

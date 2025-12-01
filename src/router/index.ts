@@ -6,14 +6,27 @@ import {
 
 const routes: Array<RouteRecordRaw> = [
     {
-        path: "/",
-        name: "Home",
-        component: () => import("@/views/Home.vue"),
-    },
-    {
         path: "/login",
         name: "Login",
         component: () => import("@/views/Login.vue"),
+    },
+    // ⭐ 所有业务页面都放在 layout 下
+    {
+        path: "/",
+        name: "Layout",
+        component: () => import("@/layout/Layout.vue"),
+        children: [
+            {
+                path: "",
+                name: "Home",
+                component: () => import("@/views/Home.vue"),
+            },
+            {
+                path: "about",
+                name: "About",
+                component: () => import("@/views/About.vue"),
+            },
+        ],
     },
 ];
 
