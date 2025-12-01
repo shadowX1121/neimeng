@@ -3,12 +3,12 @@ import { ref, onMounted } from "vue";
 
 const menuList = ref([
     {
-        index: "acount",
+        index: "account",
         title: "账号管理",
         icon: "",
         children: [
             {
-                index: "acount/password",
+                index: "/account/password",
                 title: "账号密码",
             },
         ],
@@ -79,7 +79,7 @@ onMounted(() => {
         class="my-menu"
         :default-active="defaultActive"
         :unique-opened="true"
-        :router="true"
+        :router="false"
     >
         <template v-for="menu in menuList" :key="menu.index">
             <el-sub-menu
@@ -94,10 +94,13 @@ onMounted(() => {
                     v-for="children in menu.children"
                     :key="children.index"
                 >
-                    {{ children.title }}
+                    <!-- <span>{{ children.title }}</span> -->
+                    <router-link :to="children.index">
+                        <span>{{ children.title }}</span>
+                    </router-link>
                 </el-menu-item>
             </el-sub-menu>
-            <el-menu-item v-else :index="menu.index">
+            <el-menu-item class="no-child-menu" v-else :index="menu.index">
                 <!-- 此处添加图标 -->
                 <span>{{ menu.title }}</span>
             </el-menu-item>
@@ -107,40 +110,37 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .my-menu {
+    --el-menu-base-level-padding: 12px;
+    --el-menu-level-padding: 12px;
+    --el-menu-item-height: 40px;
+    --el-menu-text-color: #ffffff;
+    --el-menu-hover-bg-color: transparent;
+    --el-menu-bg-color: transparent;
+    --el-menu-sub-item-height: var(--el-menu-item-height);
     width: 100%;
     height: 100%;
     padding: 16px;
     border-radius: 16px 16px 0px 0px;
     background-color: var(--el-color-primary);
-    ::v-deep .el-menu {
-        background-color: transparent;
-    }
-    ::v-deep .el-sub-menu {
+    :deep(.el-sub-menu) {
+        + .el-sub-menu,
+        + .no-child-menu {
+            margin-top: 8px;
+        }
         .el-sub-menu__icon-arrow {
             right: 0;
         }
-        &:hover,
-        &.is-active {
-            background-color: transparent;
+    }
+    .no-child-menu {
+        + .el-sub-menu,
+        + .no-child-menu {
+            margin-top: 8px;
         }
     }
-    ::v-deep .el-menu-item {
-        padding: 0;
-        height: 40px;
-        color: #ffffff;
-    }
-    ::v-deep .el-sub-menu__title {
-        line-height: 40px;
-        padding: 0;
-        padding-left: 12px !important;
-        height: 40px;
-        color: #ffffff;
-        background-color: transparent;
-    }
-    ::v-deep .el-menu-item {
-        &:hover,
-        &.is-active {
-            background-color: transparent;
+    :deep(.el-menu-item) {
+        margin-top: 4px;
+        a {
+            padding-left: 24px;
         }
     }
 }
