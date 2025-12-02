@@ -17,9 +17,31 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import("@/layout/Layout.vue"),
         children: [
             {
-                path: "account/password",
-                name: "AccountPassword",
-                component: () => import("@/views/account/Password.vue"),
+                path: "account",
+                redirect: "/account/password",
+                meta: { title: "账号管理" },
+                children: [
+                    {
+                        path: "password",
+                        name: "AccountPassword",
+                        meta: { title: "账号密码" },
+                        component: () => import("@/views/account/Password.vue"),
+                    },
+                ],
+            },
+            {
+                path: "organization",
+                redirect: "/organization/list",
+                meta: { title: "体育社会组织管理" },
+                children: [
+                    {
+                        path: "list",
+                        name: "OrgList",
+                        meta: { title: "体育社会组织列表" },
+                        component: () =>
+                            import("@/views/organization/List.vue"),
+                    },
+                ],
             },
             {
                 path: "",

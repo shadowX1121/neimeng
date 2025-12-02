@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, watch, onMounted } from "vue";
+import { useRoute } from "vue-router";
+
+const route = useRoute();
 
 const menuList = ref([
     {
@@ -19,7 +22,7 @@ const menuList = ref([
         icon: "",
         children: [
             {
-                index: "organization/list",
+                index: "/organization/list",
                 title: "体育社会组织列表",
             },
         ],
@@ -68,7 +71,22 @@ const menuList = ref([
         icon: "",
     },
 ]);
-const defaultActive = ref("acount/password"); // 默认选中的菜单项
+const defaultActive = ref(""); // 默认选中的菜单项
+
+// 监听path属性
+watch(
+    () => route.path,
+    (newPath, oldPath) => {
+        defaultActive.value = newPath;
+        console.log("路径变化:", oldPath, "→", newPath);
+    },
+    { immediate: true }
+);
+
+// 菜单选择事件
+const menuSelect = (index: string) => {
+    console.log("选择的菜单项：", index);
+};
 
 onMounted(() => {
     console.log("菜单加载完成");
@@ -79,11 +97,12 @@ onMounted(() => {
         class="my-menu"
         :default-active="defaultActive"
         :unique-opened="true"
-        :router="false"
+        @select="menuSelect"
     >
         <template v-for="menu in menuList" :key="menu.index">
             <el-sub-menu
                 v-if="menu.children && menu.children.length > 0"
+                class="my-level1-sub-menu"
                 :index="menu.index"
             >
                 <template #title>
@@ -93,16 +112,20 @@ onMounted(() => {
                 <el-menu-item
                     v-for="children in menu.children"
                     :key="children.index"
+                    :index="children.index"
                 >
-                    <!-- <span>{{ children.title }}</span> -->
                     <router-link :to="children.index">
                         <span>{{ children.title }}</span>
                     </router-link>
                 </el-menu-item>
             </el-sub-menu>
             <el-menu-item class="no-child-menu" v-else :index="menu.index">
+                <router-link :to="menu.index">
+                    <!-- 此处添加图标 -->
+                    <span>{{ menu.title }}</span>
+                </router-link>
                 <!-- 此处添加图标 -->
-                <span>{{ menu.title }}</span>
+                <!-- <span>{{ menu.title }}</span> -->
             </el-menu-item>
         </template>
     </el-menu>
@@ -121,6 +144,7 @@ onMounted(() => {
     height: 100%;
     padding: 16px;
     border-radius: 16px 16px 0px 0px;
+    overflow-y: auto;
     background-color: var(--el-color-primary);
     :deep(.el-sub-menu) {
         + .el-sub-menu,
@@ -137,10 +161,33 @@ onMounted(() => {
             margin-top: 8px;
         }
     }
-    :deep(.el-menu-item) {
-        margin-top: 4px;
-        a {
-            padding-left: 24px;
+}
+.my-level1-sub-menu {
+    > :deep(.el-menu) {
+        > .el-menu-item {
+            margin-top: 4px;
+            padding-left: 36px !important;
+            padding-right: 0 !important;
+            a {
+                padding: 0 12px;
+                width: 100%;
+                border-radius: 8px;
+            }
+            &.is-active {
+                a {
+                    background-color: #ffffff;
+                    color: var(--el-color-primary);
+                }
+            }
+        }
+        &::before {
+            content: "";
+            position: absolute;
+            top: 12px;
+            left: 20px;
+            width: 1px;
+            height: calc(100% - 24px);
+            background-color: rgba(235, 238, 245, 0.2);
         }
     }
 }

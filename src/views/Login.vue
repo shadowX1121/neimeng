@@ -1,12 +1,19 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { mockApi } from "@/api/index";
 import router from "@/router";
+import { ElMessage } from "element-plus";
 
 const name = ref(""); // 用户名
 const password = ref(""); // 密码
+const submitLoading = ref(false); // 提交加载状态
+const submitDisabled = computed(() => {
+    return !name.value || !password.value;
+});
 // 登录点击事件
 const login = async () => {
+    if (submitLoading.value) return; // 二次保险
+    submitLoading.value = true;
     try {
         const { code } = await mockApi.mock(
             {
@@ -16,17 +23,13 @@ const login = async () => {
             null
         );
         if (code === 200) {
-            // 登录成功
-            // 跳转页面
-            // 获取用户信息
-            // 存储用户信息
-            // 跳转页面
-            console.log("登录成功");
-
+            ElMessage.success("登录成功");
             router.push("/about");
         }
     } catch (error) {
         console.log(error);
+    } finally {
+        submitLoading.value = false;
     }
 };
 </script>
@@ -54,7 +57,8 @@ const login = async () => {
                     class="login-button"
                     size="large"
                     type="primary"
-                    :disabled="!name || !password"
+                    :loading="submitLoading"
+                    :disabled="submitDisabled || submitLoading"
                     @click="login"
                 >
                     登录

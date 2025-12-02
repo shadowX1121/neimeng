@@ -116,7 +116,13 @@ table {
     line-height: 1;
 }
 
-/* 修复 Element Input 在某些浏览器默认 padding 不一致 */
-.el-input__inner {
-    padding: 0 12px !important;
+/* 修复 Element plus 组件的默认样式 */
+.el-form {
+    --el-text-color-regular: #000000;
+}
+.el-select {
+    + .el-input,
+    + .el-select {
+        margin-left: 12px;
+    }
 }
