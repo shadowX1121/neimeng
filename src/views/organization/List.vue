@@ -4,10 +4,13 @@ import { mockApi } from "@/api/index";
 import { ElMessage } from "element-plus";
 import { Plus, Search, ArrowRight } from "@element-plus/icons-vue";
 import { useAccountStatus } from "@/utils/useOptions";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
+import { useMetaTitleStore } from "@/store/useMetaTitleStore";
 
 const accountStatus = useAccountStatus();
+const route = useRoute();
 const router = useRouter();
+const metaTitleStore = useMetaTitleStore();
 
 // 筛选模块
 const goAddPage = () => {
@@ -50,6 +53,18 @@ const xiugaiTagClick = (tag: any) => {
 };
 // 管理点击事件
 const manageClick = (item: any) => {
+    metaTitleStore.urlMapTitle = {
+        ...metaTitleStore.urlMapTitle,
+        "/organization/list/detail": item.name,
+    };
+    console.log("metaTitleStore.urlMapTitle", metaTitleStore.urlMapTitle);
+
+    router.push({
+        name: "OrgDetail",
+        query: {
+            id: item.id,
+        },
+    });
     ElMessage.success(`点击了管理按钮：${item.id}`);
 };
 
@@ -93,7 +108,7 @@ const getTableData = async () => {
                 },
                 {
                     id: 2,
-                    name: "内蒙古自治区老年人体育协会",
+                    name: "内蒙古自治区老年人体育协会1",
                     score: "50",
                     level: 0,
                     pinguAudit: "1",
@@ -102,7 +117,7 @@ const getTableData = async () => {
                 },
                 {
                     id: 2,
-                    name: "内蒙古自治区老年人体育协会",
+                    name: "内蒙古自治区老年人体育协会2",
                     score: "50",
                     level: 0,
                     pinguAudit: "1",

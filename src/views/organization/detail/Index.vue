@@ -1,13 +1,29 @@
 <script setup lang="ts">
-import { ref, reactive, computed } from "vue";
+import { ref, reactive, computed, markRaw } from "vue";
 import { mockApi } from "@/api/index";
 import { isPhone } from "@/utils/validator";
 import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
 
-import type { TabsPaneContext } from "element-plus";
+import HomeModule from "./module/Home.vue";
+import LivenessModule from "./module/Liveness.vue";
 
-const activeName = ref("first");
+import type { TabsPaneContext } from "element-plus";
+import type { Component } from "vue";
+
+const activeName = ref("home");
+const paneList = ref<(MyPaneItem & { component: Component })[]>([
+    {
+        label: "首页",
+        name: "home",
+        component: markRaw(HomeModule),
+    },
+    {
+        label: "活跃度评估",
+        name: "liveness",
+        component: markRaw(LivenessModule),
+    },
+]);
 const handleClick = (tab: TabsPaneContext, event: Event) => {
     console.log(tab, event);
 };
@@ -15,26 +31,41 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
 
 <template>
     <div class="main-container-wrapper">
-        <div class="main-header">
-            <el-tabs
-                v-model="activeName"
-                class="demo-tabs"
-                @tab-click="handleClick"
+        <el-tabs
+            v-model="activeName"
+            class="org-detail-tabs"
+            @tab-click="handleClick"
+        >
+            <el-tab-pane
+                v-for="item in paneList"
+                :key="item.name"
+                :label="item.label"
+                :name="item.name"
             >
-                <el-tab-pane label="User" name="first">User</el-tab-pane>
-                <el-tab-pane label="Config" name="second">Config</el-tab-pane>
-                <el-tab-pane label="Role" name="third">Role</el-tab-pane>
-                <el-tab-pane label="Task" name="fourth">Task</el-tab-pane>
-            </el-tabs>
-        </div>
-        <div class="main-content detail-content">
-            <div class="org-detail-page"></div>
-        </div>
+                <component :is="item.component"></component>
+            </el-tab-pane>
+        </el-tabs>
     </div>
 </template>
 
 <style lang="scss" scoped>
 .org-detail-page {
     margin-top: 40px;
+}
+.org-detail-tabs {
+    --el-tabs-header-height: 76px;
+    :deep(.el-tabs__header) {
+        margin: 0;
+    }
+    :deep(.el-tabs__item) {
+        font-size: 20px;
+        padding: 0 12px;
+        font-family: PingFang SC, PingFang SC;
+    }
+    :deep(.el-tabs__nav-wrap) {
+        &::after {
+            height: 1px;
+        }
+    }
 }
 </style>

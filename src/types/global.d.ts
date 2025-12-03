@@ -20,4 +20,9 @@ declare global {
         size: number;
         total: number | "";
     }
+
+    interface MyPaneItem {
+        label: string;
+        name: string;
+    }
 }

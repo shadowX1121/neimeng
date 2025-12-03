@@ -60,12 +60,12 @@ const routes: Array<RouteRecordRaw> = [
                                 path: "detail",
                                 name: "OrgDetail",
                                 meta: {
-                                    title: "添加账号",
+                                    isDynamicTitle: true,
                                     activeMenu: "/organization/list",
                                 },
                                 component: () =>
                                     import(
-                                        "@/views/organization/AddAccount.vue"
+                                        "@/views/organization/detail/Index.vue"
                                     ),
                             },
                         ],
