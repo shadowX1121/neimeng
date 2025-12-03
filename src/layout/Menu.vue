@@ -77,7 +77,9 @@ const defaultActive = ref(""); // 默认选中的菜单项
 watch(
     () => route.path,
     (newPath, oldPath) => {
-        defaultActive.value = newPath;
+        const { meta } = route;
+        defaultActive.value =
+            meta && meta.activeMenu ? (meta.activeMenu as string) : newPath;
         console.log("路径变化:", oldPath, "→", newPath);
     },
     { immediate: true }

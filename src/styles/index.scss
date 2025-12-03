@@ -93,7 +93,7 @@ $widths: 200, 400, 800;
         width: #{$width}px;
     }
 }
-$select-widths: 108, 200, 400, 800;
+$select-widths: 108, 220, 400, 800;
 @each $width in $select-widths {
     .w#{$width} {
         width: #{$width}px;
@@ -107,14 +107,36 @@ $select-widths: 108, 200, 400, 800;
 }
 .table-filter {
     display: flex;
+    margin-top: 8px;
+    padding: 12px 0;
     &_left {
         display: flex;
         justify-content: flex-start;
         flex-shrink: 0;
+        margin-right: 12px;
+        margin-top: 4px;
+        margin-bottom: 4px;
     }
     &_right {
         flex: 1;
         display: flex;
         justify-content: flex-end;
+        flex-wrap: wrap;
+        .el-select,
+        .el-input {
+            margin-top: 4px;
+            margin-bottom: 4px;
+        }
     }
+}
+.cursor-pointer {
+    cursor: pointer;
+}
+.table-theme-text-button {
+    cursor: pointer;
+    color: var(--el-color-primary);
+}
+.my-pagination {
+    margin-top: 20px;
+    justify-content: flex-end;
 }

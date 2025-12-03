@@ -3,6 +3,7 @@ import axios, {
     type InternalAxiosRequestConfig,
     type AxiosResponse,
 } from "axios";
+import { removeUndefined } from "@/utils/common";
 import { ElMessage } from "element-plus";
 const request: AxiosInstance = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL || "/api",
@@ -16,6 +17,14 @@ const request: AxiosInstance = axios.create({
 request.interceptors.request.use((config: InternalAxiosRequestConfig) => {
     const token = localStorage.getItem("token");
     if (token) config.headers.Authorization = `Bearer ${token}`;
+    // 处理 GET 参数（params）
+    if (config.params) {
+        config.params = removeUndefined(config.params);
+    }
+    // 处理 POST / PUT / DELETE 提交的数据（data）
+    if (config.data) {
+        config.data = removeUndefined(config.data);
+    }
     return config;
 });
 

@@ -1,11 +1,20 @@
 <script setup lang="ts">
-import { ref, reactive, computed } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import { mockApi } from "@/api/index";
 import { ElMessage } from "element-plus";
-import { Plus } from "@element-plus/icons-vue";
+import { Plus, Search, ArrowRight } from "@element-plus/icons-vue";
+import { useAccountStatus } from "@/utils/useOptions";
+import { useRouter } from "vue-router";
 
-import type { FormInstance, FormRules } from "element-plus";
+const accountStatus = useAccountStatus();
+const router = useRouter();
 
+// 筛选模块
+const goAddPage = () => {
+    router.push({
+        name: "AddAccount",
+    });
+};
 const filter = reactive({
     year: "",
     level: "",
@@ -13,7 +22,7 @@ const filter = reactive({
     accountStatus: "",
     search: "",
 });
-const yearOptions = ref([{ value: "2025", label: "2025年" }]);
+const yearOptions = ref([{ value: "2025", label: "2025" }]);
 const levelOptions = ref([
     { value: "0", label: "全部星级" },
     { value: "1", label: "一星" },
@@ -21,74 +30,114 @@ const levelOptions = ref([
     { value: "3", label: "三星" },
     { value: "4", label: "无星级" },
 ]);
+const statusOptions = ref([
+    { value: "0", label: "待审核" },
+    { value: "1", label: "审核通过" },
+    { value: "2", label: "审核未通过" },
+]);
+const accountStatusOptions = accountStatus.options;
 
-// const formRef = ref<FormInstance>();
-// const formData = reactive({
-//     name: "",
-//     password: "",
-// });
-// // 名称验证
-// const validateName = (_rule: any, value: string, callback: any) => {
-//     if (value === "") {
-//         callback(new Error("请输入账号名称"));
-//     } else if (value.length > 20) {
-//         callback(new Error("账号名称不能超过20个字符"));
-//     } else {
-//         callback();
-//     }
-// };
-// // 密码验证
-// const validatePass = (_rule: any, value: string, callback: any) => {
-//     if (value === "") {
-//         callback(new Error("请输入密码"));
-//     } else if (value.length < 6 || value.length > 20) {
-//         callback(new Error("密码长度为6-20个字符"));
-//     } else {
-//         callback();
-//     }
-// };
-// const rules = reactive<FormRules<typeof formData>>({
-//     name: [{ validator: validateName, trigger: "blur" }],
-//     password: [{ validator: validatePass, trigger: "blur" }],
-// });
-// const submitLoading = ref(false);
-// const submitDisabled = computed(() => {
-//     return (
-//         !formData.name ||
-//         !formData.password ||
-//         formData.password.length < 6 ||
-//         formData.password.length > 20
-//     );
-// });
+// 表格模块
+const loading = ref(false);
+const tableData = ref<any[]>([]);
+// 评估tag点击事件
+const pinguTagClick = (tag: any) => {
+    ElMessage.success(`点击了标签：${tag}`);
+};
+// 修改tag点击事件
+const xiugaiTagClick = (tag: any) => {
+    ElMessage.success(`点击了标签：${tag}`);
+};
+// 管理点击事件
+const manageClick = (item: any) => {
+    ElMessage.success(`点击了管理按钮：${item.id}`);
+};
 
-// // 提交按钮点击事件
-// const onSubmit = async () => {
-//     if (submitLoading.value) return; // 二次保险
-//     submitLoading.value = true;
-//     try {
-//         const { code } = await mockApi.mock(formData, null);
-//         if (code === 200) {
-//             ElMessage.success("修改成功");
-//         }
-//     } catch (error) {
-//         console.log(error);
-//     } finally {
-//         submitLoading.value = false;
-//     }
-// };
+// 分页模块
+const pagination = reactive<MyPagination>({
+    current: 1,
+    size: 10,
+    total: "",
+});
+const handleSizeChange = (size: number) => {
+    pagination.size = size;
+    getTableData();
+};
+const handleCurrentChange = (current: number) => {
+    pagination.current = current;
+    getTableData();
+};
+
+// 获取表格数据
+const getTableData = async () => {
+    loading.value = true;
+    try {
+        const { code } = await mockApi.mock(
+            {
+                ...filter,
+                page: pagination.current,
+                size: pagination.size,
+            },
+            null
+        );
+        if (code === 200) {
+            tableData.value = [
+                {
+                    id: 1,
+                    name: "内蒙古自治区老年人体育协会",
+                    score: "50",
+                    level: 2,
+                    pinguAudit: "1",
+                    xiugaiAudit: "1",
+                    accountStatus: 1,
+                },
+                {
+                    id: 2,
+                    name: "内蒙古自治区老年人体育协会",
+                    score: "50",
+                    level: 0,
+                    pinguAudit: "1",
+                    xiugaiAudit: "1",
+                    accountStatus: 2,
+                },
+                {
+                    id: 2,
+                    name: "内蒙古自治区老年人体育协会",
+                    score: "50",
+                    level: 0,
+                    pinguAudit: "1",
+                    xiugaiAudit: "1",
+                    accountStatus: 3,
+                },
+            ];
+            pagination.total = 3;
+        }
+    } catch (error) {
+        console.log(error);
+    } finally {
+        loading.value = false;
+    }
+};
+onMounted(() => {
+    getTableData();
+});
 </script>
 
 <template>
     <div class="main-container-wrapper">
         <div class="main-header">
             <p class="title">体育社会组织列表</p>
-            <p class="des">体育社会组织：17个</p>
+            <p class="des">体育社会组织：{{ pagination.total }}个</p>
         </div>
         <div class="main-content">
             <div class="org-list-page">
                 <div class="table-filter">
                     <div class="table-filter_left">
-                        <el-button :icon="Plus" type="primary" @click="">
+                        <el-button
+                            :icon="Plus"
+                            type="primary"
+                            @click="goAddPage"
+                        >
                             添加账号
                         </el-button>
                     </div>
@@ -97,6 +146,7 @@ const levelOptions = ref([
                             class="w108"
                             v-model="filter.year"
                             placeholder="选择年份"
+                            @change="getTableData"
                         >
                             <el-option
                                 v-for="item in yearOptions"
@@ -108,7 +158,9 @@ const levelOptions = ref([
                         <el-select
                             class="w108"
                             v-model="filter.level"
+                            clearable
                             placeholder="选择星级"
+                            @change="getTableData"
                         >
                             <el-option
                                 v-for="item in levelOptions"
@@ -117,8 +169,162 @@ const levelOptions = ref([
                                 :value="item.value"
                             />
                         </el-select>
+                        <el-select
+                            class="w108"
+                            v-model="filter.status"
+                            clearable
+                            placeholder="审核状态"
+                            @change="getTableData"
+                        >
+                            <el-option
+                                v-for="item in statusOptions"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value"
+                            />
+                        </el-select>
+                        <el-select
+                            class="w108"
+                            v-model="filter.accountStatus"
+                            placeholder="账号状态"
+                            @change="getTableData"
+                        >
+                            <el-option
+                                v-for="item in accountStatusOptions"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value"
+                            />
+                        </el-select>
+                        <el-input
+                            class="w220"
+                            v-model="filter.search"
+                            size="default"
+                            placeholder="请输入体育社会组织名称"
+                            :suffix-icon="Search"
+                        />
                     </div>
                 </div>
+                <el-empty
+                    v-if="pagination.total === 0"
+                    description="暂无体育社会组织"
+                />
+                <template v-else>
+                    <el-table
+                        v-loading="loading"
+                        :data="tableData"
+                        border
+                        style="width: 100%"
+                    >
+                        <el-table-column
+                            prop="name"
+                            label="体育社会组织名称"
+                            min-width="200"
+                        />
+                        <el-table-column
+                            prop="score"
+                            label="年度积分"
+                            width="140"
+                        />
+                        <el-table-column label="星级" width="140">
+                            <template #default="scope">
+                                <el-rate
+                                    v-if="scope.row.level"
+                                    v-model="scope.row.level"
+                                    :disabled="true"
+                                    :max="scope.row.level"
+                                />
+                                <span v-else style="color: #666666">
+                                    取消评星资格
+                                </span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="评估审核" width="140">
+                            <template #default="scope">
+                                <el-tag
+                                    class="cursor-pointer"
+                                    type="danger"
+                                    effect="dark"
+                                    round
+                                    @click="pinguTagClick(scope.row.pinguAudit)"
+                                >
+                                    <span>{{ scope.row.pinguAudit }}条</span>
+                                    <el-icon><ArrowRight /></el-icon>
+                                </el-tag>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="修改审核" width="140">
+                            <template #default="scope">
+                                <el-tag
+                                    class="cursor-pointer"
+                                    type="danger"
+                                    effect="dark"
+                                    round
+                                    @click="
+                                        xiugaiTagClick(scope.row.xiugaiAudit)
+                                    "
+                                >
+                                    <span>{{ scope.row.xiugaiAudit }}条</span>
+                                    <el-icon><ArrowRight /></el-icon>
+                                </el-tag>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="账号状态" width="140">
+                            <template #default="scope">
+                                <div class="account-status">
+                                    <div
+                                        class="dot"
+                                        :style="{
+                                            backgroundColor:
+                                                accountStatus.getColorByValue(
+                                                    scope.row.accountStatus
+                                                ),
+                                        }"
+                                    ></div>
+                                    <span
+                                        :style="{
+                                            color:
+                                                scope.row.accountStatus === 3
+                                                    ? accountStatus.getColorByValue(
+                                                          scope.row
+                                                              .accountStatus
+                                                      )
+                                                    : '',
+                                        }"
+                                    >
+                                        {{
+                                            accountStatus.getLabelByValue(
+                                                scope.row.accountStatus
+                                            )
+                                        }}
+                                    </span>
+                                </div>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="操作" align="center" width="80">
+                            <template #default="scope">
+                                <el-button
+                                    type="primary"
+                                    link
+                                    @click="manageClick(scope.row)"
+                                >
+                                    管理
+                                </el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                    <el-pagination
+                        v-if="pagination.total"
+                        class="my-pagination"
+                        v-model:current-page="pagination.current"
+                        v-model:page-size="pagination.size"
+                        :page-sizes="[10, 20, 30, 40]"
+                        layout="total, sizes, prev, pager, next, jumper"
+                        :total="pagination.total"
+                        @size-change="handleSizeChange"
+                        @current-change="handleCurrentChange"
+                    />
+                </template>
             </div>
         </div>
     </div>
@@ -126,5 +332,15 @@ const levelOptions = ref([
 
 <style lang="scss" scoped>
 .org-list-page {
+    .account-status {
+        display: flex;
+        align-items: center;
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+    }
 }
 </style>

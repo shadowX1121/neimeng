@@ -126,3 +126,28 @@ table {
         margin-left: 12px;
     }
 }
+.el-rate {
+    --el-rate-fill-color: #e97800;
+    --el-rate-icon-margin: 4px;
+    &.is-disabled {
+        .el-rate__item {
+            cursor: default;
+        }
+    }
+}
+.el-table {
+    --el-table-header-bg-color: #f6f9fb;
+    --el-table-header-text-color: #666666;
+    --el-table-text-color: #000000;
+    thead {
+        th {
+            font-weight: 400;
+        }
+    }
+}
+.el-tag {
+    .el-tag__content {
+        display: flex;
+        align-items: center;
+    }
+}

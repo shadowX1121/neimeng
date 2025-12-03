@@ -36,10 +36,39 @@ const routes: Array<RouteRecordRaw> = [
                 children: [
                     {
                         path: "list",
-                        name: "OrgList",
                         meta: { title: "体育社会组织列表" },
-                        component: () =>
-                            import("@/views/organization/List.vue"),
+                        children: [
+                            {
+                                path: "",
+                                name: "OrgList",
+                                component: () =>
+                                    import("@/views/organization/List.vue"),
+                            },
+                            {
+                                path: "addAccount",
+                                name: "AddAccount",
+                                meta: {
+                                    title: "添加账号",
+                                    activeMenu: "/organization/list",
+                                },
+                                component: () =>
+                                    import(
+                                        "@/views/organization/AddAccount.vue"
+                                    ),
+                            },
+                            {
+                                path: "detail",
+                                name: "OrgDetail",
+                                meta: {
+                                    title: "添加账号",
+                                    activeMenu: "/organization/list",
+                                },
+                                component: () =>
+                                    import(
+                                        "@/views/organization/AddAccount.vue"
+                                    ),
+                            },
+                        ],
                     },
                 ],
             },
