@@ -6,6 +6,7 @@ import { Plus, Search, ArrowRight } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
 import { YEAR_OPTIONS } from "@/constants/index";
 import AddProjectDialog from "./dialog/AddProjectDialog.vue";
+import EditProjectDialog from "./dialog/EditProjectDialog.vue";
 
 const router = useRouter();
 
@@ -98,6 +99,8 @@ onMounted(() => {
         </div>
         <!--添加项目弹窗-->
         <AddProjectDialog v-model="addProjectDialogVisible" />
+        <!--编辑项目弹窗-->
+        <EditProjectDialog v-model="manageProjectDialogVisible" />
     </div>
 </template>
 
