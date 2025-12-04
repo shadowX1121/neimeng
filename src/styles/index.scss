@@ -113,19 +113,26 @@ $my-widths: 108, 200, 220, 400, 640, 800;
         justify-content: center;
     }
 }
+.flex-start {
+    justify-content: flex-start !important;
+}
 .table-filter {
     display: flex;
     margin-top: 8px;
     padding: 12px 0;
-    &_left {
+    &_button {
         display: flex;
         justify-content: flex-start;
         flex-shrink: 0;
         margin-right: 12px;
         margin-top: 4px;
         margin-bottom: 4px;
+        &.flex-start {
+            margin-left: 12px;
+            margin-right: 0;
+        }
     }
-    &_right {
+    &_select {
         flex: 1;
         display: flex;
         justify-content: flex-end;
@@ -154,5 +161,15 @@ $my-widths: 108, 200, 220, 400, 640, 800;
     font-weight: 600;
     .el-dropdown-link {
         cursor: pointer;
+    }
+}
+.flex-start {
+    .el-select,
+    .el-input {
+        margin-right: 12px;
+        + .el-input,
+        + .el-select {
+            margin-left: 0;
+        }
     }
 }

@@ -1,5 +1,4 @@
 // 模拟相请求 API
-import type { ResponseData } from "@/types/request";
 export const mockApi = {
     mock: (params: any, data: any): Promise<ResponseData<any>> => {
         console.log("提交的参数是：", params);

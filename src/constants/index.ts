@@ -1,7 +1,7 @@
 // 固定项配置文件
-// 账号状态
-export const ACCOUNT_STATUS_OPTIONS = [
-    { value: 1, label: "激活" },
-    { value: 2, label: "冻结" },
-    { value: 3, label: "撤销" },
-];
+import dayjs from "dayjs";
+// 年份
+export const YEAR_OPTIONS = Array.from(
+    { length: dayjs().year() - 2025 + 1 },
+    (_, i) => 2025 + i
+).map((item) => ({ value: item, label: item.toString() }));

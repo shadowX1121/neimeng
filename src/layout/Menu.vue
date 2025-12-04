@@ -33,43 +33,43 @@ const menuList = ref([
         icon: "",
         children: [
             {
-                index: "assess/baseItem",
+                index: "/assess/baseItem",
                 title: "评估项管理",
             },
-            {
-                index: "assess/awardedItem",
-                title: "加分项管理",
-            },
-            {
-                index: "assess/deductionItem",
-                title: "减分项管理",
-            },
-            {
-                index: "assess/vetoItem",
-                title: "一票否决管理",
-            },
-            {
-                index: "assess/scoreAndLevel",
-                title: "积分与星级管理",
-            },
+            // {
+            //     index: "assess/awardedItem",
+            //     title: "加分项管理",
+            // },
+            // {
+            //     index: "assess/deductionItem",
+            //     title: "减分项管理",
+            // },
+            // {
+            //     index: "assess/vetoItem",
+            //     title: "一票否决管理",
+            // },
+            // {
+            //     index: "assess/scoreAndLevel",
+            //     title: "积分与星级管理",
+            // },
         ],
     },
-    {
-        index: "download",
-        title: "下载管理",
-        icon: "",
-        children: [
-            {
-                index: "download/list",
-                title: "下载任务列表",
-            },
-        ],
-    },
-    {
-        index: "other",
-        title: "其他管理",
-        icon: "",
-    },
+    // {
+    //     index: "download",
+    //     title: "下载管理",
+    //     icon: "",
+    //     children: [
+    //         {
+    //             index: "download/list",
+    //             title: "下载任务列表",
+    //         },
+    //     ],
+    // },
+    // {
+    //     index: "other",
+    //     title: "其他管理",
+    //     icon: "",
+    // },
 ]);
 const defaultActive = ref(""); // 默认选中的菜单项
 

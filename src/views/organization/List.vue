@@ -6,6 +6,7 @@ import { Plus, Search, ArrowRight } from "@element-plus/icons-vue";
 import { useAccountStatus } from "@/utils/useOptions";
 import { useRoute, useRouter } from "vue-router";
 import { useMetaTitleStore } from "@/store/useMetaTitleStore";
+import { YEAR_OPTIONS } from "@/constants/index";
 
 const accountStatus = useAccountStatus();
 const route = useRoute();
@@ -25,7 +26,7 @@ const filter = reactive({
     accountStatus: "",
     search: "",
 });
-const yearOptions = ref([{ value: "2025", label: "2025" }]);
+const yearOptions = ref(YEAR_OPTIONS);
 const levelOptions = ref([
     { value: "0", label: "全部星级" },
     { value: "1", label: "一星" },
@@ -38,7 +39,9 @@ const statusOptions = ref([
     { value: "1", label: "审核通过" },
     { value: "2", label: "审核未通过" },
 ]);
-const accountStatusOptions = accountStatus.options;
+const accountStatusOptions = accountStatus.options.value.filter(
+    (item) => item.value !== 4
+);
 
 // 表格模块
 const loading = ref(false);
@@ -147,7 +150,7 @@ onMounted(() => {
         <div class="main-content">
             <div class="org-list-page">
                 <div class="table-filter">
-                    <div class="table-filter_left">
+                    <div class="table-filter_button">
                         <el-button
                             :icon="Plus"
                             type="primary"
@@ -156,7 +159,7 @@ onMounted(() => {
                             添加账号
                         </el-button>
                     </div>
-                    <div class="table-filter_right">
+                    <div class="table-filter_select">
                         <el-select
                             class="w108"
                             v-model="filter.year"

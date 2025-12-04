@@ -1,6 +1,5 @@
 // 用户相关 API
 import request from "../request";
-import type { ResponseData } from "@/types/request";
 export const userApi = {
     login: (params: any): Promise<ResponseData<any>> => {
         return request.request({

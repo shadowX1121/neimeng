@@ -120,7 +120,8 @@ table {
 .el-form {
     --el-text-color-regular: #000000;
 }
-.el-select {
+.el-select,
+.el-input {
     + .el-input,
     + .el-select {
         margin-left: 12px;
@@ -149,5 +150,34 @@ table {
     .el-tag__content {
         display: flex;
         align-items: center;
+    }
+}
+.el-dialog {
+    padding: 0;
+    padding-bottom: 24px;
+    .el-dialog__header {
+        display: flex;
+        align-items: center;
+        height: 74px;
+        padding: 16px 24px;
+        border-bottom: 1px solid #ebeef5;
+        .el-dialog__headerbtn {
+            top: 13px;
+        }
+    }
+    .el-dialog__body {
+        padding: 24px;
+    }
+    .el-dialog__footer {
+        padding: 24px 24px 0;
+    }
+    &__title {
+        font-weight: 600;
+        color: #000000;
+    }
+}
+.el-form-item {
+    &:nth-last-child(1) {
+        margin-bottom: 0;
     }
 }

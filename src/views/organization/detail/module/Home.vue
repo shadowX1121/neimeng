@@ -2,6 +2,8 @@
 import { ref, reactive, computed, onBeforeMount } from "vue";
 import { ElMessage } from "element-plus";
 import { CaretBottom } from "@element-plus/icons-vue";
+import AccountStatusDialog from "./dialog/AccountStatusDialog.vue";
+import ManagerInfoDialog from "./dialog/ManagerInfoDialog.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAccountStatus } from "@/utils/useOptions";
 import { mockApi } from "@/api/index";
@@ -9,11 +11,11 @@ import dayjs from "dayjs";
 
 const router = useRouter();
 const route = useRoute();
-const accountStatus = useAccountStatus();
 
-const id = computed(() => route.query.id);
+const id = computed(() => route.query.id as string | number);
 
-const detailData = ref<any>({
+const detailData = reactive<OrgAccountType>({
+    id: id.value,
     name: "锡林浩特市羽毛球协会",
     status: 1,
     score: 35,
@@ -22,8 +24,16 @@ const detailData = ref<any>({
     phone: "17866509980",
 });
 
+const accountStatus = useAccountStatus();
+const accountStatusDialogVisible = ref(false);
 // 修改账号状态点击事件
-const editAccountStatus = () => {};
+const editAccountStatus = () => {
+    accountStatusDialogVisible.value = true;
+};
+// 修改账号状态成功事件
+const updateAccountStatusConfirm = (value: { status: number }) => {
+    detailData.status = value.status;
+};
 
 // 积分管理点击事件
 const scoreManage = () => {};
@@ -40,8 +50,20 @@ const yearChange = (command: any) => {
     }
 };
 
+const managerInfoDialogVisible = ref(false);
 // 修改管理员信息点击事件
-const editManageInfo = () => {};
+const editManageInfo = () => {
+    managerInfoDialogVisible.value = true;
+};
+// 管理员信息修改完成回调
+const updateManagerInfoConfirm = (value: {
+    userName: string;
+    phone: string;
+}) => {
+    detailData.userName = value.userName;
+    detailData.phone = value.phone;
+};
+
 // 重置密码点击事件
 const resetPassword = () => {};
 // 获取详情
@@ -84,15 +106,13 @@ onBeforeMount(() => {
                     >
                         {{ accountStatus.getLabelByValue(detailData.status) }}
                     </p>
-                    <el-button plain @click="editAccountStatus">
-                        修改
-                    </el-button>
+                    <el-button @click="editAccountStatus"> 修改 </el-button>
                 </div>
             </div>
             <div class="module-item">
                 <div class="flex title">
                     <p class="module-item-name flex-1">积分情况</p>
-                    <el-button plain @click="scoreManage"> 管理 </el-button>
+                    <el-button @click="scoreManage"> 管理 </el-button>
                 </div>
                 <div class="des">
                     <div class="des-item w200">
@@ -135,10 +155,9 @@ onBeforeMount(() => {
             <div class="module-item">
                 <div class="flex title">
                     <p class="module-item-name flex-1">管理员信息</p>
-                    <el-button plain @click="editManageInfo"> 修改 </el-button>
-                    <el-button plain @click="resetPassword">
-                        重置密码
-                    </el-button>
+                    <el-button @click="editManageInfo"> 修改 </el-button>
+
+                    <el-button @click="resetPassword"> 重置密码 </el-button>
                 </div>
                 <div class="des">
                     <div class="des-item w200">
@@ -147,11 +166,24 @@ onBeforeMount(() => {
                     </div>
                     <div class="flex-1 des-item">
                         <span>手机号：</span>
-                        <span>{{ detailData.userName }}</span>
+                        <span>{{ detailData.phone }}</span>
                     </div>
                 </div>
             </div>
         </div>
+        <!--修改账号状态弹窗-->
+        <AccountStatusDialog
+            v-model="accountStatusDialogVisible"
+            :status="detailData.status"
+            :account-id="id"
+            @confirm="updateAccountStatusConfirm"
+        />
+        <!--修改管理员信息弹窗-->
+        <ManagerInfoDialog
+            v-model="managerInfoDialogVisible"
+            :account="detailData"
+            @confirm="updateManagerInfoConfirm"
+        />
     </div>
 </template>
 

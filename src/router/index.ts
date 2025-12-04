@@ -73,6 +73,49 @@ const routes: Array<RouteRecordRaw> = [
                 ],
             },
             {
+                path: "assess",
+                redirect: "/assess/baseItem",
+                meta: { title: "评估管理" },
+                children: [
+                    {
+                        path: "baseItem",
+                        meta: { title: "评估项管理" },
+                        children: [
+                            {
+                                path: "",
+                                name: "AssessBaseItem",
+                                component: () =>
+                                    import("@/views/assess/baseItem/List.vue"),
+                            },
+                            // {
+                            //     path: "addAccount",
+                            //     name: "AddAccount",
+                            //     meta: {
+                            //         title: "添加账号",
+                            //         activeMenu: "/organization/list",
+                            //     },
+                            //     component: () =>
+                            //         import(
+                            //             "@/views/organization/AddAccount.vue"
+                            //         ),
+                            // },
+                            // {
+                            //     path: "detail",
+                            //     name: "OrgDetail",
+                            //     meta: {
+                            //         isDynamicTitle: true,
+                            //         activeMenu: "/organization/list",
+                            //     },
+                            //     component: () =>
+                            //         import(
+                            //             "@/views/organization/detail/Index.vue"
+                            //         ),
+                            // },
+                        ],
+                    },
+                ],
+            },
+            {
                 path: "",
                 name: "Home",
                 component: () => import("@/views/Home.vue"),
