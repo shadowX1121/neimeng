@@ -116,6 +116,25 @@ const routes: Array<RouteRecordRaw> = [
                 ],
             },
             {
+                path: "download",
+                redirect: "/download/list",
+                meta: { title: "下载管理" },
+                children: [
+                    {
+                        path: "list",
+                        meta: { title: "下载任务列表" },
+                        children: [
+                            {
+                                path: "",
+                                name: "DownloadList",
+                                component: () =>
+                                    import("@/views/download/List.vue"),
+                            },
+                        ],
+                    },
+                ],
+            },
+            {
                 path: "",
                 name: "Home",
                 component: () => import("@/views/Home.vue"),

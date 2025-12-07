@@ -54,17 +54,17 @@ const menuList = ref([
             // },
         ],
     },
-    // {
-    //     index: "download",
-    //     title: "下载管理",
-    //     icon: "",
-    //     children: [
-    //         {
-    //             index: "download/list",
-    //             title: "下载任务列表",
-    //         },
-    //     ],
-    // },
+    {
+        index: "download",
+        title: "下载管理",
+        icon: "",
+        children: [
+            {
+                index: "/download/list",
+                title: "下载任务列表",
+            },
+        ],
+    },
     // {
     //     index: "other",
     //     title: "其他管理",

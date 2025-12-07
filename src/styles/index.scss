@@ -116,6 +116,9 @@ $my-widths: 108, 200, 220, 400, 640, 800;
 .flex-start {
     justify-content: flex-start !important;
 }
+.flex-align-center {
+    align-items: center;
+}
 .table-filter {
     display: flex;
     margin-top: 8px;
