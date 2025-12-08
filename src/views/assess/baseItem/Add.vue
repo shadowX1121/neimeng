@@ -1,71 +1,77 @@
 <script setup lang="ts">
 import { ref, reactive, computed } from "vue";
 import { mockApi } from "@/api/index";
-import { isPhone } from "@/utils/validator";
 import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
+import { useAssessStore } from "@/store/useAssessStore";
+import AddItemUploadModule from "./module/AddItemUploadModule.vue";
 
 import type { FormInstance, FormRules } from "element-plus";
 
 const router = useRouter();
+const assessStore = useAssessStore();
 
 const formRef = ref<FormInstance>();
-const formData = reactive({
-    account: "",
-    userName: "",
-    phone: "",
+const formData = reactive<AssessItemType>({
+    classifyId: "",
+    projectId: "",
+    name: "",
+    gist: "",
+    file: [],
 });
-const password = computed(() => {
-    return isPhone(formData.phone) ? formData.phone.slice(-6) : "";
-});
-// 名称验证
-const validateAccount = (_rule: any, value: string, callback: any) => {
-    if (value === "") {
-        callback(new Error("请输入社会体育组织名称"));
-    } else if (value.length > 20) {
-        callback(new Error("社会体育组织名称不能超过20个字符"));
-    } else {
-        callback();
-    }
+const classifyOptions = assessStore.classifyList;
+// 分类改变事件
+const handleClassifyChange = () => {
+    formData.projectId = "";
+    projectOptions.value = assessStore.getProjectList(formData.classifyId);
 };
-// 管理员姓名验证
-const validateName = (_rule: any, value: string, callback: any) => {
-    if (value === "") {
-        callback(new Error("请输入管理员姓名"));
-    } else if (value.length > 10) {
-        callback(new Error("管理员姓名不能超过10个字符"));
-    } else {
-        callback();
-    }
-};
-// 手机号验证
-const validatePhone = (_rule: any, value: string, callback: any) => {
-    if (value === "") {
-        callback(new Error("请输入手机号"));
-    } else if (!isPhone(value)) {
-        callback(new Error("请输入正确的手机号"));
-    } else {
-        callback();
-    }
-};
+const projectOptions = ref<LabelOption[]>([]);
 const rules = reactive<FormRules<typeof formData>>({
-    account: [{ validator: validateAccount, trigger: "blur" }],
-    userName: [{ validator: validateName, trigger: "blur" }],
-    phone: [{ validator: validatePhone, trigger: "blur" }],
+    classifyId: [
+        { required: true, message: "请选择所属分类", trigger: "blur" },
+    ],
+    projectId: [{ required: true, message: "请选择所属项目", trigger: "blur" }],
+    name: [
+        { required: true, message: "请输入评估项名称", trigger: "blur" },
+        {
+            min: 1,
+            max: 20,
+            message: "评估项名称不得超过20个字符",
+            trigger: "blur",
+        },
+    ],
+    gist: [
+        { required: true, message: "请输入评估要点", trigger: "blur" },
+        {
+            min: 1,
+            max: 100,
+            message: "评估要点不得超过100个字符",
+            trigger: "blur",
+        },
+    ],
 });
 const submitLoading = ref(false);
-const submitDisabled = computed(() => {
-    return !formData.account || !formData.userName || !isPhone(formData.phone);
-});
 
 // 提交按钮点击事件
 const onSubmit = async () => {
+    if (submitLoading.value) return; // 二次保险
+    if (!formRef.value) return;
+    formRef.value.validate((valid, fields) => {
+        if (valid) {
+            submit();
+        } else {
+            console.log("error submit!", fields);
+        }
+    });
+};
+// 提交
+const submit = async () => {
     if (submitLoading.value) return; // 二次保险
     submitLoading.value = true;
     try {
         const { code } = await mockApi.mock(formData, null);
         if (code === 200) {
-            ElMessage.success("添加成功");
+            ElMessage.success(`添加成功`);
             router.back();
         }
     } catch (error) {
@@ -91,61 +97,70 @@ const onSubmit = async () => {
                     label-position="top"
                     require-asterisk-position="right"
                 >
-                    <el-form-item
-                        required
-                        label="社会体育组织名称"
-                        prop="account"
-                    >
+                    <el-form-item required label="所属分类" prop="classifyId">
+                        <el-select
+                            class="w400"
+                            v-model="formData.classifyId"
+                            placeholder="请选择所属分类"
+                            @change="handleClassifyChange"
+                        >
+                            <el-option
+                                v-for="item in classifyOptions"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value"
+                            />
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item required label="所属项目" prop="projectId">
+                        <el-select
+                            class="w400"
+                            v-model="formData.projectId"
+                            placeholder="请选择所属项目"
+                        >
+                            <el-option
+                                v-for="item in projectOptions"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value"
+                            />
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item required label="评估项名称" prop="name">
                         <el-input
-                            v-model="formData.account"
+                            v-model="formData.name"
                             :model-modifiers="{ trim: true }"
                             :show-word-limit="true"
                             maxlength="20"
-                            placeholder="请输入社会体育组织名称（账号登录名）"
+                            placeholder="请输入评估项名称"
                             autocomplete="off"
                         />
                     </el-form-item>
-                    <el-form-item required label="管理员姓名" prop="userName">
+                    <el-form-item required label="评估要点" prop="gist">
                         <el-input
-                            v-model="formData.userName"
+                            v-model="formData.gist"
                             :model-modifiers="{ trim: true }"
                             :show-word-limit="true"
-                            maxlength="10"
-                            placeholder="请输入管理员姓名"
+                            :autosize="{ minRows: 4, maxRows: 6 }"
+                            type="textarea"
+                            maxlength="100"
+                            placeholder="请输入评估要点"
                             autocomplete="off"
                         />
                     </el-form-item>
-                    <el-form-item required label="管理员手机号" prop="phone">
-                        <el-input
-                            v-model="formData.phone"
-                            :model-modifiers="{ trim: true }"
-                            maxlength="11"
-                            placeholder="请输入管理员手机号"
-                            autocomplete="off"
-                        />
-                    </el-form-item>
-                    <el-form-item label="初始密码">
-                        <el-input
-                            v-model="password"
-                            disabled
-                            placeholder="默认为管理员手机号后六位"
-                            autocomplete="off"
-                        />
+                    <el-form-item required label="实证材料" prop="file">
+                        <AddItemUploadModule v-model="formData.file" />
                     </el-form-item>
                     <el-form-item
                         style="margin-top: 48px"
                         class="button-form-item"
                     >
-                        <el-button @click="router.back()" plain>
-                            取消
-                        </el-button>
                         <el-button
                             type="primary"
                             :loading="submitLoading"
-                            :disabled="submitDisabled || submitLoading"
                             @click="onSubmit"
                         >
-                            立即添加
+                            确定
                         </el-button>
                     </el-form-item>
                 </el-form>

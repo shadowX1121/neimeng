@@ -7,8 +7,10 @@ import { YEAR_OPTIONS } from "@/constants/index";
 import AddProjectDialog from "./dialog/AddProjectDialog.vue";
 import EditProjectDialog from "./dialog/EditProjectDialog.vue";
 import { formatProjectData } from "@/utils/common";
+import { useAssessStore } from "@/store/useAssessStore";
 
 const router = useRouter();
+const assessStore = useAssessStore();
 
 const filter = reactive({
     year: "",
@@ -27,8 +29,8 @@ const addProjectClick = () => {
 };
 
 // 表格模块
-const loading = ref(false);
-const classifyData = ref<AssessClassifyType[]>([]);
+const loading = assessStore.isLoading;
+const classifyData = assessStore.assessData;
 const spanMethod = ({
     row,
     column,
@@ -56,140 +58,7 @@ const spanMethod = ({
 
 // 获取表格数据
 const getTableData = async () => {
-    if (loading.value) return;
-    loading.value = true;
-    try {
-        const { code } = await mockApi.mock({ ...filter }, null);
-        if (code === 200) {
-            ElMessage.success(`项目分类请求成功`);
-            classifyData.value = [
-                {
-                    id: "account",
-                    name: "党的建设",
-                    project: [
-                        {
-                            id: 1,
-                            name: "组织建设",
-                            assessItem: [
-                                {
-                                    id: 1,
-                                    name: "组织体系健全",
-                                    gist: "党支部设立程序规范，支委会配备齐全、分工明确，按期换届。",
-                                    file: [
-                                        {
-                                            id: 1,
-                                            name: "上级党组织关于成立党支部的批复文件。",
-                                            fileUrl: "",
-                                            isBase: true,
-                                        },
-                                        {
-                                            id: 2,
-                                            name: "上级党组织关于成立党支部的批复文件1。",
-                                            fileUrl: "",
-                                            isBase: false,
-                                        },
-                                        {
-                                            id: 3,
-                                            name: "上级党组织关于成立党支部的批复文件2。",
-                                            fileUrl: "",
-                                            isBase: true,
-                                        },
-                                    ],
-                                },
-                                {
-                                    id: 2,
-                                    name: "制度根基牢固",
-                                    gist: "党建入章程落实到位，基本工作制度健全，支部书记参与决策机制有效运行。",
-                                    file: [
-                                        {
-                                            id: 1,
-                                            name: "上级党组织关于成立党支部的批复文件。",
-                                            fileUrl: "",
-                                            isBase: true,
-                                        },
-                                        {
-                                            id: 2,
-                                            name: "上级党组织关于成立党支部的批复文件1。",
-                                            fileUrl: "",
-                                            isBase: false,
-                                        },
-                                        {
-                                            id: 3,
-                                            name: "上级党组织关于成立党支部的批复文件2。",
-                                            fileUrl: "",
-                                            isBase: true,
-                                        },
-                                    ],
-                                },
-                            ],
-                        },
-                        {
-                            id: 2,
-                            name: "组织建设2",
-                            assessItem: [
-                                {
-                                    id: 1,
-                                    name: "组织体系健全",
-                                    gist: "党支部设立程序规范，支委会配备齐全、分工明确，按期换届。",
-                                    file: [
-                                        {
-                                            id: 1,
-                                            name: "上级党组织关于成立党支部的批复文件。",
-                                            fileUrl: "",
-                                            isBase: true,
-                                        },
-                                        {
-                                            id: 2,
-                                            name: "上级党组织关于成立党支部的批复文件1。",
-                                            fileUrl: "",
-                                            isBase: false,
-                                        },
-                                        {
-                                            id: 3,
-                                            name: "上级党组织关于成立党支部的批复文件2。",
-                                            fileUrl: "",
-                                            isBase: true,
-                                        },
-                                    ],
-                                },
-                                {
-                                    id: 2,
-                                    name: "制度根基牢固",
-                                    gist: "党建入章程落实到位，基本工作制度健全，支部书记参与决策机制有效运行。",
-                                    file: [
-                                        {
-                                            id: 1,
-                                            name: "上级党组织关于成立党支部的批复文件。",
-                                            fileUrl: "",
-                                            isBase: true,
-                                        },
-                                        {
-                                            id: 2,
-                                            name: "上级党组织关于成立党支部的批复文件1。",
-                                            fileUrl: "",
-                                            isBase: false,
-                                        },
-                                        {
-                                            id: 3,
-                                            name: "上级党组织关于成立党支部的批复文件2。",
-                                            fileUrl: "",
-                                            isBase: true,
-                                        },
-                                    ],
-                                },
-                            ],
-                        },
-                    ],
-                },
-                { id: "organization", name: "日常管理", project: [] },
-                { id: "assess", name: "保障工作任务要求", project: [] },
-            ];
-        }
-    } catch (error) {
-        console.log(error);
-    } finally {
-        loading.value = false;
-    }
+    assessStore.fetchData(true);
 };
 onMounted(() => {
     getTableData();

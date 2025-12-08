@@ -72,7 +72,7 @@ declare global {
     interface AssessProjectType {
         id?: IdValueType;
         name: string;
-        assessItem?: AssessItemType[];
+        assessItem?: AssessItemBaseType[];
     }
     /**
      * 结构化后的评估项目信息
@@ -91,11 +91,15 @@ declare global {
     /**
      * 评估项信息
      */
-    interface AssessItemType {
+    interface AssessItemBaseType {
         id?: IdValueType;
         name: string;
         gist: string;
         file: AssessItemMaterialType[];
+    }
+    interface AssessItemType extends AssessItemBaseType {
+        classifyId: IdValueType;
+        projectId: IdValueType;
     }
     /**
      * 评估项材料项

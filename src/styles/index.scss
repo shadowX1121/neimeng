@@ -208,3 +208,12 @@ $my-widths: 108, 200, 220, 400, 640, 800;
         }
     }
 }
+.triangle-border {
+    width: 0;
+    height: 0;
+    /* base = 100px -> left/right borders 50px each */
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    /* height ≈ 86.6025px for equilateral */
+    border-bottom: 12px solid #000000;
+}
