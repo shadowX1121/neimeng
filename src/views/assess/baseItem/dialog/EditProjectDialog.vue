@@ -10,14 +10,63 @@ const props = defineProps<{
     modelValue: boolean;
 }>();
 
+const loading = ref(false);
+const classifyData = ref<AssessClassifyType[]>([]);
+const defaultActive = ref();
+const getProjectList = async () => {
+    if (loading.value) return;
+    loading.value = true;
+    try {
+        const { code } = await mockApi.mock(formData, null);
+        if (code === 200) {
+            ElMessage.success(`项目分类请求成功`);
+            classifyData.value = [
+                { id: "account", name: "党的建设", project: [] },
+                { id: "organization", name: "日常管理", project: [] },
+                { id: "assess", name: "保障工作任务要求", project: [] },
+            ];
+            if (classifyData.value.length > 0) {
+                defaultActive.value = classifyData.value[0]?.id;
+            }
+        }
+    } catch (error) {
+        console.log(error);
+    } finally {
+        loading.value = false;
+    }
+};
+// 菜单选择事件
+const menuSelect = (index: string) => {
+    console.log("选择的菜单项：", index);
+    defaultActive.value = index;
+};
 const formRef = ref<FormInstance>();
-const formData = reactive<{
-    name: "";
-    project: { name: string }[];
-}>({
+const formData = ref<AssessClassifyType>({
     name: "",
     project: [],
 });
+watch(
+    () => defaultActive.value,
+    (newVal, _oldVal) => {
+        if (newVal) {
+            const findItem = classifyData.value.find(
+                (item) => item.id === newVal
+            );
+            if (findItem) {
+                formData.value = { ...findItem };
+                if (formData.value.project.length === 0) {
+                    formData.value.project.push({ name: "" });
+                }
+                if (formRef.value) {
+                    formRef.value.resetFields();
+                    errorList.value = [];
+                }
+            }
+        } else {
+            ElMessage.error("暂无该分类");
+        }
+    }
+);
 const errorList = ref<string[]>([]);
 const projectError = computed(() => {
     let text = "";
@@ -68,7 +117,7 @@ const projectItemRules = [
             const reg = /^project\.(\d+)\.name$/;
             const currentIndex = rule.field.match(reg)[1];
             // 检查重复项
-            const values = formData.project
+            const values = formData.value.project
                 .filter((_item, index) => index < Number(currentIndex))
                 .map((item) => item.name)
                 .filter(Boolean);
@@ -95,8 +144,8 @@ watch(
     () => props.modelValue,
     (newVal, _oldVal) => {
         if (newVal) {
+            getProjectList();
             errorList.value = [];
-            formData.project = [{ name: "" }];
         }
     }
 );
@@ -109,17 +158,17 @@ watchEffect(() => {
 
 // 添加项目点击事件
 const addProject = () => {
-    if (formData.project.length >= 10) {
+    if (formData.value.project.length >= 10) {
         ElMessage.warning("最多添加10个项目");
         return;
     }
-    formData.project.push({
+    formData.value.project.push({
         name: "",
     });
 };
 // 删除项目点击事件
 const deleteProject = (index: number) => {
-    formData.project.splice(index, 1);
+    formData.value.project.splice(index, 1);
 };
 
 const emit = defineEmits<{
@@ -166,25 +215,31 @@ const submit = async () => {
         body-class="no-padding-dialog-body"
         :model-value="props.modelValue"
         title="管理项目"
-        width="680"
+        width="720"
         @close="close"
         :close-on-click-modal="false"
         align-center
     >
-        <div class="edit-project-tab-box">
-            <el-tabs
-                tab-position="left"
-                style="height: 200px"
-                class="demo-tabs"
-            >
-                <el-tab-pane label="User"> </el-tab-pane>
-                <el-tab-pane label="Config"> </el-tab-pane>
-                <el-tab-pane label="Role"> </el-tab-pane>
-                <el-tab-pane label="Task"> </el-tab-pane>
-            </el-tabs>
+        <div v-loading="loading" class="edit-project-tab-box">
+            <div class="edit-project-menu">
+                <el-menu
+                    class="my-menu"
+                    :default-active="defaultActive"
+                    @select="menuSelect"
+                >
+                    <el-menu-item
+                        v-for="menu in classifyData"
+                        :key="menu.id"
+                        class="no-child-menu"
+                        :index="menu.id"
+                    >
+                        <span>{{ menu.name }}</span>
+                    </el-menu-item>
+                </el-menu>
+            </div>
             <div class="edit-project-wrapper">
                 <el-form
-                    class="w400"
+                    class="w480"
                     ref="formRef"
                     :model="formData"
                     :rules="rules"
@@ -245,24 +300,73 @@ const submit = async () => {
                     </el-form-item>
                     <el-form-item :error="projectError"></el-form-item>
                 </el-form>
+                <div class="edit-project-btn-box">
+                    <el-button
+                        type="primary"
+                        @click="confirmClick"
+                        :loading="submitLoading"
+                    >
+                        确定
+                    </el-button>
+                </div>
             </div>
         </div>
     </el-dialog>
 </template>
 
 <style lang="scss" scoped>
+.my-menu {
+    --el-menu-base-level-padding: 12px;
+    --el-menu-level-padding: 12px;
+    --el-menu-item-height: 40px;
+    --el-menu-border-color: #ebeef5;
+    --el-menu-text-color: #000000;
+    --el-menu-hover-bg-color: transparent;
+    --el-menu-bg-color: transparent;
+    --el-menu-sub-item-height: var(--el-menu-item-height);
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    background-color: #f6f9fb;
+    border-radius: 0 0 0 4px;
+    :deep(.el-sub-menu) {
+        + .el-sub-menu,
+        + .no-child-menu {
+            margin-top: 8px;
+        }
+        .el-sub-menu__icon-arrow {
+            right: 0;
+        }
+    }
+    :deep(.el-menu-item) {
+        height: auto;
+        line-height: 20px;
+        padding: 10px 24px !important;
+        white-space: normal !important;
+        word-break: break-all;
+        border-bottom: 1px solid #f6f9fb;
+        + .el-menu-item {
+            margin-top: 4px;
+            border-top: 1px solid #f6f9fb;
+        }
+        &.is-active {
+            background: #ffffff;
+            border-color: #ebeef5;
+        }
+    }
+}
 .edit-project-tab-box {
     display: flex;
-    .demo-tabs {
+    .edit-project-menu {
         width: 132px;
+        flex-shrink: 0;
     }
     .edit-project-wrapper {
         flex: 1;
     }
 }
 .edit-project-wrapper {
-    display: flex;
-    justify-content: center;
+    padding: 24px;
     .project-item {
         display: flex;
         align-items: center;
@@ -281,6 +385,10 @@ const submit = async () => {
         &:last-child {
             margin-bottom: 0;
         }
+    }
+    .edit-project-btn-box {
+        margin-top: 48px;
+        text-align: right;
     }
 }
 </style>

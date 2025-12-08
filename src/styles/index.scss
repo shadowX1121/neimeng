@@ -94,7 +94,7 @@ body {
     }
 }
 /* form表单中 input的宽度 */
-$widths: 200, 400, 800;
+$widths: 200, 400, 480, 800;
 
 @each $width in $widths {
     .w#{$width} .el-input {
@@ -181,4 +181,30 @@ $my-widths: 108, 200, 220, 400, 640, 800;
 }
 .no-padding-dialog-body {
     padding: 0 !important;
+}
+.assess-tabs {
+    --el-tabs-header-height: 52px;
+    --el-fill-color-light: #f6f9fb;
+    --el-text-color-secondary: #000000;
+}
+.assess-project-table {
+    --el-table-header-bg-color: #ffffff;
+    &.el-table--border {
+        th {
+            border-right: none;
+        }
+        .el-table__header {
+            min-height: 54px;
+        }
+        .el-table__inner-wrapper {
+            &::before,
+            &::after {
+                height: 0;
+            }
+        }
+        &::before,
+        &::after {
+            width: 0;
+        }
+    }
 }

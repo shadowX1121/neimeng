@@ -87,18 +87,16 @@ const routes: Array<RouteRecordRaw> = [
                                 component: () =>
                                     import("@/views/assess/baseItem/List.vue"),
                             },
-                            // {
-                            //     path: "addAccount",
-                            //     name: "AddAccount",
-                            //     meta: {
-                            //         title: "添加账号",
-                            //         activeMenu: "/organization/list",
-                            //     },
-                            //     component: () =>
-                            //         import(
-                            //             "@/views/organization/AddAccount.vue"
-                            //         ),
-                            // },
+                            {
+                                path: "add",
+                                name: "AssessBaseItemAdd",
+                                meta: {
+                                    title: "添加评估项",
+                                    activeMenu: "/assess/baseItem",
+                                },
+                                component: () =>
+                                    import("@/views/assess/baseItem/Add.vue"),
+                            },
                             // {
                             //     path: "detail",
                             //     name: "OrgDetail",
