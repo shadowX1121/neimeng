@@ -101,7 +101,7 @@ $widths: 200, 400, 480, 800;
         width: #{$width}px;
     }
 }
-$my-widths: 108, 200, 220, 400, 640, 800;
+$my-widths: 108, 200, 220, 400, 432, 640, 800;
 @each $width in $my-widths {
     .w#{$width} {
         width: #{$width}px;

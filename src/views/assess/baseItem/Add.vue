@@ -49,12 +49,23 @@ const rules = reactive<FormRules<typeof formData>>({
             trigger: "blur",
         },
     ],
+    file: [
+        {
+            validator: (_rule: any, value: Array<any>, callback: any) => {
+                if (value.length === 0) {
+                    callback(new Error("请至少上传一个实证材料"));
+                } else {
+                    callback();
+                }
+            },
+            trigger: "change",
+        },
+    ],
 });
 const submitLoading = ref(false);
 
 // 提交按钮点击事件
 const onSubmit = async () => {
-    if (submitLoading.value) return; // 二次保险
     if (!formRef.value) return;
     formRef.value.validate((valid, fields) => {
         if (valid) {

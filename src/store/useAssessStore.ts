@@ -18,7 +18,6 @@ export const useAssessStore = defineStore(
                 return assessData.value;
             }
             isLoading.value = true;
-            console.log("请求新数据");
 
             try {
                 const { code } = await mockApi.mock(null, null);

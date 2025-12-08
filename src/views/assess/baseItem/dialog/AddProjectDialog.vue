@@ -12,7 +12,7 @@ const props = defineProps<{
 
 const formRef = ref<FormInstance>();
 const formData = reactive<{
-    name: "";
+    name: string;
     project: { name: string }[];
 }>({
     name: "",

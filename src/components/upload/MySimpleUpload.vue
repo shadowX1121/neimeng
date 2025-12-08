@@ -24,7 +24,7 @@ const props = withDefaults(defineProps<Props>(), {
     headers: () => ({}),
     name: "file",
     multiple: true,
-    accept: ".pdf",
+    accept: "*",
     limit: 10,
     listType: "text",
     autoUpload: true,
@@ -34,7 +34,7 @@ const props = withDefaults(defineProps<Props>(), {
     minSize: 0, // 0MB
 });
 
-const emit = defineEmits(["update:modelValue", "success", "error"]);
+const emit = defineEmits(["update:modelValue", "success", "error", "change"]);
 const fileList = ref<any[]>([...props.modelValue]);
 
 // 父组件更新 v-model → 子组件同步
@@ -48,6 +48,7 @@ watch(
 // 子组件更新 → 通知父组件
 const updateFileList = (val: any) => {
     emit("update:modelValue", val);
+    emit("change");
 };
 // 上传前的钩子
 const handleBeforeUpload = (file: File) => {
@@ -68,10 +69,10 @@ const handleChange = (file: any) => {
     if (findFile) {
         findFile.status = file.status;
         findFile.percentage = file.percentage;
-    } else {
+    } else if (file.status === "ready") {
         fileList.value.push({
             name: file.name,
-            url: "",
+            fileUrl: "",
             percentage: file.percentage,
             status: file.status,
             size: file.size,
@@ -84,7 +85,7 @@ const handleChange = (file: any) => {
 const handleSuccess = (response: any, file: any) => {
     const findFile = fileList.value.find((item) => item.uid === file.uid);
     if (findFile && response && response.url) {
-        findFile.url = response.url;
+        findFile.fileUrl = response.url;
     }
 };
 // 文件上传失败时的钩子
@@ -123,7 +124,7 @@ const fakeUploadRequest = (formData: FormData) => {
                 url: URL.createObjectURL(formData.get("file") as File),
                 name: (formData.get("file") as File).name,
             });
-        }, 1000);
+        }, 10000);
     });
 };
 </script>

@@ -8,6 +8,7 @@ import AddProjectDialog from "./dialog/AddProjectDialog.vue";
 import EditProjectDialog from "./dialog/EditProjectDialog.vue";
 import { formatProjectData } from "@/utils/common";
 import { useAssessStore } from "@/store/useAssessStore";
+import { storeToRefs } from "pinia";
 
 const router = useRouter();
 const assessStore = useAssessStore();
@@ -29,8 +30,8 @@ const addProjectClick = () => {
 };
 
 // 表格模块
-const loading = assessStore.isLoading;
-const classifyData = assessStore.assessData;
+const { isLoading: loading, assessData: classifyData } =
+    storeToRefs(assessStore);
 const spanMethod = ({
     row,
     column,
@@ -58,7 +59,7 @@ const spanMethod = ({
 
 // 获取表格数据
 const getTableData = async () => {
-    assessStore.fetchData(true);
+    await assessStore.fetchData(true);
 };
 onMounted(() => {
     getTableData();
