@@ -13,6 +13,7 @@
     "axios": "^1.13.2",
     "dayjs": "^1.11.19",
     "element-plus": "^2.11.8",
+    "lodash-es": "^4.17.21",
     "normalize.css": "^8.0.1",
     "pinia": "^3.0.4",
     "pinia-plugin-persistedstate": "^4.7.1",

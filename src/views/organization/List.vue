@@ -60,7 +60,6 @@ const manageClick = (item: any) => {
         ...metaTitleStore.urlMapTitle,
         "/organization/list/detail": item.name,
     };
-    console.log("metaTitleStore.urlMapTitle", metaTitleStore.urlMapTitle);
 
     router.push({
         name: "OrgDetail",

@@ -3,38 +3,21 @@ import { ref, reactive, computed, watch, watchEffect } from "vue";
 import { mockApi } from "@/api/index";
 import { ElMessage } from "element-plus";
 import { CirclePlus, Delete } from "@element-plus/icons-vue";
+import { useAssessStore } from "@/store/useAssessStore";
+import cloneDeep from "lodash-es/cloneDeep";
 
 import type { FormInstance, FormRules } from "element-plus";
+
+const assessStore = useAssessStore();
 
 const props = defineProps<{
     modelValue: boolean;
 }>();
 
 const loading = ref(false);
-const classifyData = ref<AssessClassifyType[]>([]);
+const classifyData = assessStore.assessData;
+
 const defaultActive = ref();
-const getProjectList = async () => {
-    if (loading.value) return;
-    loading.value = true;
-    try {
-        const { code } = await mockApi.mock(formData, null);
-        if (code === 200) {
-            ElMessage.success(`项目分类请求成功`);
-            classifyData.value = [
-                { id: "account", name: "党的建设", project: [] },
-                { id: "organization", name: "日常管理", project: [] },
-                { id: "assess", name: "保障工作任务要求", project: [] },
-            ];
-            if (classifyData.value.length > 0) {
-                defaultActive.value = classifyData.value[0]?.id;
-            }
-        }
-    } catch (error) {
-        console.log(error);
-    } finally {
-        loading.value = false;
-    }
-};
 // 菜单选择事件
 const menuSelect = (index: string) => {
     console.log("选择的菜单项：", index);
@@ -47,13 +30,11 @@ const formData = ref<AssessClassifyType>({
 });
 watch(
     () => defaultActive.value,
-    (newVal, _oldVal) => {
+    (newVal) => {
         if (newVal) {
-            const findItem = classifyData.value.find(
-                (item) => item.id === newVal
-            );
+            const findItem = classifyData.find((item) => item.id === newVal);
             if (findItem) {
-                formData.value = { ...findItem };
+                formData.value = cloneDeep(findItem);
                 if (formData.value.project.length === 0) {
                     formData.value.project.push({ name: "" });
                 }
@@ -134,7 +115,6 @@ const projectItemRules = [
             } else {
                 callback();
             }
-            // }
         },
         trigger: "submit",
     },
@@ -142,9 +122,11 @@ const projectItemRules = [
 
 watch(
     () => props.modelValue,
-    (newVal, _oldVal) => {
+    (newVal) => {
         if (newVal) {
-            getProjectList();
+            if (classifyData.length > 0) {
+                defaultActive.value = classifyData[0]?.id;
+            }
             errorList.value = [];
         }
     }

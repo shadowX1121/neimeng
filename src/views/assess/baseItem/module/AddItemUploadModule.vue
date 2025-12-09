@@ -10,7 +10,7 @@ import {
 } from "@element-plus/icons-vue";
 import MySimpleUpload from "@/components/upload/MySimpleUpload.vue";
 import EditFileNameDialog from "../dialog/EditFileNameDialog.vue";
-import draggable from "vuedraggable";
+import Draggable from "vuedraggable";
 
 interface Props {
     modelValue?: any[];

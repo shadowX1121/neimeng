@@ -91,7 +91,7 @@ const routes: Array<RouteRecordRaw> = [
                                 path: "add",
                                 name: "AssessBaseItemAdd",
                                 meta: {
-                                    title: "添加评估项",
+                                    isDynamicTitle: true,
                                     activeMenu: "/assess/baseItem",
                                 },
                                 component: () =>

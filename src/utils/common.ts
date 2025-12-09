@@ -14,26 +14,35 @@ export function removeUndefined(obj: any) {
 export function formatProjectData(projects: AssessProjectType[]) {
     const rows: AssessProjectStructType[] = [];
     projects.forEach((project) => {
-        project.assessItem!.forEach((item) => {
-            item.file.forEach((file, _fileIndex) => {
-                rows.push({
-                    id: `${project.id}-${item.id}-${file.id}`,
-                    projectName: project.name,
-                    projectRowSpan: 0, // 后面填
-                    assessName: item.name,
-                    assessRowSpan: 0, // 后面填
-                    gist: item.gist,
-                    fileName: file.name,
-                    fileUrl: file.fileUrl,
-                    isBase: file.isBase,
-                });
+        project.assessItem &&
+            project.assessItem.length > 0 &&
+            project.assessItem.forEach((item) => {
+                item.file &&
+                    item.file.length > 0 &&
+                    item.file.forEach((file, fileIndex) => {
+                        rows.push({
+                            id: `${project.id}-${item.id}-${file.id}`,
+                            projectId: project.id!,
+                            projectName: project.name,
+                            projectRowSpan: 0, // 后面填
+                            assessName: item.name,
+                            assessId: item.id!,
+                            assessRowSpan: 0, // 后面填
+                            gistId: file.id!,
+                            gistIndex: fileIndex + 1,
+                            gist: item.gist,
+                            fileName: file.name,
+                            fileUrl: file.fileUrl,
+                            isBase: file.isBase,
+                        });
+                    });
             });
-        });
     });
 
     // === 处理 project 合并行 ===
     let projectIndex = 0;
     for (const project of projects) {
+        if (!project.assessItem) continue;
         const totalFiles = project.assessItem!.reduce(
             (sum, item) => sum + item.file.length,
             0
@@ -45,6 +54,7 @@ export function formatProjectData(projects: AssessProjectType[]) {
     // === 处理 assessItem 合并行 ===
     let idx = 0;
     for (const project of projects) {
+        if (!project.assessItem) continue;
         for (const item of project.assessItem!) {
             const len = item.file.length;
             rows[idx]!.assessRowSpan = len;

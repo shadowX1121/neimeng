@@ -1,15 +1,22 @@
 <script setup lang="ts">
-import { ref, reactive, computed } from "vue";
+import { ref, reactive, watch, computed, onBeforeMount } from "vue";
 import { mockApi } from "@/api/index";
 import { ElMessage } from "element-plus";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useAssessStore } from "@/store/useAssessStore";
+import { useMetaTitleStore } from "@/store/useMetaTitleStore";
 import AddItemUploadModule from "./module/AddItemUploadModule.vue";
+import { storeToRefs } from "pinia";
+import cloneDeep from "lodash-es/cloneDeep";
 
 import type { FormInstance, FormRules } from "element-plus";
 
 const router = useRouter();
+const route = useRoute();
 const assessStore = useAssessStore();
+const metaTitleStore = useMetaTitleStore();
+
+const id = computed(() => route.query.id || "");
 
 const formRef = ref<FormInstance>();
 const formData = reactive<AssessItemType>({
@@ -20,17 +27,71 @@ const formData = reactive<AssessItemType>({
     file: [],
 });
 const classifyOptions = assessStore.classifyList;
+
+const { assessData } = storeToRefs(assessStore);
+const initData = () => {
+    if (route.query.id && assessData.value.length > 0) {
+        // 初始化页面数据
+        formData.classifyId = assessStore.getClassifyByItemId(
+            route.query.id as string
+        );
+        formData.projectId = assessStore.getProjectIdByItemId(
+            route.query.id as string
+        );
+        const itemInfo = assessStore.getAssessItemInfo(
+            route.query.id as string
+        );
+        if (itemInfo) {
+            const cloneData = cloneDeep(itemInfo);
+            formData.name = cloneData.name;
+            formData.gist = cloneData.gist;
+            formData.file = cloneData.file.map((file) => ({
+                ...file,
+                status: "success",
+            }));
+            console.log("formData.file", formData.file);
+        }
+    }
+};
+watch(
+    () => assessData.value,
+    () => {
+        initData();
+    },
+    { immediate: true, deep: true }
+);
+watch(
+    () => id.value,
+    () => {
+        initData();
+    },
+    { immediate: true }
+);
+
 // 分类改变事件
 const handleClassifyChange = () => {
     formData.projectId = "";
-    projectOptions.value = assessStore.getProjectList(formData.classifyId);
 };
 const projectOptions = ref<LabelOption[]>([]);
+
+watch(
+    () => formData.classifyId,
+    (newVal) => {
+        if (newVal) {
+            projectOptions.value = assessStore.getProjectList(
+                formData.classifyId
+            );
+        }
+    },
+    { immediate: true }
+);
 const rules = reactive<FormRules<typeof formData>>({
     classifyId: [
-        { required: true, message: "请选择所属分类", trigger: "blur" },
+        { required: true, message: "请选择所属分类", trigger: "change" },
     ],
-    projectId: [{ required: true, message: "请选择所属项目", trigger: "blur" }],
+    projectId: [
+        { required: true, message: "请选择所属项目", trigger: "change" },
+    ],
     name: [
         { required: true, message: "请输入评估项名称", trigger: "blur" },
         {
@@ -91,6 +152,13 @@ const submit = async () => {
         submitLoading.value = false;
     }
 };
+// onBeforeMount(() => {
+//     metaTitleStore.urlMapTitle = {
+//         ...metaTitleStore.urlMapTitle,
+//         [route.path]: id.value ? "修改评估项" : "添加评估项",
+//     };
+//     console.log("metaTitleStore.urlMapTitle", metaTitleStore.urlMapTitle);
+// });
 </script>
 
 <template>
@@ -127,6 +195,7 @@ const submit = async () => {
                         <el-select
                             class="w400"
                             v-model="formData.projectId"
+                            :disabled="!formData.classifyId"
                             placeholder="请选择所属项目"
                         >
                             <el-option

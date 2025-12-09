@@ -1,4 +1,4 @@
-import { ref, computed } from "vue";
+import { ref, computed, onBeforeMount } from "vue";
 import { defineStore } from "pinia";
 import { mockApi } from "@/api/index";
 import { ElMessage } from "element-plus";
@@ -18,7 +18,6 @@ export const useAssessStore = defineStore(
                 return assessData.value;
             }
             isLoading.value = true;
-
             try {
                 const { code } = await mockApi.mock(null, null);
                 if (code === 200) {
@@ -28,28 +27,28 @@ export const useAssessStore = defineStore(
                             name: "党的建设",
                             project: [
                                 {
-                                    id: 1,
+                                    id: "1",
                                     name: "组织建设",
                                     assessItem: [
                                         {
-                                            id: 1,
+                                            id: "1-1",
                                             name: "组织体系健全",
                                             gist: "党支部设立程序规范，支委会配备齐全、分工明确，按期换届。",
                                             file: [
                                                 {
-                                                    id: 1,
+                                                    id: "1-1-1",
                                                     name: "上级党组织关于成立党支部的批复文件。",
                                                     fileUrl: "",
                                                     isBase: true,
                                                 },
                                                 {
-                                                    id: 2,
+                                                    id: "1-1-2",
                                                     name: "上级党组织关于成立党支部的批复文件1。",
                                                     fileUrl: "",
                                                     isBase: false,
                                                 },
                                                 {
-                                                    id: 3,
+                                                    id: "1-1-3",
                                                     name: "上级党组织关于成立党支部的批复文件2。",
                                                     fileUrl: "",
                                                     isBase: true,
@@ -57,24 +56,24 @@ export const useAssessStore = defineStore(
                                             ],
                                         },
                                         {
-                                            id: 2,
+                                            id: "1-2",
                                             name: "制度根基牢固",
                                             gist: "党建入章程落实到位，基本工作制度健全，支部书记参与决策机制有效运行。",
                                             file: [
                                                 {
-                                                    id: 1,
+                                                    id: "1-2-1",
                                                     name: "上级党组织关于成立党支部的批复文件。",
                                                     fileUrl: "",
                                                     isBase: true,
                                                 },
                                                 {
-                                                    id: 2,
+                                                    id: "1-2-2",
                                                     name: "上级党组织关于成立党支部的批复文件1。",
                                                     fileUrl: "",
                                                     isBase: false,
                                                 },
                                                 {
-                                                    id: 3,
+                                                    id: "1-2-3",
                                                     name: "上级党组织关于成立党支部的批复文件2。",
                                                     fileUrl: "",
                                                     isBase: true,
@@ -84,28 +83,28 @@ export const useAssessStore = defineStore(
                                     ],
                                 },
                                 {
-                                    id: 2,
+                                    id: "2",
                                     name: "组织建设2",
                                     assessItem: [
                                         {
-                                            id: 1,
+                                            id: "2-1",
                                             name: "组织体系健全",
                                             gist: "党支部设立程序规范，支委会配备齐全、分工明确，按期换届。",
                                             file: [
                                                 {
-                                                    id: 1,
+                                                    id: "2-1-1",
                                                     name: "上级党组织关于成立党支部的批复文件。",
                                                     fileUrl: "",
                                                     isBase: true,
                                                 },
                                                 {
-                                                    id: 2,
+                                                    id: "2-1-2",
                                                     name: "上级党组织关于成立党支部的批复文件1。",
                                                     fileUrl: "",
                                                     isBase: false,
                                                 },
                                                 {
-                                                    id: 3,
+                                                    id: "2-1-3",
                                                     name: "上级党组织关于成立党支部的批复文件2。",
                                                     fileUrl: "",
                                                     isBase: true,
@@ -113,24 +112,24 @@ export const useAssessStore = defineStore(
                                             ],
                                         },
                                         {
-                                            id: 2,
+                                            id: "2-2",
                                             name: "制度根基牢固",
                                             gist: "党建入章程落实到位，基本工作制度健全，支部书记参与决策机制有效运行。",
                                             file: [
                                                 {
-                                                    id: 1,
+                                                    id: "2-2-1",
                                                     name: "上级党组织关于成立党支部的批复文件。",
                                                     fileUrl: "",
                                                     isBase: true,
                                                 },
                                                 {
-                                                    id: 2,
+                                                    id: "2-2-2",
                                                     name: "上级党组织关于成立党支部的批复文件1。",
                                                     fileUrl: "",
                                                     isBase: false,
                                                 },
                                                 {
-                                                    id: 3,
+                                                    id: "2-2-3",
                                                     name: "上级党组织关于成立党支部的批复文件2。",
                                                     fileUrl: "",
                                                     isBase: true,
@@ -179,6 +178,57 @@ export const useAssessStore = defineStore(
                   }))
                 : [];
         };
+        // 根据评估项id获取该评估项所属分类
+        const getClassifyByItemId = (itemId: IdValueType) => {
+            let classifyId: IdValueType = "";
+            assessData.value.forEach((classify) => {
+                classify.project.forEach((project) => {
+                    project.assessItem &&
+                        project.assessItem.length > 0 &&
+                        project.assessItem.forEach((item) => {
+                            if (item.id === itemId) {
+                                classifyId = classify.id!;
+                            }
+                        });
+                });
+            });
+            return classifyId;
+        };
+        // 根据评估项id获取该评估项所属项目
+        const getProjectIdByItemId = (itemId: string) => {
+            let projectId: IdValueType = "";
+            assessData.value.forEach((classify) => {
+                classify.project.forEach((project) => {
+                    project.assessItem &&
+                        project.assessItem.length > 0 &&
+                        project.assessItem.forEach((item) => {
+                            if (item.id === itemId) {
+                                projectId = project.id!;
+                            }
+                        });
+                });
+            });
+            return projectId;
+        };
+        // 根据评估项id获取评估项信息
+        const getAssessItemInfo = (itemId: string) => {
+            let itemInfo: AssessItemBaseType | undefined;
+            assessData.value.forEach((classify) => {
+                classify.project.forEach((project) => {
+                    project.assessItem &&
+                        project.assessItem.length > 0 &&
+                        project.assessItem.forEach((item) => {
+                            if (item.id === itemId) {
+                                itemInfo = item;
+                            }
+                        });
+                });
+            });
+            return itemInfo;
+        };
+        onBeforeMount(() => {
+            fetchData();
+        });
 
         return {
             // State
@@ -190,6 +240,9 @@ export const useAssessStore = defineStore(
             // Actions
             fetchData,
             getProjectList,
+            getClassifyByItemId,
+            getProjectIdByItemId,
+            getAssessItemInfo,
         };
     },
     {

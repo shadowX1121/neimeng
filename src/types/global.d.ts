@@ -79,10 +79,14 @@ declare global {
      */
     interface AssessProjectStructType {
         id: string;
+        projectId: IdValueType;
         projectName: string;
         projectRowSpan: number;
+        assessId: IdValueType;
         assessName: string;
         assessRowSpan: number;
+        gistId: IdValueType;
+        gistIndex: number;
         gist: string;
         fileName: string;
         fileUrl: string;

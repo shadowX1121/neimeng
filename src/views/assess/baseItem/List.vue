@@ -6,6 +6,7 @@ import { useRouter } from "vue-router";
 import { YEAR_OPTIONS } from "@/constants/index";
 import AddProjectDialog from "./dialog/AddProjectDialog.vue";
 import EditProjectDialog from "./dialog/EditProjectDialog.vue";
+import DeleteAssessGistDialog from "./dialog/DeleteAssessGistDialog.vue";
 import { formatProjectData } from "@/utils/common";
 import { useAssessStore } from "@/store/useAssessStore";
 import { storeToRefs } from "pinia";
@@ -64,6 +65,31 @@ const getTableData = async () => {
 onMounted(() => {
     getTableData();
 });
+
+// 修改评估项点击事件
+const editAssessItemClick = (row: any) => {
+    router.push({
+        name: "AssessBaseItemAdd",
+        query: {
+            id: row.assessId,
+        },
+    });
+};
+
+// 删除评估要点弹窗显示控制
+const deleteGistDialogVisible = ref(false);
+// 要删除的评估要点数据
+const deleteGistData = ref<any>({});
+// 删除评估要点点击事件
+const deleteAssessGistClick = (row: any) => {
+    console.log("row", row);
+    deleteGistData.value = row;
+    deleteGistDialogVisible.value = true;
+};
+// 删除评估要点后的回调函数、
+const deleteAssessGistCallback = () => {
+    getTableData();
+};
 </script>
 
 <template>
@@ -144,6 +170,12 @@ onMounted(() => {
                                     min-width="200"
                                 />
                                 <el-table-column
+                                    prop="gistIndex"
+                                    label="序号"
+                                    align="center"
+                                    width="60"
+                                />
+                                <el-table-column
                                     prop="gist"
                                     label="评估要点"
                                     align="center"
@@ -155,26 +187,36 @@ onMounted(() => {
                                     align="center"
                                     min-width="200"
                                 />
-                                <el-table-column
-                                    prop="isBase"
-                                    label="基础达标项"
-                                    align="center"
-                                    min-width="200"
-                                />
+                                <el-table-column label="基础达标项" width="100">
+                                    <template #default="{ row }">
+                                        <div
+                                            class="flex justify-content-center"
+                                        >
+                                            <p
+                                                v-if="row.isBase"
+                                                class="triangle-border"
+                                            ></p>
+                                        </div>
+                                    </template>
+                                </el-table-column>
                                 <el-table-column
                                     label="操作"
                                     align="center"
                                     width="140"
                                 >
-                                    <template #default="_scope">
+                                    <template #default="{ row }">
                                         <el-button
                                             type="primary"
                                             link
-                                            @click=""
+                                            @click="editAssessItemClick(row)"
                                         >
                                             修改
                                         </el-button>
-                                        <el-button type="danger" link @click="">
+                                        <el-button
+                                            type="danger"
+                                            link
+                                            @click="deleteAssessGistClick(row)"
+                                        >
                                             删除
                                         </el-button>
                                     </template>
@@ -189,6 +231,12 @@ onMounted(() => {
         <AddProjectDialog v-model="addProjectDialogVisible" />
         <!--编辑项目弹窗-->
         <EditProjectDialog v-model="manageProjectDialogVisible" />
+        <!--删除项目弹窗-->
+        <DeleteAssessGistDialog
+            v-model="deleteGistDialogVisible"
+            :data="deleteGistData"
+            @confirm="deleteAssessGistCallback"
+        />
     </div>
 </template>
 
