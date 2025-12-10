@@ -36,22 +36,22 @@ const menuList = ref([
                 index: "/assess/baseItem",
                 title: "评估项管理",
             },
-            // {
-            //     index: "assess/awardedItem",
-            //     title: "加分项管理",
-            // },
-            // {
-            //     index: "assess/deductionItem",
-            //     title: "减分项管理",
-            // },
-            // {
-            //     index: "assess/vetoItem",
-            //     title: "一票否决管理",
-            // },
-            // {
-            //     index: "assess/scoreAndLevel",
-            //     title: "积分与星级管理",
-            // },
+            {
+                index: "/assess/awardedItem",
+                title: "加分项管理",
+            },
+            {
+                index: "/assess/deductionItem",
+                title: "减分项管理",
+            },
+            {
+                index: "/assess/vetoItem",
+                title: "一票否决管理",
+            },
+            {
+                index: "/assess/scoreAndLevel",
+                title: "积分与星级管理",
+            },
         ],
     },
     {
@@ -78,8 +78,7 @@ watch(
     () => route.path,
     (newPath, oldPath) => {
         const { meta } = route;
-        defaultActive.value =
-            meta && meta.activeMenu ? (meta.activeMenu as string) : newPath;
+        defaultActive.value = meta && meta.activeMenu ? (meta.activeMenu as string) : newPath;
         console.log("路径变化:", oldPath, "→", newPath);
     },
     { immediate: true }

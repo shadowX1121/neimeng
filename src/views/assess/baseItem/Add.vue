@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { ref, reactive, watch, computed, onBeforeMount } from "vue";
+import { ref, reactive, watch, computed } from "vue";
 import { mockApi } from "@/api/index";
 import { ElMessage } from "element-plus";
 import { useRoute, useRouter } from "vue-router";
 import { useAssessStore } from "@/store/useAssessStore";
-import { useMetaTitleStore } from "@/store/useMetaTitleStore";
 import AddItemUploadModule from "./module/AddItemUploadModule.vue";
 import { storeToRefs } from "pinia";
 import cloneDeep from "lodash-es/cloneDeep";
@@ -14,7 +13,6 @@ import type { FormInstance, FormRules } from "element-plus";
 const router = useRouter();
 const route = useRoute();
 const assessStore = useAssessStore();
-const metaTitleStore = useMetaTitleStore();
 
 const id = computed(() => route.query.id || "");
 
@@ -152,19 +150,12 @@ const submit = async () => {
         submitLoading.value = false;
     }
 };
-// onBeforeMount(() => {
-//     metaTitleStore.urlMapTitle = {
-//         ...metaTitleStore.urlMapTitle,
-//         [route.path]: id.value ? "修改评估项" : "添加评估项",
-//     };
-//     console.log("metaTitleStore.urlMapTitle", metaTitleStore.urlMapTitle);
-// });
 </script>
 
 <template>
     <div class="main-container-wrapper">
         <div class="main-header">
-            <span class="title">添加评估项</span>
+            <span class="title">{{ id ? "修改" : "添加" }}评估项</span>
         </div>
         <div class="main-content detail-content">
             <div class="password-page">

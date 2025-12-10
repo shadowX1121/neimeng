@@ -1,8 +1,5 @@
-import {
-    createRouter,
-    createWebHistory,
-    type RouteRecordRaw,
-} from "vue-router";
+import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router";
+import { useMetaTitleStore } from "@/store/useMetaTitleStore";
 
 const routes: Array<RouteRecordRaw> = [
     {
@@ -41,8 +38,7 @@ const routes: Array<RouteRecordRaw> = [
                             {
                                 path: "",
                                 name: "OrgList",
-                                component: () =>
-                                    import("@/views/organization/List.vue"),
+                                component: () => import("@/views/organization/List.vue"),
                             },
                             {
                                 path: "addAccount",
@@ -51,10 +47,7 @@ const routes: Array<RouteRecordRaw> = [
                                     title: "添加账号",
                                     activeMenu: "/organization/list",
                                 },
-                                component: () =>
-                                    import(
-                                        "@/views/organization/AddAccount.vue"
-                                    ),
+                                component: () => import("@/views/organization/AddAccount.vue"),
                             },
                             {
                                 path: "detail",
@@ -63,10 +56,7 @@ const routes: Array<RouteRecordRaw> = [
                                     isDynamicTitle: true,
                                     activeMenu: "/organization/list",
                                 },
-                                component: () =>
-                                    import(
-                                        "@/views/organization/detail/Index.vue"
-                                    ),
+                                component: () => import("@/views/organization/detail/Index.vue"),
                             },
                         ],
                     },
@@ -84,8 +74,7 @@ const routes: Array<RouteRecordRaw> = [
                             {
                                 path: "",
                                 name: "AssessBaseItem",
-                                component: () =>
-                                    import("@/views/assess/baseItem/List.vue"),
+                                component: () => import("@/views/assess/baseItem/List.vue"),
                             },
                             {
                                 path: "add",
@@ -94,8 +83,15 @@ const routes: Array<RouteRecordRaw> = [
                                     isDynamicTitle: true,
                                     activeMenu: "/assess/baseItem",
                                 },
-                                component: () =>
-                                    import("@/views/assess/baseItem/Add.vue"),
+                                component: () => import("@/views/assess/baseItem/Add.vue"),
+                                beforeEnter: (to, _from, next) => {
+                                    const metaTitleStore = useMetaTitleStore();
+                                    metaTitleStore.urlMapTitle = {
+                                        ...metaTitleStore.urlMapTitle,
+                                        [to.path]: to.query.id ? "修改评估项" : "添加评估项",
+                                    };
+                                    next();
+                                },
                             },
                             // {
                             //     path: "detail",
@@ -109,6 +105,50 @@ const routes: Array<RouteRecordRaw> = [
                             //             "@/views/organization/detail/Index.vue"
                             //         ),
                             // },
+                        ],
+                    },
+                    {
+                        path: "awardedItem",
+                        meta: { title: "加分项管理" },
+                        children: [
+                            {
+                                path: "",
+                                name: "AwardedItem",
+                                component: () => import("@/views/assess/awardedItem/List.vue"),
+                            },
+                        ],
+                    },
+                    {
+                        path: "deductionItem",
+                        meta: { title: "减分项管理" },
+                        children: [
+                            {
+                                path: "",
+                                name: "DeductionItem",
+                                component: () => import("@/views/assess/deductionItem/List.vue"),
+                            },
+                        ],
+                    },
+                    {
+                        path: "vetoItem",
+                        meta: { title: "一票否决管理" },
+                        children: [
+                            {
+                                path: "",
+                                name: "VetoItem",
+                                component: () => import("@/views/assess/vetoItem/List.vue"),
+                            },
+                        ],
+                    },
+                    {
+                        path: "scoreAndLevel",
+                        meta: { title: "积分与星级管理" },
+                        children: [
+                            {
+                                path: "",
+                                name: "ScoreAndLevel",
+                                component: () => import("@/views/assess/scoreAndLevel/List.vue"),
+                            },
                         ],
                     },
                 ],
@@ -125,8 +165,7 @@ const routes: Array<RouteRecordRaw> = [
                             {
                                 path: "",
                                 name: "DownloadList",
-                                component: () =>
-                                    import("@/views/download/List.vue"),
+                                component: () => import("@/views/download/List.vue"),
                             },
                         ],
                     },

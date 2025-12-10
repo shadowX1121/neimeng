@@ -16,6 +16,12 @@ declare global {
         [key: string]: any;
     }
 
+    interface Column {
+        prop: string;
+        label: string;
+        width?: number;
+    }
+
     interface MyMeta {
         title?: string;
         description?: string;
