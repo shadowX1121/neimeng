@@ -3,6 +3,7 @@ import { ref, reactive, onMounted } from "vue";
 import { mockApi } from "@/api/index";
 import { YEAR_OPTIONS, CURRENT_YEAR } from "@/constants/index";
 import EditItemDialog from "./dialog/EditItemDialog.vue";
+import { getCurrentLevelMaxScore } from "@/utils/common";
 import { ElMessage } from "element-plus";
 
 const filter = reactive({
@@ -14,11 +15,6 @@ const yearOptions = ref(YEAR_OPTIONS);
 const loading = ref(false);
 const tableData = ref<any[]>([]);
 const noData = ref(false);
-const LEVEL_SCORE_SETTING_RANGE = {
-    3: { min: 20, max: 100 },
-    2: { min: 10 },
-    1: { min: 1 },
-};
 // 获取表格数据
 const getTableData = async () => {
     loading.value = true;
@@ -37,17 +33,14 @@ const getTableData = async () => {
                 },
                 {
                     level: 2,
-                    max: 44,
                     min: 35,
                 },
                 {
                     level: 1,
-                    max: 34,
                     min: 10,
                 },
                 {
                     level: 0,
-                    max: 10,
                 },
             ];
             noData.value = false;
@@ -58,43 +51,39 @@ const getTableData = async () => {
         loading.value = false;
     }
 };
+// 获取积分范围显示文本
+const getScoreRangeText = (row: any) => {
+    const maxScore = getCurrentLevelMaxScore(row.level, tableData.value);
+    if (maxScore === "max") {
+        return row.min + "分及以上";
+    } else if (typeof maxScore === "number") {
+        if (row.level === 0) {
+            return `${maxScore}分以下`;
+        } else {
+            return `${row.min}分至${maxScore}分`;
+        }
+    }
+};
 onMounted(() => {
     getTableData();
 });
 
 const addEditDialog = reactive<{
     visible: boolean;
-    title: string;
-    data: any;
+    level: number;
+    data: any[];
 }>({
     visible: false,
-    title: "",
-    data: {},
+    level: 0,
+    data: [],
 });
-// 添加/修改项点击事件
+// 修改项点击事件
 const addEditItemClick = (itemData: any) => {
     if (itemData) {
-        addEditDialog.data = itemData;
-        addEditDialog.title = "修改减分项";
-    } else {
-        addEditDialog.data = undefined;
-        addEditDialog.title = "添加减分项";
+        addEditDialog.data = tableData.value;
+        addEditDialog.level = itemData.level;
     }
     addEditDialog.visible = true;
-};
-
-// 删除评估项弹窗数据
-const deleteItemDialog = reactive<{
-    visible: boolean;
-    data: any;
-}>({
-    visible: false,
-    data: {},
-});
-// 删除评估要点点击事件
-const deleteItemClick = (row: { id: IdValueType }) => {
-    deleteItemDialog.visible = true;
-    deleteItemDialog.data = row;
 };
 </script>
 
@@ -139,12 +128,17 @@ const deleteItemClick = (row: { id: IdValueType }) => {
                             </el-table-column>
                             <el-table-column label="积分范围" min-width="140">
                                 <template #default="{ row }">
-                                    <span></span>
+                                    <span>{{ getScoreRangeText(row) }}</span>
                                 </template>
                             </el-table-column>
                             <el-table-column label="操作" align="center" width="80">
                                 <template #default="{ row }">
-                                    <el-button v-if="row.level" type="primary" link @click="">
+                                    <el-button
+                                        v-if="row.level"
+                                        type="primary"
+                                        link
+                                        @click="addEditItemClick(row)"
+                                    >
                                         修改
                                     </el-button>
                                     <span v-else>-</span>
@@ -158,14 +152,8 @@ const deleteItemClick = (row: { id: IdValueType }) => {
         <!--添加/修改项目弹窗-->
         <EditItemDialog
             v-model="addEditDialog.visible"
+            :level="addEditDialog.level"
             :data="addEditDialog.data"
-            :title="addEditDialog.title"
-            @confirm="getTableData"
-        />
-        <!--删除项目弹窗-->
-        <DeleteItemDialog
-            v-model="deleteItemDialog.visible"
-            :data="deleteItemDialog.data"
             @confirm="getTableData"
         />
     </div>

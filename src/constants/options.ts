@@ -25,3 +25,21 @@ export const ACCOUNT_STATUS_OPTIONS: LabelOption[] = [
         description: "不能登录使用，完全清除数据及账号",
     },
 ];
+// 下载文件数据准备状态
+export const DOWNLOAD_FILE_PREPARE_STATUS_OPTIONS: LabelOption[] = [
+    {
+        value: 1,
+        label: "准备完成",
+        color: "#009F4D",
+    },
+    {
+        value: 2,
+        label: "准备中",
+        color: "#E97800",
+    },
+    {
+        value: 3,
+        label: "准备失败",
+        color: "#FF4B4B",
+    },
+];

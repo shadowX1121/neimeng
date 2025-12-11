@@ -22,8 +22,8 @@ body {
 
 /* 默认字体 + 抗锯齿 */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-        "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+        "Noto Sans", sans-serif;
     font-size: 14px;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
@@ -179,5 +179,19 @@ table {
 .el-form-item {
     &:nth-last-child(1) {
         margin-bottom: 0;
+    }
+}
+.el-input-number {
+    &.delete-btn {
+        .el-input-number__decrease,
+        .el-input-number__increase {
+            display: none;
+        }
+        .el-input {
+            .el-input__wrapper {
+                padding-left: 12px;
+                padding-right: 12px;
+            }
+        }
     }
 }

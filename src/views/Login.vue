@@ -93,7 +93,10 @@ const login = async () => {
         background: rgba(255, 255, 255, 0.7);
         .login-box {
             width: 320px;
-            padding: 48px 40px;
+            /* padding: 48px 40px; */
+            .el-input {
+                margin-left: 0 !important;
+            }
         }
         h1 {
             margin-top: 0;

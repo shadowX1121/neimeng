@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import router from "@/router";
-import { Edit } from "@element-plus/icons-vue";
 import MyMenu from "./Menu.vue";
 import MyBreadcrumb from "./Breadcrumb.vue";
+import { useDownloadCountStore } from "@/store/useDownloadCountStore";
 
+const downloadCountStore = useDownloadCountStore();
 // 下载点击事件
 const goDownload = () => {
     console.log("下载点击事件");
@@ -22,12 +23,19 @@ const logout = () => {
                     <!-- <span>内蒙古体育社会组织管理系统</span> -->
                 </div>
                 <div class="right">
-                    <el-icon :size="20" @click="goDownload">
-                        <Edit />
-                    </el-icon>
-                    <el-icon :size="20" @click="logout">
-                        <Edit />
-                    </el-icon>
+                    <div class="icon download" @click="goDownload">
+                        <i class="iconfont icon-downloadbox"></i>
+                        <div id="download-target">
+                            <p class="down-count" v-if="downloadCountStore.count">
+                                {{
+                                    downloadCountStore.count > 99 ? "99+" : downloadCountStore.count
+                                }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="icon" @click="logout">
+                        <i class="iconfont icon-logout"></i>
+                    </div>
                 </div>
             </el-header>
             <el-container class="page-container">
@@ -71,6 +79,19 @@ const logout = () => {
             display: flex;
             align-items: center;
             flex-shrink: 0;
+            .download {
+                position: relative;
+            }
+            .icon {
+                .iconfont {
+                    color: #000000;
+                    cursor: pointer;
+                    font-size: 20px;
+                }
+                + .icon {
+                    margin-left: 24px;
+                }
+            }
         }
     }
     .page-container {
@@ -89,5 +110,14 @@ const logout = () => {
             border-radius: 16px 0 0 0;
         }
     }
+}
+#download-target {
+    display: flex;
+    justify-content: center;
+    position: absolute;
+    top: -4px;
+    right: -16px;
+    height: 16px;
+    width: 32px;
 }
 </style>
