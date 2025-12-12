@@ -102,11 +102,11 @@ onMounted(() => {
                     <div class="table-filter_select flex-start">
                         <p class="flex flex-align-center">下载任务：2 个</p>
                     </div>
-                    <div class="table-filter_button flex-start">
+                    <!-- <div class="table-filter_button flex-start">
                         <el-button type="primary" @click="createDownloadClick">
                             创建下载任务
                         </el-button>
-                    </div>
+                    </div> -->
                 </div>
                 <el-empty v-if="pagination.total === 0" description="暂无下载任务" />
                 <template v-else>

@@ -31,11 +31,7 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
 
 <template>
     <div class="main-container-wrapper">
-        <el-tabs
-            v-model="activeName"
-            class="org-detail-tabs"
-            @tab-click="handleClick"
-        >
+        <el-tabs v-model="activeName" class="org-detail-tabs" @tab-click="handleClick">
             <el-tab-pane
                 v-for="item in paneList"
                 :key="item.name"
@@ -54,17 +50,17 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
 }
 .org-detail-tabs {
     --el-tabs-header-height: 76px;
-    :deep(.el-tabs__header) {
+    :deep(> .el-tabs__header) {
         margin: 0;
-    }
-    :deep(.el-tabs__item) {
-        font-size: 20px;
-        padding: 0 12px;
-        font-family: PingFang SC, PingFang SC;
-    }
-    :deep(.el-tabs__nav-wrap) {
-        &::after {
-            height: 1px;
+        .el-tabs__item {
+            font-size: 20px;
+            padding: 0 12px;
+            font-family: PingFang SC, PingFang SC;
+        }
+        .el-tabs__nav-wrap {
+            &::after {
+                height: 1px;
+            }
         }
     }
 }

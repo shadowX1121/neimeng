@@ -204,11 +204,7 @@ const submit = async () => {
     >
         <div v-loading="loading" class="edit-project-tab-box">
             <div class="edit-project-menu">
-                <el-menu
-                    class="my-menu"
-                    :default-active="defaultActive"
-                    @select="menuSelect"
-                >
+                <el-menu class="my-menu" :default-active="defaultActive" @select="menuSelect">
                     <el-menu-item
                         v-for="menu in classifyData"
                         :key="menu.id"
@@ -238,11 +234,7 @@ const submit = async () => {
                             autocomplete="off"
                         />
                     </el-form-item>
-                    <el-form-item
-                        required
-                        label="项目名称"
-                        style="margin-bottom: 0"
-                    >
+                    <el-form-item required label="项目名称" style="margin-bottom: 0">
                         <div
                             v-for="(item, index) in formData.project"
                             :key="index"
@@ -262,20 +254,10 @@ const submit = async () => {
                                     autocomplete="off"
                                 />
                             </el-form-item>
-                            <el-icon
-                                v-if="index == 0"
-                                class="add"
-                                :size="16"
-                                @click="addProject"
-                            >
+                            <el-icon v-if="index == 0" class="add" :size="16" @click="addProject">
                                 <CirclePlus />
                             </el-icon>
-                            <el-icon
-                                v-else
-                                class="delete"
-                                :size="16"
-                                @click="deleteProject(index)"
-                            >
+                            <el-icon v-else class="delete" :size="16" @click="deleteProject(index)">
                                 <Delete />
                             </el-icon>
                         </div>
@@ -283,11 +265,7 @@ const submit = async () => {
                     <el-form-item :error="projectError"></el-form-item>
                 </el-form>
                 <div class="edit-project-btn-box">
-                    <el-button
-                        type="primary"
-                        @click="confirmClick"
-                        :loading="submitLoading"
-                    >
+                    <el-button type="primary" @click="confirmClick" :loading="submitLoading">
                         确定
                     </el-button>
                 </div>

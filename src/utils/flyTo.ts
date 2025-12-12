@@ -12,7 +12,7 @@ interface FlyOption {
 }
 
 export function flyTo(option: FlyOption) {
-    const { from, text = "1", duration = 600 } = option;
+    const { from, text = "1", duration = 400 } = option;
     const target = document.getElementById("download-target");
     if (!target) {
         console.warn(`flyTo: 找不到目标元素 #download-target`);

@@ -16,4 +16,13 @@ export default defineConfig({
             "@": path.resolve(__dirname, "src"), // @ 指向 src
         },
     },
+    server: {
+        proxy: {
+            "/api": {
+                target: "http://vip.lysy90store.xyz:22000", // 你的后端地址
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/api/, ""), // 去掉 /api 前缀
+            },
+        },
+    },
 });

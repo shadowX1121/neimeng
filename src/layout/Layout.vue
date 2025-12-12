@@ -20,7 +20,7 @@ const logout = () => {
         <el-container>
             <el-header class="page-header">
                 <div class="logo">
-                    <!-- <span>内蒙古体育社会组织管理系统</span> -->
+                    <span>内蒙古体育社会组织管理系统</span>
                 </div>
                 <div class="right">
                     <div class="icon download" @click="goDownload">

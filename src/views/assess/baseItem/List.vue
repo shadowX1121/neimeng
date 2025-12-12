@@ -31,8 +31,7 @@ const addProjectClick = () => {
 };
 
 // 表格模块
-const { isLoading: loading, assessData: classifyData } =
-    storeToRefs(assessStore);
+const { isLoading: loading, assessData: classifyData } = storeToRefs(assessStore);
 const spanMethod = ({
     row,
     column,
@@ -47,7 +46,7 @@ const spanMethod = ({
         };
     }
 
-    if (columnIndex === 1) {
+    if (columnIndex === 1 || columnIndex === 2) {
         // assessName
         return {
             rowspan: row.assessRowSpan,
@@ -116,12 +115,8 @@ const deleteAssessGistCallback = () => {
                         </el-select>
                     </div>
                     <div class="table-filter_button flex-start">
-                        <el-button @click="manageProjectClick">
-                            管理项目
-                        </el-button>
-                        <el-button type="primary" @click="addProjectClick">
-                            添加项目
-                        </el-button>
+                        <el-button @click="manageProjectClick">管理项目</el-button>
+                        <el-button type="primary" @click="addProjectClick">添加项目</el-button>
                     </div>
                 </div>
                 <el-tabs
@@ -144,10 +139,7 @@ const deleteAssessGistCallback = () => {
                         :key="classifyItem.id"
                         :label="classifyItem.name"
                     >
-                        <el-empty
-                            v-if="classifyItem.project.length === 0"
-                            description="暂无数据"
-                        />
+                        <el-empty v-if="classifyItem.project.length === 0" description="暂无数据" />
                         <template v-else>
                             <el-table
                                 class="assess-project-table"
@@ -170,17 +162,18 @@ const deleteAssessGistCallback = () => {
                                     min-width="200"
                                 />
                                 <el-table-column
-                                    prop="gistIndex"
-                                    label="序号"
-                                    align="center"
-                                    width="60"
-                                />
-                                <el-table-column
                                     prop="gist"
                                     label="评估要点"
                                     align="center"
                                     min-width="200"
                                 />
+                                <el-table-column
+                                    prop="gistIndex"
+                                    label="序号"
+                                    align="center"
+                                    width="60"
+                                />
+
                                 <el-table-column
                                     prop="fileName"
                                     label="实证材料（项）"
@@ -189,21 +182,12 @@ const deleteAssessGistCallback = () => {
                                 />
                                 <el-table-column label="基础达标项" width="100">
                                     <template #default="{ row }">
-                                        <div
-                                            class="flex justify-content-center"
-                                        >
-                                            <p
-                                                v-if="row.isBase"
-                                                class="triangle-border"
-                                            ></p>
+                                        <div class="flex justify-content-center">
+                                            <p v-if="row.isBase" class="triangle-border"></p>
                                         </div>
                                     </template>
                                 </el-table-column>
-                                <el-table-column
-                                    label="操作"
-                                    align="center"
-                                    width="140"
-                                >
+                                <el-table-column label="操作" align="center" width="140">
                                     <template #default="{ row }">
                                         <el-button
                                             type="primary"

@@ -43,3 +43,16 @@ export const DOWNLOAD_FILE_PREPARE_STATUS_OPTIONS: LabelOption[] = [
         color: "#FF4B4B",
     },
 ];
+// 评估项审阅状态
+export const ASSESS_ITEM_REVIEW_STATUS_OPTIONS: LabelOption[] = [
+    {
+        value: 1,
+        label: "未审",
+        color: "#FF4B4B",
+    },
+    {
+        value: 2,
+        label: "已审",
+        color: "#009F4D",
+    },
+];
