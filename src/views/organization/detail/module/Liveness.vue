@@ -6,9 +6,11 @@ import { ElMessage } from "element-plus";
 import { CaretBottom } from "@element-plus/icons-vue";
 import { YEAR_OPTIONS, CURRENT_YEAR } from "@/constants/index";
 import CreateDownLoadDialog from "./dialog/CreateDownLoadDialog.vue";
+import { useAssessItemReviewStatus } from "@/utils/useOptions";
 
 const router = useRouter();
 const route = useRoute();
+const assessReviewStatus = useAssessItemReviewStatus();
 
 const id = computed(() => route.query.id);
 
@@ -279,7 +281,8 @@ const formatTableData = (data: any[]) => {
                                 fileUrl: gistItem.fileUrl,
                                 fileList: gistItem.fileList,
                                 status: gistItem.status,
-                                scoreStatus: gistItem.scoreStatus,
+                                scoreStatus: !!gistItem.scoreStatus,
+                                updateScoreStatus: false,
                             }, // 评估要点数据
                         });
                     });
@@ -362,6 +365,30 @@ const downloadClick = () => {
         projectData: mockData,
     };
 };
+// 得分状态变化事件
+const scoreStatusChange = async (val: boolean, row: any) => {
+    const oldValue = row.gist.scoreStatus;
+    // 1️⃣ 先更新 UI（乐观）
+    row.gist.scoreStatus = val;
+    row.gist.updateScoreStatus = true;
+    try {
+        // 2️⃣ 调接口
+        const { code } = await mockApi.mock(
+            {
+                id: id,
+            },
+            null
+        );
+        if (code === 200) {
+            ElMessage.success("操作成功");
+        }
+    } catch (e) {
+        // 3️⃣ 失败回滚
+        row.gist.scoreStatus = oldValue;
+    } finally {
+        row.gist.updateScoreStatus = false;
+    }
+};
 </script>
 
 <template>
@@ -424,7 +451,6 @@ const downloadClick = () => {
                         class="assess-project-table"
                         v-loading="loading"
                         :data="classifyItem.projectData"
-                        border
                         :span-method="spanMethod"
                         style="width: 100%"
                     >
@@ -453,26 +479,55 @@ const downloadClick = () => {
                                 <span>{{ row.gist.name }}</span>
                             </template>
                         </el-table-column>
-                        <el-table-column label="基础达标项" width="100">
+                        <el-table-column label="基础达标项" align="center" width="100">
                             <template #default="{ row }">
                                 <div class="flex justify-content-center">
-                                    <p v-if="row.isBase" class="triangle-border"></p>
+                                    <p v-if="row.gist.isBase" class="triangle-border"></p>
                                 </div>
                             </template>
                         </el-table-column>
                         <el-table-column label="文件" align="center" width="100">
                             <template #default="{ row }">
-                                <el-button type="primary" link @click="">查看</el-button>
+                                <el-button
+                                    v-if="row.gist.fileList.length > 0"
+                                    type="primary"
+                                    link
+                                    @click=""
+                                >
+                                    查看
+                                </el-button>
+                                <el-button v-else disabled link>未传</el-button>
                             </template>
                         </el-table-column>
                         <el-table-column label="状态" align="center" width="100">
                             <template #default="{ row }">
-                                <span>{{ row.gist.status }}</span>
+                                <span
+                                    v-if="row.gist.status"
+                                    :style="[
+                                        {
+                                            color: assessReviewStatus.getColorByValue(
+                                                row.gist.status
+                                            ),
+                                        },
+                                    ]"
+                                >
+                                    {{ assessReviewStatus.getLabelByValue(row.gist.status) }}
+                                </span>
+                                <span v-else>/</span>
                             </template>
                         </el-table-column>
                         <el-table-column label="批阅" align="center" width="100">
                             <template #default="{ row }">
-                                <span>{{ row.gist.scoreStatus }}</span>
+                                <div class="score-status">
+                                    <el-checkbox
+                                        :model-value="row.gist.scoreStatus"
+                                        v-loading="row.gist.updateScoreStatus"
+                                        :disabled="row.gist.status !== 2"
+                                        @change="(val: boolean) => scoreStatusChange(val, row)"
+                                    >
+                                        得分
+                                    </el-checkbox>
+                                </div>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -507,6 +562,11 @@ const downloadClick = () => {
                 border-right: none;
             }
         }
+        .score {
+            font-weight: 600;
+            font-size: 20px;
+            color: #e97800;
+        }
     }
     :deep(.el-tabs__new-tab) {
         margin: 0 24px 0 24px;
@@ -514,6 +574,25 @@ const downloadClick = () => {
     }
     :deep(.el-tabs__content) {
         padding: 0;
+    }
+    .score-status {
+        display: flex;
+        justify-content: center;
+        :deep(.el-checkbox__label) {
+            padding-left: 4px;
+        }
+        :deep(.el-checkbox__input) {
+            &.is-checked {
+                + .el-checkbox__label {
+                    color: #000000;
+                }
+            }
+        }
+        :deep(.el-loading-spinner) {
+            svg {
+                width: 20px;
+            }
+        }
     }
 }
 </style>

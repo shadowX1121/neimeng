@@ -141,9 +141,17 @@ table {
     --el-table-header-text-color: #666666;
     --el-table-text-color: #000000;
     thead {
-        th {
+        .el-table__cell {
+            padding: 16px 0;
             font-weight: 400;
+            box-sizing: border-box;
         }
+        .cell {
+            line-height: 22px;
+        }
+    }
+    .cell {
+        line-height: 20px;
     }
 }
 .el-tag {
