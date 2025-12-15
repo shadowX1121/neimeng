@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive, watch, watchEffect } from "vue";
-import { mockApi } from "@/api/index";
 import { ElMessage } from "element-plus";
+import { assessApi } from "@/api/module/assess";
 import type { FormInstance, FormRules } from "element-plus";
 
 const props = defineProps<{
@@ -9,19 +9,19 @@ const props = defineProps<{
     title: string;
     data?: {
         id?: number | string;
-        description: string;
+        content: string;
     };
 }>();
 
 const formRef = ref<FormInstance>();
 const formData = reactive<{
     id?: number | string;
-    description: string;
+    content: string;
 }>({
-    description: "",
+    content: "",
 });
 const rules = reactive<FormRules<typeof formData>>({
-    description: [
+    content: [
         {
             required: true,
             message: "请输入一票否决实证材料说明",
@@ -42,10 +42,10 @@ watch(
         if (newVal) {
             if (props.data) {
                 formData.id = props.data.id || "";
-                formData.description = props.data.description || "";
+                formData.content = props.data.content || "";
             } else {
                 formData.id = undefined;
-                formData.description = "";
+                formData.content = "";
             }
         }
     }
@@ -80,9 +80,18 @@ const submit = async () => {
     if (submitLoading.value) return; // 二次保险
     submitLoading.value = true;
     try {
-        const { code } = await mockApi.mock(formData, null);
+        let result = null;
+        if (formData.id) {
+            result = await assessApi.updatePlus(formData);
+        } else {
+            result = await assessApi.addPlus({
+                ...formData,
+                type: 3,
+            });
+        }
+        const { code } = result;
         if (code === 200) {
-            ElMessage.success(`添加成功`);
+            ElMessage.success(formData.id ? `修改成功` : `添加成功`);
             close();
             emit("confirm");
         }
@@ -113,9 +122,9 @@ const submit = async () => {
                 label-position="top"
                 require-asterisk-position="right"
             >
-                <el-form-item required label="一票否决实证材料说明" prop="description">
+                <el-form-item required label="一票否决实证材料说明" prop="content">
                     <el-input
-                        v-model="formData.description"
+                        v-model="formData.content"
                         :model-modifiers="{ trim: true }"
                         :show-word-limit="true"
                         :autosize="{ minRows: 4, maxRows: 6 }"

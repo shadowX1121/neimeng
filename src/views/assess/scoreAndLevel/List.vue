@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from "vue";
-import { mockApi } from "@/api/index";
+import { assessApi } from "@/api/module/assess";
 import { YEAR_OPTIONS, CURRENT_YEAR } from "@/constants/index";
 import EditItemDialog from "./dialog/EditItemDialog.vue";
-import { getCurrentLevelMaxScore } from "@/utils/common";
 import { ElMessage } from "element-plus";
 
 const filter = reactive({
@@ -19,31 +18,16 @@ const noData = ref(false);
 const getTableData = async () => {
     loading.value = true;
     try {
-        const { code } = await mockApi.mock(
-            {
-                ...filter,
-            },
-            null
-        );
+        const { code, data } = await assessApi.getStarList({
+            ...filter,
+        });
         if (code === 200) {
-            tableData.value = [
-                {
-                    level: 3,
-                    min: 45,
-                },
-                {
-                    level: 2,
-                    min: 35,
-                },
-                {
-                    level: 1,
-                    min: 10,
-                },
-                {
-                    level: 0,
-                },
-            ];
-            noData.value = false;
+            tableData.value = data || [];
+            if (!data || data.length === 0) {
+                noData.value = true;
+            } else {
+                noData.value = false;
+            }
         }
     } catch (error) {
         console.log(error);
@@ -53,15 +37,13 @@ const getTableData = async () => {
 };
 // 获取积分范围显示文本
 const getScoreRangeText = (row: any) => {
-    const maxScore = getCurrentLevelMaxScore(row.level, tableData.value);
-    if (maxScore === "max") {
-        return row.min + "分及以上";
-    } else if (typeof maxScore === "number") {
-        if (row.level === 0) {
-            return `${maxScore}分以下`;
-        } else {
-            return `${row.min}分至${maxScore}分`;
-        }
+    const { start, end } = row;
+    if (end === "null") {
+        return row.start + "分及以上";
+    } else if (start === "null") {
+        return `${end}分及以下`;
+    } else {
+        return `${row.start}分至${row.end}分`;
     }
 };
 onMounted(() => {
@@ -70,18 +52,18 @@ onMounted(() => {
 
 const addEditDialog = reactive<{
     visible: boolean;
-    level: number;
+    star: number;
     data: any[];
 }>({
     visible: false,
-    level: 0,
+    star: 0,
     data: [],
 });
 // 修改项点击事件
 const addEditItemClick = (itemData: any) => {
     if (itemData) {
         addEditDialog.data = tableData.value;
-        addEditDialog.level = itemData.level;
+        addEditDialog.star = itemData.star;
     }
     addEditDialog.visible = true;
 };
@@ -118,10 +100,10 @@ const addEditItemClick = (itemData: any) => {
                             <el-table-column label="星级" min-width="140">
                                 <template #default="{ row }">
                                     <el-rate
-                                        v-if="row.level"
-                                        v-model="row.level"
+                                        v-if="row.star"
+                                        v-model="row.star"
                                         :disabled="true"
-                                        :max="row.level"
+                                        :max="row.star"
                                     />
                                     <span v-else style="color: #666666">取消评星资格</span>
                                 </template>
@@ -134,7 +116,7 @@ const addEditItemClick = (itemData: any) => {
                             <el-table-column label="操作" align="center" width="80">
                                 <template #default="{ row }">
                                     <el-button
-                                        v-if="row.level"
+                                        v-if="row.star"
                                         type="primary"
                                         link
                                         @click="addEditItemClick(row)"
@@ -152,7 +134,7 @@ const addEditItemClick = (itemData: any) => {
         <!--添加/修改项目弹窗-->
         <EditItemDialog
             v-model="addEditDialog.visible"
-            :level="addEditDialog.level"
+            :star="addEditDialog.star"
             :data="addEditDialog.data"
             @confirm="getTableData"
         />

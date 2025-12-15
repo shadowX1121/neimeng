@@ -61,20 +61,3 @@ export function formatProjectData(projects: AssessProjectType[]) {
 
     return rows;
 }
-// 获取当前星级最高分
-export function getCurrentLevelMaxScore(
-    level: number,
-    levelData: { min: number; level: number }[]
-) {
-    let max: IdValueType = "max";
-    const prevLevel = levelData.find((l) => l.level === level + 1);
-    if (prevLevel) {
-        if (level === 0) {
-            max = prevLevel.min;
-        } else {
-            max = prevLevel.min - 1;
-        }
-    }
-
-    return max;
-}

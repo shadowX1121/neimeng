@@ -2,6 +2,7 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { mockApi } from "@/api/index";
+import { assessApi } from "@/api/module/assess";
 import { ElMessage } from "element-plus";
 
 const props = defineProps<{
@@ -54,12 +55,9 @@ const confirmClick = async () => {
     if (submitLoading.value) return; // 二次保险
     submitLoading.value = true;
     try {
-        const { code } = await mockApi.mock(
-            {
-                id: props.data.id,
-            },
-            "deleteAssessItem"
-        );
+        const { code } = await assessApi.deletePlus({
+            id: props.data.id,
+        });
         if (code === 200) {
             ElMessage.success(`删除成功`);
             close();

@@ -1,30 +1,31 @@
 <script setup lang="ts">
 import { ref, reactive, watch } from "vue";
-import { mockApi } from "@/api/index";
+import { assessApi } from "@/api/module/assess";
 import { ElMessage } from "element-plus";
-import { getCurrentLevelMaxScore } from "@/utils/common";
 
 // 不同星级对应的分数设置范围
 // 1-3星对应分数范围, min表示可选的最小分数，max表示可选的最大分数, max为prev表示最大分数为上一级设置的最小分数。
-const LEVEL_SCORE_SETTING_RANGE = {
+const STAR_SCORE_SETTING_RANGE = {
     3: { min: 20, max: 100 },
     2: { min: 10, max: "prev" },
     1: { min: 1, max: "prev" },
 };
 const props = defineProps<{
     modelValue: boolean;
-    level: number;
+    star: number;
     data: any[];
 }>();
-const levelData = reactive({
-    level: 0,
+const starData = reactive({
+    id: "",
+    star: 0,
     min: 0,
+    max: 0,
     minLimit: 0,
     maxLimit: 0,
 });
 // 获取对应星级设置的最小值
-const getCurrentLevel = (level: number) => {
-    const current = props.data ? props.data.find((item) => item.level === level) : undefined;
+const getCurrentStar = (star: number) => {
+    const current = props.data ? props.data.find((item) => item.star === star) : undefined;
     if (!current) {
         console.error("当前星级不在1-3星内");
     }
@@ -36,37 +37,30 @@ watch(
     (newVal) => {
         if (newVal) {
             if (props.data) {
-                const levelLimit =
-                    LEVEL_SCORE_SETTING_RANGE[
-                        props.level as keyof typeof LEVEL_SCORE_SETTING_RANGE
-                    ];
-                const current = getCurrentLevel(props.level);
-                levelData.level = props.level;
-                levelData.min = current ? current.min : levelLimit.min;
+                const starLimit =
+                    STAR_SCORE_SETTING_RANGE[props.star as keyof typeof STAR_SCORE_SETTING_RANGE];
+                const current = getCurrentStar(props.star);
+                starData.star = props.star;
                 if (current) {
-                    const max = levelLimit.max;
-                    const min = levelLimit.min;
-                    if (typeof max === "number") {
-                        levelData.maxLimit = max;
-                    } else if (max === "prev") {
-                        // 上一级的最小值减1
-                        const prevLevel = getCurrentLevel(props.level + 1);
-                        if (prevLevel) {
-                            levelData.maxLimit = prevLevel.min - 1;
-                        } else {
-                            console.error("当前星级不在1-3星内");
-                        }
+                    const { start, end } = current;
+                    starData.id = current.id;
+                    starData.min = Number(start !== "null" ? start : 0);
+                    starData.max = Number(end !== "null" ? end : 0);
+                    if (end === "null" && typeof starLimit.max === "number") {
+                        starData.maxLimit = starLimit.max;
+                    } else {
+                        starData.maxLimit = Number(end);
                     }
-                    const nextLevel = getCurrentLevel(props.level - 1);
-                    levelData.minLimit = Math.max(
-                        min,
-                        nextLevel && nextLevel.min ? nextLevel.min + 1 : min
-                    );
-                } else {
-                    console.error("当前星级不在1-3星内");
+                    const nextStar = getCurrentStar(props.star - 1);
+                    console.log("nextStar", nextStar);
+                    if (nextStar.start === "null") {
+                        starData.minLimit = starLimit.min;
+                    } else {
+                        starData.minLimit = Math.max(starLimit.min, Number(nextStar.start));
+                    }
                 }
             }
-            console.log("levelData", levelData);
+            console.log("starData", starData);
         }
     }
 );
@@ -80,12 +74,19 @@ const close = () => emit("update:modelValue", false);
 
 const submitLoading = ref(false);
 const confirmClick = async () => {
+    if (!starData.min) {
+        ElMessage.warning("请填写最低分");
+        return;
+    }
     if (submitLoading.value) return; // 二次保险
     submitLoading.value = true;
     try {
-        const { code } = await mockApi.mock(null, null);
+        const { code } = await assessApi.updateStar({
+            id: starData.id,
+            start: starData.min,
+        });
         if (code === 200) {
-            ElMessage.success(`添加成功`);
+            ElMessage.success(`修改成功`);
             close();
             emit("confirm");
         }
@@ -109,32 +110,30 @@ const confirmClick = async () => {
     >
         <div class="dialog-wrapper">
             <el-rate
-                v-if="levelData.level"
-                v-model="levelData.level"
+                v-if="starData.star"
+                v-model="starData.star"
                 :disabled="true"
-                :max="levelData.level"
+                :max="starData.star"
             />
             <div class="score-content">
                 <div class="score-item">
                     <p class="title">最低分</p>
                     <el-input-number
                         class="value delete-btn"
-                        v-model="levelData.min"
+                        v-model="starData.min"
                         :step="1"
-                        :max="levelData.maxLimit"
-                        :min="levelData.minLimit"
+                        :max="starData.maxLimit"
+                        :min="starData.minLimit"
                         style="width: 80px"
                     />
                 </div>
                 <div class="score-item score-item-line">
                     <p class="title"></p>
-                    <p class="value">{{ levelData.level !== 3 ? "至" : "及以上" }}</p>
+                    <p class="value">{{ starData.star !== 3 ? "至" : "及以上" }}</p>
                 </div>
-                <div v-if="levelData.level !== 3" class="score-item">
+                <div v-if="starData.star !== 3" class="score-item">
                     <p class="title">最高分</p>
-                    <p class="value">
-                        {{ getCurrentLevelMaxScore(levelData.level, props.data) }}分
-                    </p>
+                    <p class="value">{{ starData.max }}分</p>
                 </div>
             </div>
         </div>

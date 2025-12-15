@@ -163,6 +163,7 @@ table {
 .el-dialog {
     padding: 0;
     padding-bottom: 24px;
+    --el-text-color-regular: #000000;
     .el-dialog__header {
         display: flex;
         align-items: center;

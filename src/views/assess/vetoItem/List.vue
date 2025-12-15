@@ -7,6 +7,7 @@ import Draggable from "vuedraggable";
 import EditItemDialog from "./dialog/EditItemDialog.vue";
 import DeleteItemDialog from "./dialog/DeleteItemDialog.vue";
 import { ElMessage } from "element-plus";
+import { assessApi } from "@/api/module/assess";
 
 const filter = reactive({
     year: CURRENT_YEAR,
@@ -36,20 +37,17 @@ const noData = ref(false);
 const getTableData = async () => {
     loading.value = true;
     try {
-        const { code } = await mockApi.mock(
-            {
-                ...filter,
-            },
-            null
-        );
+        const { code, data } = await assessApi.getPlusList({
+            ...filter,
+            type: 3,
+        });
         if (code === 200) {
-            tableData.value = [
-                { id: 1, description: "创新性工作在全国推广..." },
-                { id: 2, description: "引进海外技术资源..." },
-                { id: 3, description: "获得国家体育总局或相关部委表彰..." },
-                { id: 4, description: "在重大突发公共事件中发挥积极作用..." },
-            ];
-            noData.value = false;
+            tableData.value = data || [];
+            if (!data || data.length === 0) {
+                noData.value = true;
+            } else {
+                noData.value = false;
+            }
         }
     } catch (error) {
         console.log(error);
@@ -62,7 +60,10 @@ onMounted(() => {
 });
 
 const disabledDrag = ref(false);
-const onDragEnd = async () => {
+const onDragEnd = async (evt: any) => {
+    const { oldIndex, newIndex } = evt;
+    // 顺序没变，直接 return
+    if (oldIndex === newIndex) return;
     disabledDrag.value = true;
     loading.value = true;
     try {
@@ -188,7 +189,7 @@ const deleteItemClick = (row: { id: IdValueType }) => {
                                             <tr>
                                                 <td>{{ index + 1 }}</td>
                                                 <td>
-                                                    {{ element.description }}
+                                                    {{ element.content }}
                                                 </td>
                                                 <td>
                                                     <div>

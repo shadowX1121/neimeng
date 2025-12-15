@@ -1,7 +1,8 @@
 <!--删除评估项提示弹窗-->
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import { mockApi } from "@/api/index";
+import { assessApi } from "@/api/module/assess";
+import { mockApi } from "@/api/module/mock";
 import { ElMessage } from "element-plus";
 
 const props = defineProps<{
@@ -54,12 +55,9 @@ const confirmClick = async () => {
     if (submitLoading.value) return; // 二次保险
     submitLoading.value = true;
     try {
-        const { code } = await mockApi.mock(
-            {
-                id: props.data.id,
-            },
-            "deleteAssessItem"
-        );
+        const { code } = await assessApi.deletePlus({
+            id: props.data.id,
+        });
         if (code === 200) {
             ElMessage.success(`删除成功`);
             close();
@@ -86,11 +84,17 @@ const confirmClick = async () => {
     >
         <div v-loading="loading">
             <div class="dialog-wrapper">
-                <p>该项已有{{ count }}个单位上传实证材料，删除项后将无法恢复已上传材料，是否确定删除？</p>
+                <p>
+                    该项已有{{
+                        count
+                    }}个单位上传实证材料，删除项后将无法恢复已上传材料，是否确定删除？
+                </p>
             </div>
             <div class="dialog-btn-box">
                 <el-button @click="close">取消</el-button>
-                <el-button type="danger" :loading="submitLoading" @click="confirmClick">确定</el-button>
+                <el-button type="danger" :loading="submitLoading" @click="confirmClick">
+                    确定
+                </el-button>
             </div>
         </div>
     </el-dialog>

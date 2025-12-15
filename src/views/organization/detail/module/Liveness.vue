@@ -6,6 +6,7 @@ import { ElMessage } from "element-plus";
 import { CaretBottom } from "@element-plus/icons-vue";
 import { YEAR_OPTIONS, CURRENT_YEAR } from "@/constants/index";
 import CreateDownLoadDialog from "./dialog/CreateDownLoadDialog.vue";
+import CheckFileDialog from "@/components/dialog/CheckFileDialog.vue";
 import { useAssessItemReviewStatus } from "@/utils/useOptions";
 
 const router = useRouter();
@@ -349,6 +350,19 @@ onMounted(() => {
     }
 });
 
+const viewFileDialog = reactive<{
+    visible: boolean;
+    data: any;
+}>({
+    visible: false,
+    data: {},
+});
+// 查看文件点击事件
+const handleViewFile = (data: any) => {
+    viewFileDialog.data = data.gist;
+    viewFileDialog.visible = true;
+};
+
 const downloadFileDialog = reactive<{
     visible: boolean;
     data: any;
@@ -492,7 +506,7 @@ const scoreStatusChange = async (val: boolean, row: any) => {
                                     v-if="row.gist.fileList.length > 0"
                                     type="primary"
                                     link
-                                    @click=""
+                                    @click="handleViewFile(row)"
                                 >
                                     查看
                                 </el-button>
@@ -534,6 +548,8 @@ const scoreStatusChange = async (val: boolean, row: any) => {
                 </template>
             </el-tab-pane>
         </el-tabs>
+        <!--查看文件弹窗-->
+        <CheckFileDialog v-model="viewFileDialog.visible" :data="viewFileDialog.data" />
         <!--创建下载任务弹窗-->
         <CreateDownLoadDialog
             v-model="downloadFileDialog.visible"

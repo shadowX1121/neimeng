@@ -183,6 +183,11 @@ const routes: Array<RouteRecordRaw> = [
             },
         ],
     },
+    {
+        path: "/pdfPreview",
+        name: "PdfPreview",
+        component: () => import("@/views/PdfPreview.vue"),
+    },
 ];
 
 const router = createRouter({

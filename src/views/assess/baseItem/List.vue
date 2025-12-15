@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from "vue";
-import { mockApi } from "@/api/index";
 import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
-import { YEAR_OPTIONS } from "@/constants/index";
+import { YEAR_OPTIONS, CURRENT_YEAR } from "@/constants/index";
 import AddProjectDialog from "./dialog/AddProjectDialog.vue";
 import EditProjectDialog from "./dialog/EditProjectDialog.vue";
 import DeleteAssessGistDialog from "./dialog/DeleteAssessGistDialog.vue";
@@ -15,7 +14,7 @@ const router = useRouter();
 const assessStore = useAssessStore();
 
 const filter = reactive({
-    year: "",
+    year: CURRENT_YEAR,
 });
 const yearOptions = ref(YEAR_OPTIONS);
 
@@ -59,7 +58,7 @@ const spanMethod = ({
 
 // 获取表格数据
 const getTableData = async () => {
-    await assessStore.fetchData(true);
+    await assessStore.fetchData(true, { year: filter.year });
 };
 onMounted(() => {
     getTableData();
@@ -137,15 +136,17 @@ const deleteAssessGistCallback = () => {
                     <el-tab-pane
                         v-for="classifyItem in classifyData"
                         :key="classifyItem.id"
-                        :label="classifyItem.name"
+                        :label="classifyItem.evaluate_name"
                     >
-                        <el-empty v-if="classifyItem.project.length === 0" description="暂无数据" />
+                        <el-empty
+                            v-if="classifyItem.project_info.length === 0"
+                            description="暂无数据"
+                        />
                         <template v-else>
                             <el-table
                                 class="assess-project-table"
                                 v-loading="loading"
-                                :data="formatProjectData(classifyItem.project)"
-                                border
+                                :data="formatProjectData(classifyItem.project_info)"
                                 :span-method="spanMethod"
                                 style="width: 100%"
                             >

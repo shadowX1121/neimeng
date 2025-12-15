@@ -5,23 +5,42 @@ import type { FormInstance, FormRules } from "element-plus";
 const props = defineProps<{
     modelValue: boolean;
     data: AssessItemMaterialType;
+    allData: AssessItemMaterialType[];
+    index: number | "";
 }>();
 
 const formRef = ref<FormInstance>();
 const formData = reactive<{
-    name: string;
-    isBase: boolean;
+    id?: IdValueType;
+    content: string;
+    flag: boolean;
 }>({
-    name: "",
-    isBase: false,
+    id: "",
+    content: "",
+    flag: false,
 });
 const rules = reactive<FormRules<typeof formData>>({
-    name: [
+    content: [
         { required: true, message: "请输入实证材料说明", trigger: "blur" },
         {
             min: 1,
             max: 100,
             message: "实证材料说明不得超过100个字符",
+            trigger: "blur",
+        },
+        {
+            validator: (_rule: any, value: string, callback: any) => {
+                const allData =
+                    props.index === ""
+                        ? props.allData
+                        : props.allData.filter((_item, index) => props.index !== index);
+                // 检查重复项
+                if (allData.some((item) => item.content.trim() === value.trim())) {
+                    callback(new Error("该材料说明已存在"));
+                } else {
+                    callback();
+                }
+            },
             trigger: "blur",
         },
     ],
@@ -31,9 +50,15 @@ watch(
     () => props.modelValue,
     (newVal, _oldVal) => {
         if (newVal) {
-            formData.name = props.data.name;
-            formData.isBase = props.data.isBase;
-            console.log("props.data", props.data);
+            if (props.data && props.index !== "") {
+                formData.id = props.data.id;
+                formData.content = props.data.content;
+                formData.flag = props.data.flag === "1" ? true : false;
+            } else {
+                formData.id = "";
+                formData.content = "";
+                formData.flag = false;
+            }
         }
     }
 );
@@ -67,6 +92,7 @@ const submit = async () => {
     emit("confirm", {
         ...props.data,
         ...formData,
+        flag: formData.flag ? "1" : "0",
     });
 };
 </script>
@@ -90,9 +116,9 @@ const submit = async () => {
                 label-position="top"
                 require-asterisk-position="right"
             >
-                <el-form-item required label="实证材料说明" prop="name">
+                <el-form-item required label="实证材料说明" prop="content">
                     <el-input
-                        v-model="formData.name"
+                        v-model="formData.content"
                         :model-modifiers="{ trim: true }"
                         :show-word-limit="true"
                         :autosize="{ minRows: 4, maxRows: 6 }"
@@ -103,7 +129,7 @@ const submit = async () => {
                     />
                 </el-form-item>
                 <el-form-item label="">
-                    <el-checkbox v-model="formData.isBase">
+                    <el-checkbox v-model="formData.flag">
                         <div class="is-base-des">
                             <span>是否为“</span>
                             <p class="triangle-border"></p>
@@ -115,9 +141,7 @@ const submit = async () => {
         </div>
         <template #footer>
             <div class="dialog-footer">
-                <el-button type="primary" @click="confirmClick">
-                    确定
-                </el-button>
+                <el-button type="primary" @click="confirmClick">确定</el-button>
             </div>
         </template>
     </el-dialog>

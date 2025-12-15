@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, watch, computed } from "vue";
-import { mockApi } from "@/api/index";
+import { assessApi } from "@/api/module/assess";
 import { ElMessage } from "element-plus";
 import { useRoute, useRouter } from "vue-router";
 import { useAssessStore } from "@/store/useAssessStore";
@@ -30,15 +30,9 @@ const { assessData } = storeToRefs(assessStore);
 const initData = () => {
     if (route.query.id && assessData.value.length > 0) {
         // 初始化页面数据
-        formData.classifyId = assessStore.getClassifyByItemId(
-            route.query.id as string
-        );
-        formData.projectId = assessStore.getProjectIdByItemId(
-            route.query.id as string
-        );
-        const itemInfo = assessStore.getAssessItemInfo(
-            route.query.id as string
-        );
+        formData.classifyId = assessStore.getClassifyByItemId(route.query.id as string);
+        formData.projectId = assessStore.getProjectIdByItemId(route.query.id as string);
+        const itemInfo = assessStore.getAssessItemInfo(route.query.id as string);
         if (itemInfo) {
             const cloneData = cloneDeep(itemInfo);
             formData.name = cloneData.name;
@@ -76,20 +70,14 @@ watch(
     () => formData.classifyId,
     (newVal) => {
         if (newVal) {
-            projectOptions.value = assessStore.getProjectList(
-                formData.classifyId
-            );
+            projectOptions.value = assessStore.getProjectList(formData.classifyId);
         }
     },
     { immediate: true }
 );
 const rules = reactive<FormRules<typeof formData>>({
-    classifyId: [
-        { required: true, message: "请选择所属分类", trigger: "change" },
-    ],
-    projectId: [
-        { required: true, message: "请选择所属项目", trigger: "change" },
-    ],
+    classifyId: [{ required: true, message: "请选择所属分类", trigger: "change" }],
+    projectId: [{ required: true, message: "请选择所属项目", trigger: "change" }],
     name: [
         { required: true, message: "请输入评估项名称", trigger: "blur" },
         {
@@ -112,7 +100,7 @@ const rules = reactive<FormRules<typeof formData>>({
         {
             validator: (_rule: any, value: Array<any>, callback: any) => {
                 if (value.length === 0) {
-                    callback(new Error("请至少上传一个实证材料"));
+                    callback(new Error("请至少添加一个实证材料"));
                 } else {
                     callback();
                 }
@@ -139,7 +127,8 @@ const submit = async () => {
     if (submitLoading.value) return; // 二次保险
     submitLoading.value = true;
     try {
-        const { code } = await mockApi.mock(formData, null);
+        let params = { ...formData };
+        const { code } = await assessApi.addEvaluateDetail({});
         if (code === 200) {
             ElMessage.success(`添加成功`);
             router.back();
@@ -158,7 +147,7 @@ const submit = async () => {
             <span class="title">{{ id ? "修改" : "添加" }}评估项</span>
         </div>
         <div class="main-content detail-content">
-            <div class="password-page">
+            <div class="base-item-add-page">
                 <el-form
                     class="w400"
                     ref="formRef"
@@ -222,15 +211,8 @@ const submit = async () => {
                     <el-form-item required label="实证材料" prop="file">
                         <AddItemUploadModule v-model="formData.file" />
                     </el-form-item>
-                    <el-form-item
-                        style="margin-top: 48px"
-                        class="button-form-item"
-                    >
-                        <el-button
-                            type="primary"
-                            :loading="submitLoading"
-                            @click="onSubmit"
-                        >
+                    <el-form-item style="margin-top: 48px" class="button-form-item">
+                        <el-button type="primary" :loading="submitLoading" @click="onSubmit">
                             确定
                         </el-button>
                     </el-form-item>
@@ -241,7 +223,7 @@ const submit = async () => {
 </template>
 
 <style lang="scss" scoped>
-.password-page {
+.base-item-add-page {
     margin-top: 40px;
 }
 </style>

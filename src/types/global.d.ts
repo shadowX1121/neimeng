@@ -69,16 +69,16 @@ declare global {
      */
     interface AssessClassifyType {
         id?: IdValueType;
-        name: string;
-        project: AssessProjectType[];
+        evaluate_name: string;
+        project_info: AssessProjectType[];
     }
     /**
      * 评估项目信息
      */
     interface AssessProjectType {
         id?: IdValueType;
-        name: string;
-        assessItem?: AssessItemBaseType[];
+        evaluate_project_name: string;
+        project_detail?: AssessItemBaseType[];
     }
     /**
      * 结构化后的评估项目信息
@@ -116,8 +116,7 @@ declare global {
      */
     interface AssessItemMaterialType {
         id?: IdValueType;
-        name: string;
-        fileUrl: string;
-        isBase: boolean;
+        content: string;
+        flag: "0" | "1";
     }
 }

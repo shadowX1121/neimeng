@@ -1,14 +1,7 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
-import {
-    Sort,
-    Edit,
-    Delete,
-    CircleCheck,
-    CircleClose,
-    Loading,
-} from "@element-plus/icons-vue";
-import MySimpleUpload from "@/components/upload/MySimpleUpload.vue";
+import { ref, reactive, watch } from "vue";
+import { Sort, Edit, Delete } from "@element-plus/icons-vue";
+// import MySimpleUpload from "@/components/upload/MySimpleUpload.vue";
 import EditFileNameDialog from "../dialog/EditFileNameDialog.vue";
 import Draggable from "vuedraggable";
 
@@ -21,54 +14,80 @@ const props = withDefaults(defineProps<Props>(), {
 });
 const emit = defineEmits(["update:modelValue"]);
 
-const fileList = ref<any[]>([...props.modelValue]);
+const contentList = ref<any[]>([...props.modelValue]);
 
 // 父组件更新 v-model → 子组件同步
 watch(
     () => props.modelValue,
     (val) => {
-        fileList.value = [...val];
+        contentList.value = [...val];
     }
 );
 
 // 触发更新
-const update = () => emit("update:modelValue", fileList.value);
+const update = () => emit("update:modelValue", contentList.value);
 
-const editFileNameDialogVisible = ref(false);
-const editFileData = ref<AssessItemMaterialType>({
-    name: "",
-    fileUrl: "",
-    isBase: false,
+const editItemDialog = reactive<{
+    visible: boolean;
+    data: any;
+    allData: any[];
+    index: number | "";
+}>({
+    visible: false,
+    data: {},
+    allData: [],
+    index: 0, // 当前编辑项索引
 });
+// const editFileData = ref<AssessItemMaterialType>({
+//     content: "",
+//     flag: "0",
+// });
+// 添加点击事件
+const handleAddItem = () => {
+    editItemDialog.data = {};
+    editItemDialog.allData = [...contentList.value];
+    editItemDialog.index = "";
+    editItemDialog.visible = true;
+};
 // 编辑点击事件
 const editClick = (index: number) => {
-    editFileNameDialogVisible.value = true;
-    editFileData.value = fileList.value[index];
+    editItemDialog.data = contentList.value[index];
+    editItemDialog.allData = [...contentList.value];
+    editItemDialog.index = index;
+    editItemDialog.visible = true;
+    console.log("editItemDialog", editItemDialog);
 };
 // 编辑完成回调函数
 const editNameConfirm = (itemData: any) => {
-    fileList.value.forEach((item) => {
-        if (itemData.fileUrl === item.fileUrl) {
-            item.name = itemData.name;
-            item.isBase = itemData.isBase;
-        }
-    });
+    if (editItemDialog.index === "") {
+        // 新增
+        contentList.value.push(itemData);
+    } else {
+        // 编辑
+        contentList.value.forEach((item, index) => {
+            if (index === editItemDialog.index) {
+                item.content = itemData.content;
+                item.flag = itemData.flag;
+            }
+        });
+    }
     update();
 };
 // 删除点击事件
 const deleteClick = (index: number) => {
-    fileList.value.splice(index, 1);
+    contentList.value.splice(index, 1);
     update();
 };
 </script>
 
 <template>
     <div>
-        <MySimpleUpload v-model="fileList" @change="update" />
+        <!-- <MySimpleUpload v-model="contentList" @change="update" /> -->
+        <el-button size="small" type="primary" @click="handleAddItem">点击添加</el-button>
         <draggable
             class="file-list"
-            v-model="fileList"
-            item-key="name"
+            v-model="contentList"
+            item-key="content"
             handle=".drag-handle"
             @end="update"
         >
@@ -81,17 +100,10 @@ const deleteClick = (index: number) => {
                         <p class="index">{{ index + 1 }}</p>
                     </div>
                     <div class="file-content">
-                        <p
-                            v-if="element.isBase"
-                            class="is-base triangle-border"
-                        ></p>
-                        <p class="file-name">{{ element.name }}</p>
-                        <p class="file-status">
-                            <el-icon
-                                v-if="element.status === 'success'"
-                                color="#009F4D"
-                                size="16"
-                            >
+                        <p v-if="element.flag === '1'" class="is-base triangle-border"></p>
+                        <p class="file-name">{{ element.content }}</p>
+                        <!-- <p class="file-status">
+                            <el-icon v-if="element.status === 'success'" color="#009F4D" size="16">
                                 <CircleCheck />
                             </el-icon>
                             <el-icon
@@ -104,27 +116,19 @@ const deleteClick = (index: number) => {
                             <el-icon v-else size="16" class="spinner">
                                 <Loading />
                             </el-icon>
-                        </p>
+                        </p> -->
                     </div>
-                    <el-button
-                        link
-                        :icon="Edit"
-                        :disabled="element.status !== 'success'"
-                        @click="editClick(index)"
-                    ></el-button>
-                    <el-button
-                        link
-                        :icon="Delete"
-                        :disabled="element.status !== 'success'"
-                        @click="deleteClick(index)"
-                    ></el-button>
+                    <el-button link :icon="Edit" @click="editClick(index)"></el-button>
+                    <el-button link :icon="Delete" @click="deleteClick(index)"></el-button>
                 </div>
             </template>
         </draggable>
         <!--编辑添加实证材料弹窗-->
         <EditFileNameDialog
-            v-model="editFileNameDialogVisible"
-            :data="editFileData"
+            v-model="editItemDialog.visible"
+            :data="editItemDialog.data"
+            :all-data="editItemDialog.allData"
+            :index="editItemDialog.index"
             @confirm="editNameConfirm"
         />
     </div>
