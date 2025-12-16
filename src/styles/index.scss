@@ -212,6 +212,9 @@ $my-widths: 108, 200, 220, 400, 432, 640, 800;
     &:not(.el-table--border) {
         .el-table__cell {
             border-right: var(--el-table-border);
+            &.no-boder-bottom {
+                border-bottom: none;
+            }
         }
         .el-table__inner-wrapper {
             &::before {

@@ -66,5 +66,20 @@ export function formatProjectData(projects: any[]) {
         }
     }
 
+    // 处理最后一个project
+    for (let i = rows.length - 1; i >= 0; i--) {
+        if (rows[i].project.rowSpan > 0) {
+            rows[i].project.isLast = true;
+            break; // 找到第一个满足条件的就退出
+        }
+    }
+    // 处理最后一个评估项和要点
+    for (let i = rows.length - 1; i >= 0; i--) {
+        if (rows[i].assess.rowSpan > 0) {
+            rows[i].assess.isLast = true;
+            break; // 找到第一个满足条件的就退出
+        }
+    }
+
     return rows;
 }

@@ -50,6 +50,16 @@ const spanMethod = ({ row, column, rowIndex, columnIndex }: SpanMethodProps<any>
 
     return { rowspan: 1, colspan: 1 };
 };
+// 单元格类名函数
+const cellClassName = ({ row, column, rowIndex, columnIndex }: any) => {
+    if (
+        (column.property === "project" && row.project.isLast) ||
+        ((column.property === "assessName" || column.property === "assessGist") &&
+            row.assess.isLast)
+    ) {
+        return "no-boder-bottom";
+    }
+};
 
 // 获取表格数据
 const getTableData = async () => {
@@ -138,19 +148,35 @@ const deleteAssessGistClick = (row: any) => {
                                 class="assess-project-table"
                                 :data="formatProjectData(classifyItem.project_info)"
                                 :span-method="spanMethod"
+                                :cell-class-name="cellClassName"
                                 style="width: 100%"
                             >
-                                <el-table-column label="项目" align="center" min-width="200">
+                                <el-table-column
+                                    prop="project"
+                                    label="项目"
+                                    align="center"
+                                    min-width="200"
+                                >
                                     <template #default="{ row }">
                                         <span>{{ row.project.name }}</span>
                                     </template>
                                 </el-table-column>
-                                <el-table-column label="评估项" align="center" min-width="200">
+                                <el-table-column
+                                    prop="assessName"
+                                    label="评估项"
+                                    align="center"
+                                    min-width="200"
+                                >
                                     <template #default="{ row }">
                                         <span>{{ row.assess.name }}</span>
                                     </template>
                                 </el-table-column>
-                                <el-table-column label="评估要点" align="center" min-width="200">
+                                <el-table-column
+                                    prop="assessGist"
+                                    label="评估要点"
+                                    align="center"
+                                    min-width="200"
+                                >
                                     <template #default="{ row }">
                                         <span>{{ row.assess.gist }}</span>
                                     </template>

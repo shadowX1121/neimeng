@@ -138,7 +138,7 @@ const submit = async () => {
         }
         const { code } = await assessApi.addEvaluateDetail(params);
         if (code === 200) {
-            ElMessage.success(id.value ? `添加成功` : `修改成功`);
+            ElMessage.success(id.value ? `修改成功` : `添加成功`);
             router.back();
         }
     } catch (error) {
