@@ -18,19 +18,17 @@ const moduleData = ref<any>();
 watch(
     () => props.data,
     (newVal) => {
-        moduleData.value = newVal.map((item: any) => {
-            return {
-                ...item,
-                list: item.list.map((listItem: any) => {
-                    return {
-                        ...listItem,
-                        fileList: [],
-                        scoreStatus: 1,
-                        updateScoreStatus: false,
-                    };
-                }),
-            };
-        });
+        moduleData.value = {
+            ...newVal,
+            list: newVal.list.map((listItem: any) => {
+                return {
+                    ...listItem,
+                    fileList: [],
+                    scoreStatus: 1,
+                    updateScoreStatus: false,
+                };
+            }),
+        };
     },
     { deep: true, immediate: true }
 );
@@ -72,14 +70,10 @@ const scoreStatusChange = async (val: boolean, row: any) => {
 
 <template>
     <div v-loading="loading">
-        <el-empty v-if="moduleData.project_info.length === 0" description="暂无数据" />
+        <el-empty v-if="moduleData.list.length === 0" description="暂无数据" />
         <template v-else>
-            <el-table
-                class="assess-project-table"
-                :data="moduleData.project_info"
-                style="width: 100%"
-            >
-                <el-table-column label="序号" prop="order" align="center" width="60" />
+            <el-table class="assess-project-table" :data="moduleData.list" style="width: 100%">
+                <el-table-column label="序号" type="index" align="center" width="80" />
                 <el-table-column
                     label="实证材料（项）"
                     prop="content"

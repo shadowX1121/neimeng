@@ -74,6 +74,7 @@ const formatTableData = (projects: any[]) => {
             idx += len;
         }
     }
+    // 处理最后一个project
 
     return rows;
 };
@@ -105,6 +106,25 @@ const spanMethod = ({ row, column, rowIndex, columnIndex }: SpanMethodProps<any>
     }
 
     return { rowspan: 1, colspan: 1 };
+};
+// 单元格类名函数
+const cellClassName = ({ row, column, rowIndex, columnIndex }: any) => {
+    if (column.property === "project") {
+        console.log(row, column, rowIndex, columnIndex);
+        return "project-name";
+    }
+
+    // if (columnIndex === 0) {
+    //     // projectName
+    //     return "project-name";
+    // }
+    // if (columnIndex === 1 || columnIndex === 2) {
+    //     // assessName
+    //     return "assess-name";
+    // }
+    // if (columnIndex === 3) {
+    //     // gist
+    // }
 };
 
 const viewFileDialog = reactive<{
@@ -150,9 +170,10 @@ const scoreStatusChange = async (val: boolean, row: any) => {
                 class="assess-project-table"
                 :data="moduleData.project_info"
                 :span-method="spanMethod"
+                :cell-class-name="cellClassName"
                 style="width: 100%"
             >
-                <el-table-column label="项目" align="center" min-width="200">
+                <el-table-column prop="project" label="项目" align="center" min-width="200">
                     <template #default="{ row }">
                         <span>{{ row.project.name }}</span>
                     </template>
