@@ -44,13 +44,14 @@ watch(() => route.query.url, renderPdf);
     <div ref="containerRef" class="pdf-container"></div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .pdf-container {
     width: 100%;
     overflow: auto;
-}
-canvas {
-    display: block;
-    margin: 0 auto 16px;
+    background: #333333;
+    :deep(canvas) {
+        display: block;
+        margin: 0 auto 16px;
+    }
 }
 </style>

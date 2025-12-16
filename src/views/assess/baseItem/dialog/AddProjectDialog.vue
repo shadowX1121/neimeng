@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, computed, watch, watchEffect } from "vue";
-import { mockApi } from "@/api/index";
+import { assessApi } from "@/api/module/assess";
 import { ElMessage } from "element-plus";
 import { CirclePlus, Delete } from "@element-plus/icons-vue";
 
@@ -146,7 +146,10 @@ const submit = async () => {
     if (submitLoading.value) return; // 二次保险
     submitLoading.value = true;
     try {
-        const { code } = await mockApi.mock(formData, null);
+        const { code } = await assessApi.addEvaluate({
+            name: formData.name,
+            project_name_list: JSON.stringify(formData.project),
+        });
         if (code === 200) {
             ElMessage.success(`添加成功`);
             close();
@@ -188,11 +191,7 @@ const submit = async () => {
                         autocomplete="off"
                     />
                 </el-form-item>
-                <el-form-item
-                    required
-                    label="项目名称"
-                    style="margin-bottom: 0"
-                >
+                <el-form-item required label="项目名称" style="margin-bottom: 0">
                     <div
                         v-for="(item, index) in formData.project"
                         :key="index"
@@ -212,20 +211,10 @@ const submit = async () => {
                                 autocomplete="off"
                             />
                         </el-form-item>
-                        <el-icon
-                            v-if="index == 0"
-                            class="add"
-                            :size="16"
-                            @click="addProject"
-                        >
+                        <el-icon v-if="index == 0" class="add" :size="16" @click="addProject">
                             <CirclePlus />
                         </el-icon>
-                        <el-icon
-                            v-else
-                            class="delete"
-                            :size="16"
-                            @click="deleteProject(index)"
-                        >
+                        <el-icon v-else class="delete" :size="16" @click="deleteProject(index)">
                             <Delete />
                         </el-icon>
                     </div>
@@ -235,11 +224,7 @@ const submit = async () => {
         </div>
         <template #footer>
             <div class="dialog-footer">
-                <el-button
-                    type="primary"
-                    :loading="submitLoading"
-                    @click="confirmClick"
-                >
+                <el-button type="primary" :loading="submitLoading" @click="confirmClick">
                     确定
                 </el-button>
             </div>

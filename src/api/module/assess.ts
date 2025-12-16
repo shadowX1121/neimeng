@@ -73,4 +73,12 @@ export const assessApi = {
             data: params,
         });
     },
+    // 获取活跃度评估信息
+    getEvaluateListInfo: (params: any): Promise<ResponseData<any>> => {
+        return request.request({
+            url: `/evaluate_list_info`,
+            method: "GET",
+            params,
+        });
+    },
 };

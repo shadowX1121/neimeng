@@ -19,10 +19,10 @@ const id = computed(() => route.query.id || "");
 const formRef = ref<FormInstance>();
 const formData = reactive<AssessItemType>({
     classifyId: "",
-    projectId: "",
-    name: "",
-    gist: "",
-    file: [],
+    evaluateId: "",
+    evaluate_detail_name: "",
+    evaluate_points: "",
+    detail_info: [],
 });
 const classifyOptions = assessStore.classifyList;
 
@@ -31,17 +31,17 @@ const initData = () => {
     if (route.query.id && assessData.value.length > 0) {
         // 初始化页面数据
         formData.classifyId = assessStore.getClassifyByItemId(route.query.id as string);
-        formData.projectId = assessStore.getProjectIdByItemId(route.query.id as string);
+        console.log("formData.classifyId", formData.classifyId);
+
+        formData.evaluateId = assessStore.getProjectIdByItemId(route.query.id as string);
         const itemInfo = assessStore.getAssessItemInfo(route.query.id as string);
         if (itemInfo) {
             const cloneData = cloneDeep(itemInfo);
-            formData.name = cloneData.name;
-            formData.gist = cloneData.gist;
-            formData.file = cloneData.file.map((file) => ({
-                ...file,
-                status: "success",
+            formData.evaluate_detail_name = cloneData.evaluate_detail_name;
+            formData.evaluate_points = cloneData.evaluate_points;
+            formData.detail_info = cloneData.detail_info.map((content) => ({
+                ...content,
             }));
-            console.log("formData.file", formData.file);
         }
     }
 };
@@ -62,7 +62,7 @@ watch(
 
 // 分类改变事件
 const handleClassifyChange = () => {
-    formData.projectId = "";
+    formData.evaluateId = "";
 };
 const projectOptions = ref<LabelOption[]>([]);
 
@@ -77,8 +77,8 @@ watch(
 );
 const rules = reactive<FormRules<typeof formData>>({
     classifyId: [{ required: true, message: "请选择所属分类", trigger: "change" }],
-    projectId: [{ required: true, message: "请选择所属项目", trigger: "change" }],
-    name: [
+    evaluateId: [{ required: true, message: "请选择所属项目", trigger: "change" }],
+    evaluate_detail_name: [
         { required: true, message: "请输入评估项名称", trigger: "blur" },
         {
             min: 1,
@@ -87,7 +87,7 @@ const rules = reactive<FormRules<typeof formData>>({
             trigger: "blur",
         },
     ],
-    gist: [
+    evaluate_points: [
         { required: true, message: "请输入评估要点", trigger: "blur" },
         {
             min: 1,
@@ -96,7 +96,7 @@ const rules = reactive<FormRules<typeof formData>>({
             trigger: "blur",
         },
     ],
-    file: [
+    detail_info: [
         {
             validator: (_rule: any, value: Array<any>, callback: any) => {
                 if (value.length === 0) {
@@ -127,10 +127,18 @@ const submit = async () => {
     if (submitLoading.value) return; // 二次保险
     submitLoading.value = true;
     try {
-        let params = { ...formData };
-        const { code } = await assessApi.addEvaluateDetail({});
+        let params: any = {
+            evaluate_project_id: formData.evaluateId,
+            evaluate_detail_name: formData.evaluate_detail_name,
+            evaluate_points: formData.evaluate_points,
+            detail_info: JSON.stringify(formData.detail_info),
+        };
+        if (id.value) {
+            params.id = id.value;
+        }
+        const { code } = await assessApi.addEvaluateDetail(params);
         if (code === 200) {
-            ElMessage.success(`添加成功`);
+            ElMessage.success(id.value ? `添加成功` : `修改成功`);
             router.back();
         }
     } catch (error) {
@@ -171,10 +179,10 @@ const submit = async () => {
                             />
                         </el-select>
                     </el-form-item>
-                    <el-form-item required label="所属项目" prop="projectId">
+                    <el-form-item required label="所属项目" prop="evaluateId">
                         <el-select
                             class="w400"
-                            v-model="formData.projectId"
+                            v-model="formData.evaluateId"
                             :disabled="!formData.classifyId"
                             placeholder="请选择所属项目"
                         >
@@ -186,9 +194,9 @@ const submit = async () => {
                             />
                         </el-select>
                     </el-form-item>
-                    <el-form-item required label="评估项名称" prop="name">
+                    <el-form-item required label="评估项名称" prop="evaluate_detail_name">
                         <el-input
-                            v-model="formData.name"
+                            v-model="formData.evaluate_detail_name"
                             :model-modifiers="{ trim: true }"
                             :show-word-limit="true"
                             maxlength="20"
@@ -196,9 +204,9 @@ const submit = async () => {
                             autocomplete="off"
                         />
                     </el-form-item>
-                    <el-form-item required label="评估要点" prop="gist">
+                    <el-form-item required label="评估要点" prop="evaluate_points">
                         <el-input
-                            v-model="formData.gist"
+                            v-model="formData.evaluate_points"
                             :model-modifiers="{ trim: true }"
                             :show-word-limit="true"
                             :autosize="{ minRows: 4, maxRows: 6 }"
@@ -208,8 +216,8 @@ const submit = async () => {
                             autocomplete="off"
                         />
                     </el-form-item>
-                    <el-form-item required label="实证材料" prop="file">
-                        <AddItemUploadModule v-model="formData.file" />
+                    <el-form-item required label="实证材料" prop="detail_info">
+                        <AddItemUploadModule v-model="formData.detail_info" />
                     </el-form-item>
                     <el-form-item style="margin-top: 48px" class="button-form-item">
                         <el-button type="primary" :loading="submitLoading" @click="onSubmit">

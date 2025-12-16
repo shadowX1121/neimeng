@@ -31,25 +31,20 @@ const addProjectClick = () => {
 
 // 表格模块
 const { isLoading: loading, assessData: classifyData } = storeToRefs(assessStore);
-const spanMethod = ({
-    row,
-    column,
-    rowIndex,
-    columnIndex,
-}: SpanMethodProps<AssessProjectStructType>) => {
+const spanMethod = ({ row, column, rowIndex, columnIndex }: SpanMethodProps<any>) => {
     if (columnIndex === 0) {
         // projectName
         return {
-            rowspan: row.projectRowSpan,
-            colspan: row.projectRowSpan ? 1 : 0,
+            rowspan: row.project.rowSpan,
+            colspan: row.project.rowSpan ? 1 : 0,
         };
     }
 
     if (columnIndex === 1 || columnIndex === 2) {
         // assessName
         return {
-            rowspan: row.assessRowSpan,
-            colspan: row.assessRowSpan ? 1 : 0,
+            rowspan: row.assess.rowSpan,
+            colspan: row.assess.rowSpan ? 1 : 0,
         };
     }
 
@@ -69,7 +64,7 @@ const editAssessItemClick = (row: any) => {
     router.push({
         name: "AssessBaseItemAdd",
         query: {
-            id: row.assessId,
+            id: row.assess.id,
         },
     });
 };
@@ -80,13 +75,8 @@ const deleteGistDialogVisible = ref(false);
 const deleteGistData = ref<any>({});
 // 删除评估要点点击事件
 const deleteAssessGistClick = (row: any) => {
-    console.log("row", row);
     deleteGistData.value = row;
     deleteGistDialogVisible.value = true;
-};
-// 删除评估要点后的回调函数、
-const deleteAssessGistCallback = () => {
-    getTableData();
 };
 </script>
 
@@ -120,6 +110,7 @@ const deleteAssessGistCallback = () => {
                 </div>
                 <el-tabs
                     v-if="classifyData.length > 0"
+                    v-loading="loading"
                     class="assess-tabs"
                     addable
                     type="border-card"
@@ -145,46 +136,43 @@ const deleteAssessGistCallback = () => {
                         <template v-else>
                             <el-table
                                 class="assess-project-table"
-                                v-loading="loading"
                                 :data="formatProjectData(classifyItem.project_info)"
                                 :span-method="spanMethod"
                                 style="width: 100%"
                             >
+                                <el-table-column label="项目" align="center" min-width="200">
+                                    <template #default="{ row }">
+                                        <span>{{ row.project.name }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="评估项" align="center" min-width="200">
+                                    <template #default="{ row }">
+                                        <span>{{ row.assess.name }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="评估要点" align="center" min-width="200">
+                                    <template #default="{ row }">
+                                        <span>{{ row.assess.gist }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="序号" align="center" width="60">
+                                    <template #default="{ row }">
+                                        <span>{{ row.gist.index }}</span>
+                                    </template>
+                                </el-table-column>
                                 <el-table-column
-                                    prop="projectName"
-                                    label="项目"
-                                    align="center"
-                                    min-width="200"
-                                />
-                                <el-table-column
-                                    prop="assessName"
-                                    label="评估项"
-                                    align="center"
-                                    min-width="200"
-                                />
-                                <el-table-column
-                                    prop="gist"
-                                    label="评估要点"
-                                    align="center"
-                                    min-width="200"
-                                />
-                                <el-table-column
-                                    prop="gistIndex"
-                                    label="序号"
-                                    align="center"
-                                    width="60"
-                                />
-
-                                <el-table-column
-                                    prop="fileName"
                                     label="实证材料（项）"
                                     align="center"
                                     min-width="200"
-                                />
-                                <el-table-column label="基础达标项" width="100">
+                                >
+                                    <template #default="{ row }">
+                                        <span>{{ row.gist.name }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="基础达标项" align="center" width="100">
                                     <template #default="{ row }">
                                         <div class="flex justify-content-center">
-                                            <p v-if="row.isBase" class="triangle-border"></p>
+                                            <p v-if="row.gist.flag" class="triangle-border"></p>
                                         </div>
                                     </template>
                                 </el-table-column>
@@ -213,14 +201,14 @@ const deleteAssessGistCallback = () => {
             </div>
         </div>
         <!--添加项目弹窗-->
-        <AddProjectDialog v-model="addProjectDialogVisible" />
+        <AddProjectDialog v-model="addProjectDialogVisible" @confirm="getTableData" />
         <!--编辑项目弹窗-->
-        <EditProjectDialog v-model="manageProjectDialogVisible" />
+        <EditProjectDialog v-model="manageProjectDialogVisible" @confirm="getTableData" />
         <!--删除项目弹窗-->
         <DeleteAssessGistDialog
             v-model="deleteGistDialogVisible"
             :data="deleteGistData"
-            @confirm="deleteAssessGistCallback"
+            @confirm="getTableData"
         />
     </div>
 </template>

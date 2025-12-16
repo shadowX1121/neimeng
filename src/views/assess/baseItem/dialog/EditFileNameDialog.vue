@@ -53,9 +53,9 @@ watch(
             if (props.data && props.index !== "") {
                 formData.id = props.data.id;
                 formData.content = props.data.content;
-                formData.flag = props.data.flag === "1" ? true : false;
+                formData.flag = props.data.flag == 1 ? true : false;
             } else {
-                formData.id = "";
+                formData.id = undefined;
                 formData.content = "";
                 formData.flag = false;
             }
@@ -92,7 +92,7 @@ const submit = async () => {
     emit("confirm", {
         ...props.data,
         ...formData,
-        flag: formData.flag ? "1" : "0",
+        flag: formData.flag ? 1 : 0,
     });
 };
 </script>

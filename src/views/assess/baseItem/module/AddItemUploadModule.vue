@@ -100,7 +100,7 @@ const deleteClick = (index: number) => {
                         <p class="index">{{ index + 1 }}</p>
                     </div>
                     <div class="file-content">
-                        <p v-if="element.flag === '1'" class="is-base triangle-border"></p>
+                        <p v-if="element.flag == 1" class="is-base triangle-border"></p>
                         <p class="file-name">{{ element.content }}</p>
                         <!-- <p class="file-status">
                             <el-icon v-if="element.status === 'success'" color="#009F4D" size="16">

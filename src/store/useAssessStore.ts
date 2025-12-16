@@ -184,7 +184,7 @@ export const useAssessStore = defineStore(
                     project.project_detail &&
                         project.project_detail.length > 0 &&
                         project.project_detail.forEach((item) => {
-                            if (item.id === itemId) {
+                            if (item.id == itemId) {
                                 classifyId = classify.id!;
                             }
                         });
@@ -200,7 +200,7 @@ export const useAssessStore = defineStore(
                     project.project_detail &&
                         project.project_detail.length > 0 &&
                         project.project_detail.forEach((item) => {
-                            if (item.id === itemId) {
+                            if (item.id == itemId) {
                                 projectId = project.id!;
                             }
                         });
@@ -216,7 +216,7 @@ export const useAssessStore = defineStore(
                     project.project_detail &&
                         project.project_detail.length > 0 &&
                         project.project_detail.forEach((item) => {
-                            if (item.id === itemId) {
+                            if (item.id == itemId) {
                                 itemInfo = item;
                             }
                         });

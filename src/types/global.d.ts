@@ -84,7 +84,7 @@ declare global {
      * 结构化后的评估项目信息
      */
     interface AssessProjectStructType {
-        id: string;
+        id: IdValueType;
         projectId: IdValueType;
         projectName: string;
         projectRowSpan: number;
@@ -103,13 +103,13 @@ declare global {
      */
     interface AssessItemBaseType {
         id?: IdValueType;
-        name: string;
-        gist: string;
-        file: AssessItemMaterialType[];
+        evaluate_detail_name: string;
+        evaluate_points: string;
+        detail_info: AssessItemMaterialType[];
     }
     interface AssessItemType extends AssessItemBaseType {
         classifyId: IdValueType;
-        projectId: IdValueType;
+        evaluateId: IdValueType;
     }
     /**
      * 评估项材料项
@@ -117,6 +117,10 @@ declare global {
     interface AssessItemMaterialType {
         id?: IdValueType;
         content: string;
-        flag: "0" | "1";
+        flag: 0 | 1;
     }
+    /**
+     * 加减/否决项key对应值
+     */
+    type PlusValueType = 1 | 2 | 3;
 }

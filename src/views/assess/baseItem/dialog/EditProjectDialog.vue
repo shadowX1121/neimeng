@@ -15,7 +15,12 @@ const props = defineProps<{
 }>();
 
 const loading = ref(false);
-const classifyData = assessStore.assessData;
+const classifyData = assessStore.assessData.map((item) => {
+    return {
+        ...item,
+        id: item.id?.toString(),
+    };
+});
 
 const defaultActive = ref();
 // 菜单选择事件
@@ -25,8 +30,8 @@ const menuSelect = (index: string) => {
 };
 const formRef = ref<FormInstance>();
 const formData = ref<AssessClassifyType>({
-    name: "",
-    project: [],
+    evaluate_name: "",
+    project_info: [],
 });
 watch(
     () => defaultActive.value,
@@ -35,8 +40,8 @@ watch(
             const findItem = classifyData.find((item) => item.id === newVal);
             if (findItem) {
                 formData.value = cloneDeep(findItem);
-                if (formData.value.project.length === 0) {
-                    formData.value.project.push({ name: "" });
+                if (formData.value.project_info.length === 0) {
+                    formData.value.project_info.push({ evaluate_project_name: "" });
                 }
                 if (formRef.value) {
                     formRef.value.resetFields();
@@ -81,7 +86,7 @@ const projectError = computed(() => {
     return text;
 });
 const rules = reactive<FormRules<typeof formData>>({
-    name: [
+    evaluate_name: [
         { required: true, message: "请填写分类名称", trigger: "blur" },
         // 你还可以加更多规则
         {
@@ -95,12 +100,12 @@ const rules = reactive<FormRules<typeof formData>>({
 const projectItemRules = [
     {
         validator: (rule: any, value: string, callback: any) => {
-            const reg = /^project\.(\d+)\.name$/;
+            const reg = /^project_info\.(\d+)\.evaluate_project_name$/;
             const currentIndex = rule.field.match(reg)[1];
             // 检查重复项
-            const values = formData.value.project
+            const values = formData.value.project_info
                 .filter((_item, index) => index < Number(currentIndex))
-                .map((item) => item.name)
+                .map((item) => item.evaluate_project_name)
                 .filter(Boolean);
             const uniqueValues = [...new Set(values)];
             if (value === "") {
@@ -140,17 +145,17 @@ watchEffect(() => {
 
 // 添加项目点击事件
 const addProject = () => {
-    if (formData.value.project.length >= 10) {
+    if (formData.value.project_info.length >= 10) {
         ElMessage.warning("最多添加10个项目");
         return;
     }
-    formData.value.project.push({
-        name: "",
+    formData.value.project_info.push({
+        evaluate_project_name: "",
     });
 };
 // 删除项目点击事件
 const deleteProject = (index: number) => {
-    formData.value.project.splice(index, 1);
+    formData.value.project_info.splice(index, 1);
 };
 
 const emit = defineEmits<{
@@ -211,7 +216,7 @@ const submit = async () => {
                         class="no-child-menu"
                         :index="menu.id"
                     >
-                        <span>{{ menu.name }}</span>
+                        <span>{{ menu.evaluate_name }}</span>
                     </el-menu-item>
                 </el-menu>
             </div>
@@ -224,9 +229,9 @@ const submit = async () => {
                     label-position="top"
                     require-asterisk-position="right"
                 >
-                    <el-form-item label="分类名称" prop="name">
+                    <el-form-item label="分类名称" prop="evaluate_name">
                         <el-input
-                            v-model="formData.name"
+                            v-model="formData.evaluate_name"
                             :model-modifiers="{ trim: true }"
                             :show-word-limit="true"
                             maxlength="10"
@@ -236,17 +241,17 @@ const submit = async () => {
                     </el-form-item>
                     <el-form-item required label="项目名称" style="margin-bottom: 0">
                         <div
-                            v-for="(item, index) in formData.project"
+                            v-for="(item, index) in formData.project_info"
                             :key="index"
                             class="project-item"
                         >
                             <el-form-item
-                                :prop="`project.${index}.name`"
+                                :prop="`project_info.${index}.evaluate_project_name`"
                                 :rules="projectItemRules"
                                 class="inline-form-item"
                             >
                                 <el-input
-                                    v-model="item.name"
+                                    v-model="item.evaluate_project_name"
                                     :model-modifiers="{ trim: true }"
                                     :show-word-limit="true"
                                     maxlength="10"
