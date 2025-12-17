@@ -8,6 +8,7 @@ import { YEAR_OPTIONS, CURRENT_YEAR, PLUS_OPTIONS } from "@/constants/index";
 import CreateDownLoadDialog from "./dialog/CreateDownLoadDialog.vue";
 import Base from "./liveness/Base.vue";
 import PlusTable from "./liveness/Plus.vue";
+import MinusTable from "./liveness/Minus.vue";
 
 const route = useRoute();
 
@@ -149,6 +150,7 @@ const downloadClick = () => {
             >
                 <Base v-if="classifyItem.tabType === 'base'" :data="classifyItem" />
                 <PlusTable v-if="classifyItem.tabType === 1" :data="classifyItem" />
+                <MinusTable v-if="classifyItem.tabType === 2" :data="classifyItem" />
             </el-tab-pane>
         </el-tabs>
         <!--创建下载任务弹窗-->

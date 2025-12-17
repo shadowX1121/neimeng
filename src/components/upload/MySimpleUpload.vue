@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ElMessage } from "element-plus";
 import { ref, watch } from "vue";
+import { useOssUpload } from "@/utils/useOssUpload";
 
 interface Props {
     modelValue?: any[];
@@ -18,31 +19,35 @@ interface Props {
     minSize?: number; // MB
 }
 
+const { upload } = useOssUpload();
+
 const props = withDefaults(defineProps<Props>(), {
     modelValue: () => [],
     action: "#",
     headers: () => ({}),
     name: "file",
     multiple: true,
-    accept: "*",
-    limit: 10,
+    accept: ".pdf",
+    limit: 3,
     listType: "text",
     autoUpload: true,
     drag: false,
     disabled: false,
-    maxSize: 10, // 10MB
+    maxSize: 100, // 10MB
     minSize: 0, // 0MB
 });
 
 const emit = defineEmits(["update:modelValue", "success", "error", "change"]);
-const fileList = ref<any[]>([...props.modelValue]);
+const fileList = ref<any[]>([]);
 
 // 父组件更新 v-model → 子组件同步
 watch(
     () => props.modelValue,
     (val) => {
+        console.log("文件列表", props.modelValue);
         fileList.value = [...val];
-    }
+    },
+    { deep: true, immediate: true }
 );
 
 // 子组件更新 → 通知父组件
@@ -103,13 +108,20 @@ const handleExceed = () => {
 // 自定义上传请求的钩子
 const handleHttpRequest = async (options: any) => {
     const { file, onSuccess, onError } = options;
-    try {
-        const formData = new FormData();
-        formData.append("file", file);
+    // try {
+    //     const url = await upload(option.file, {
+    //         dir: "files",
+    //         onProgress: (p) => (progress.value = p),
+    //     });
 
+    //     option.onSuccess(url);
+    // } catch (e) {
+    //     option.onError(e);
+    // }
+    try {
         // ⭐ 自定义上传请求（可换成你的 API）
-        const res = await fakeUploadRequest(formData);
-        console.log("上传后的文件", file);
+        const res = await upload(file);
+        console.log("上传后的文件", res);
         onSuccess(res, file);
     } catch (e) {
         onError(e);
@@ -130,6 +142,7 @@ const fakeUploadRequest = (formData: FormData) => {
 </script>
 <template>
     <el-upload
+        class="simple-upload"
         :accept="accept"
         :action="action"
         :multiple="multiple"
@@ -146,7 +159,23 @@ const fakeUploadRequest = (formData: FormData) => {
         <slot>
             <el-button size="small" type="primary">点击添加</el-button>
         </slot>
+
+        <template #tip>
+            <slot name="tip">
+                <p class="tip">支持上传最多10个文件（PDF格式）</p>
+            </slot>
+        </template>
     </el-upload>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.simple-upload {
+    display: flex;
+    align-items: center;
+    .tip {
+        margin-left: 12px;
+        font-size: 12px;
+        color: #666666;
+    }
+}
+</style>

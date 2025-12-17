@@ -188,6 +188,41 @@ $my-widths: 108, 200, 220, 400, 432, 640, 800;
     --el-tabs-header-height: 52px;
     --el-fill-color-light: #f6f9fb;
     --el-text-color-secondary: #000000;
+    .el-tabs__item {
+        font-family: PingFang SC, PingFang SC;
+    }
+    .el-tabs__nav-next,
+    .el-tabs__nav-prev {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        width: 40px;
+        .el-icon {
+            font-size: 16px;
+            width: 32px;
+            height: 32px;
+            background-color: #ffffff;
+            border-radius: 50%;
+        }
+    }
+    .el-tabs__nav-next {
+        &::before {
+            position: absolute;
+            top: 9px;
+            right: 0;
+            content: "";
+            width: 64px;
+            height: 32px;
+            background: linear-gradient(90deg, rgba(246, 249, 251, 0) 0%, #f6f9fb 100%);
+            border-radius: 0px 0px 0px 0px;
+        }
+    }
+    .el-tabs__nav-wrap {
+        &.is-scrollable {
+            padding: 0 40px;
+        }
+    }
 }
 .assess-project-table {
     --el-table-header-bg-color: #ffffff;

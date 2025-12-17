@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",
+    "ali-oss": "^6.23.0",
     "axios": "^1.13.2",
     "dayjs": "^1.11.19",
     "element-plus": "^2.11.8",
@@ -23,6 +24,7 @@
     "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
+    "@types/ali-oss": "^6.16.13",
     "@types/node": "^24.10.1",
     "@vitejs/plugin-vue": "^6.0.1",
     "@vue/tsconfig": "^0.8.1",

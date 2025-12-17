@@ -150,6 +150,11 @@ table {
             line-height: 22px;
         }
     }
+    tbody {
+        .el-table__cell {
+            padding: 12px 0;
+        }
+    }
     .cell {
         line-height: 20px;
     }
