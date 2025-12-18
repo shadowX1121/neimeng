@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { ref, reactive, computed, onBeforeMount } from "vue";
+import { ref, reactive, computed, onBeforeMount, onMounted, inject, provide } from "vue";
 import { ElMessage } from "element-plus";
 import { CaretBottom } from "@element-plus/icons-vue";
 import AccountStatusDialog from "./dialog/AccountStatusDialog.vue";
 import ManagerInfoDialog from "./dialog/ManagerInfoDialog.vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import { useAccountStatus } from "@/utils/useOptions";
 import { mockApi } from "@/api/index";
 import dayjs from "dayjs";
 
-const router = useRouter();
 const route = useRoute();
+const registerRefresh = inject<((fn: () => void) => void) | undefined>("registerRefresh");
 
 const id = computed(() => route.query.id as string | number);
 
@@ -56,10 +56,7 @@ const editManageInfo = () => {
     managerInfoDialogVisible.value = true;
 };
 // 管理员信息修改完成回调
-const updateManagerInfoConfirm = (value: {
-    userName: string;
-    phone: string;
-}) => {
+const updateManagerInfoConfirm = (value: { userName: string; phone: string }) => {
     detailData.userName = value.userName;
     detailData.phone = value.phone;
 };
@@ -82,10 +79,18 @@ const getDetail = async () => {
         console.log(error);
     }
 };
+// 测试函数
+const fetchList = async () => {
+    console.log("叔组件 fetchList");
+    // 请求接口
+};
 onBeforeMount(() => {
     if (id) {
         getDetail();
     }
+});
+onMounted(() => {
+    registerRefresh?.(fetchList);
 });
 </script>
 
@@ -99,20 +104,18 @@ onBeforeMount(() => {
                     <p
                         class="flex-1"
                         :style="{
-                            color: accountStatus.getColorByValue(
-                                detailData.status
-                            ),
+                            color: accountStatus.getColorByValue(detailData.status),
                         }"
                     >
                         {{ accountStatus.getLabelByValue(detailData.status) }}
                     </p>
-                    <el-button @click="editAccountStatus"> 修改 </el-button>
+                    <el-button @click="editAccountStatus">修改</el-button>
                 </div>
             </div>
             <div class="module-item">
                 <div class="flex title">
                     <p class="module-item-name flex-1">积分情况</p>
-                    <el-button @click="scoreManage"> 管理 </el-button>
+                    <el-button @click="scoreManage">管理</el-button>
                 </div>
                 <div class="des">
                     <div class="des-item w200">
@@ -127,13 +130,9 @@ onBeforeMount(() => {
                             :disabled="true"
                             :max="detailData.level"
                         />
-                        <span v-else> 取消评星资格 </span>
+                        <span v-else>取消评星资格</span>
                     </div>
-                    <el-dropdown
-                        class="my-year-dropdown"
-                        trigger="click"
-                        @command="yearChange"
-                    >
+                    <el-dropdown class="my-year-dropdown" trigger="click" @command="yearChange">
                         <span class="el-dropdown-link">
                             {{ curentYear }}年
                             <el-icon><CaretBottom /></el-icon>
@@ -155,9 +154,9 @@ onBeforeMount(() => {
             <div class="module-item">
                 <div class="flex title">
                     <p class="module-item-name flex-1">管理员信息</p>
-                    <el-button @click="editManageInfo"> 修改 </el-button>
+                    <el-button @click="editManageInfo">修改</el-button>
 
-                    <el-button @click="resetPassword"> 重置密码 </el-button>
+                    <el-button @click="resetPassword">重置密码</el-button>
                 </div>
                 <div class="des">
                     <div class="des-item w200">

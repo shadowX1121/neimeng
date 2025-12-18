@@ -28,7 +28,7 @@ const props = withDefaults(defineProps<Props>(), {
     name: "file",
     multiple: true,
     accept: ".pdf",
-    limit: 3,
+    limit: 10,
     listType: "text",
     autoUpload: true,
     drag: false,
@@ -44,7 +44,6 @@ const fileList = ref<any[]>([]);
 watch(
     () => props.modelValue,
     (val) => {
-        console.log("文件列表", props.modelValue);
         fileList.value = [...val];
     },
     { deep: true, immediate: true }
@@ -53,7 +52,7 @@ watch(
 // 子组件更新 → 通知父组件
 const updateFileList = (val: any) => {
     emit("update:modelValue", val);
-    emit("change");
+    // emit("change");
 };
 // 上传前的钩子
 const handleBeforeUpload = (file: File) => {
@@ -70,11 +69,8 @@ const handleBeforeUpload = (file: File) => {
 };
 // 文件状态改变时的钩子
 const handleChange = (file: any) => {
-    const findFile = fileList.value.find((item) => item.uid === file.uid);
-    if (findFile) {
-        findFile.status = file.status;
-        findFile.percentage = file.percentage;
-    } else if (file.status === "ready") {
+    // 这里只用于添加文件到列表中
+    if (file.status === "ready") {
         fileList.value.push({
             name: file.name,
             fileUrl: "",
@@ -88,14 +84,20 @@ const handleChange = (file: any) => {
 };
 // 文件上传成功时的钩子
 const handleSuccess = (response: any, file: any) => {
-    const findFile = fileList.value.find((item) => item.uid === file.uid);
-    if (findFile && response && response.url) {
-        findFile.fileUrl = response.url;
-    }
+    fileList.value.forEach((item) => {
+        if (item.uid === file.uid && response) {
+            item.status = file.status;
+            item.fileUrl = response;
+        }
+    });
 };
 // 文件上传失败时的钩子
 const handleError = (error: any, file: any, files: any[]) => {
-    // console.log("error", file, files);
+    fileList.value.forEach((item) => {
+        if (item.uid === file.uid) {
+            item.status = file.status;
+        }
+    });
 };
 // 文件上传进度变化时的钩子
 const handleProgress = (event: any, file: any, files: any[]) => {
@@ -108,41 +110,20 @@ const handleExceed = () => {
 // 自定义上传请求的钩子
 const handleHttpRequest = async (options: any) => {
     const { file, onSuccess, onError } = options;
-    // try {
-    //     const url = await upload(option.file, {
-    //         dir: "files",
-    //         onProgress: (p) => (progress.value = p),
-    //     });
-
-    //     option.onSuccess(url);
-    // } catch (e) {
-    //     option.onError(e);
-    // }
     try {
         // ⭐ 自定义上传请求（可换成你的 API）
         const res = await upload(file);
-        console.log("上传后的文件", res);
         onSuccess(res, file);
     } catch (e) {
         onError(e);
+        throw e; // ⭐⭐ 关键：让 Promise reject
     }
-};
-
-// 模拟上传请求，你替换成 axios 即可
-const fakeUploadRequest = (formData: FormData) => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve({
-                url: URL.createObjectURL(formData.get("file") as File),
-                name: (formData.get("file") as File).name,
-            });
-        }, 10000);
-    });
 };
 </script>
 <template>
     <el-upload
         class="simple-upload"
+        :file-list="fileList"
         :accept="accept"
         :action="action"
         :multiple="multiple"

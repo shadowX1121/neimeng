@@ -1,15 +1,13 @@
 <script setup lang="ts">
-import { ref, reactive, watch } from "vue";
+import { ref, watch } from "vue";
 import { ElMessage } from "element-plus";
-import { useRouter } from "vue-router";
 import { CircleCheck, CircleClose, Loading, Delete } from "@element-plus/icons-vue";
 import MySimpleUpload from "@/components/upload/MySimpleUpload.vue";
-
-const router = useRouter();
 
 const props = defineProps<{
     modelValue: boolean;
     data: any;
+    onConfirm: (data: any[]) => Promise<{ code: number }>;
 }>();
 
 const content = ref("");
@@ -21,7 +19,13 @@ watch(
         if (newVal) {
             if (props.data) {
                 content.value = props.data.name || "";
-                fileList.value = props.data.fileList || [];
+                fileList.value =
+                    props.data.fileList.map((item: any) => {
+                        return {
+                            ...item,
+                            status: "success",
+                        };
+                    }) || [];
             }
         }
     }
@@ -40,7 +44,37 @@ const handleChangeCallback = () => {
 // 删除点击事件
 const deleteClick = (index: number) => {
     fileList.value.splice(index, 1);
-    // update();
+};
+const submitLoading = ref(false);
+const confirmClick = async () => {
+    if (!fileList.value.length) {
+        ElMessage.warning(`请上传文件`);
+        return;
+    }
+    const hasReady = fileList.value.some((item: any) => item.status === "ready");
+    const hasFail = fileList.value.some((item: any) => item.status === "fail");
+    if (hasReady) {
+        ElMessage.warning(`请等待所有文件上传完成`);
+        return;
+    }
+    if (hasFail) {
+        ElMessage.warning(`请删除上传失败的文件`);
+        return;
+    }
+    if (submitLoading.value) return; // 二次保险
+    submitLoading.value = true;
+    try {
+        const { code } = await props.onConfirm(fileList.value);
+        if (code === 200) {
+            ElMessage.success(`上传成功`);
+            props.data.fileList = fileList.value;
+            close();
+        }
+    } catch (error) {
+        console.log(error);
+    } finally {
+        submitLoading.value = false;
+    }
 };
 </script>
 
@@ -82,11 +116,19 @@ const deleteClick = (index: number) => {
                         class="delete-icon"
                         link
                         :icon="Delete"
+                        :disabled="file.status === 'ready'"
                         @click="deleteClick(index)"
                     ></el-button>
                 </div>
             </div>
         </div>
+        <template #footer>
+            <div class="dialog-footer">
+                <el-button type="primary" :loading="submitLoading" @click="confirmClick">
+                    确定
+                </el-button>
+            </div>
+        </template>
     </el-dialog>
 </template>
 

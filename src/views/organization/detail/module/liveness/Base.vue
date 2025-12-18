@@ -1,13 +1,13 @@
 <!--活跃度评估的基础表格模块-->
 <script setup lang="ts">
-import { ref, reactive, watch, watchEffect } from "vue";
+import { ref, reactive, watch, inject } from "vue";
 import { ElMessage } from "element-plus";
 import { mockApi } from "@/api/index";
-import { assessApi } from "@/api/module/assess";
 import CheckFileDialog from "@/components/dialog/CheckFileDialog.vue";
 import { useAssessItemReviewStatus } from "@/utils/useOptions";
 
 const assessReviewStatus = useAssessItemReviewStatus();
+const notifyRefresh = inject<() => void>("notifyRefresh");
 
 const props = defineProps<{
     data: any;
@@ -153,6 +153,7 @@ const scoreStatusChange = async (val: boolean, row: any) => {
         const { code } = await mockApi.mock(null, null);
         if (code === 200) {
             ElMessage.success("操作成功");
+            notifyRefresh?.();
             // 通知父组件更新数据
             // $emit("update:moduleData", );
         }

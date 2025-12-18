@@ -81,4 +81,20 @@ export const assessApi = {
             params,
         });
     },
+    // 上传评估证明文件
+    uploadEvaluateFile: (params: any): Promise<ResponseData<any>> => {
+        return request.request({
+            url: `/upload_evaluate_file`,
+            method: "POST",
+            data: params,
+        });
+    },
+    // 删除评估证明文件
+    deleteEvaluateFile: (params: any): Promise<ResponseData<any>> => {
+        return request.request({
+            url: `/evaluate_file`,
+            method: "DELETE",
+            params,
+        });
+    },
 };

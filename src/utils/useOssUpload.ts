@@ -43,25 +43,8 @@ async function getSts(): Promise<any> {
     return sts;
 }
 
-// 获取 OSS Client（复用）
-// async function getClient(): Promise<OSS> {
-//     const sts = await getSts();
-//     if (!ossClient || ossClient.options.accessKeyId !== sts.accessKeyId) {
-//         ossClient = new OSS({
-//             region: sts.region,
-//             bucket: sts.bucket,
-//             accessKeyId: sts.accessKeyId,
-//             accessKeySecret: sts.accessKeySecret,
-//             stsToken: sts.securityToken,
-//         });
-//     }
-
-//     return ossClient;
-// }
 async function getClient(): Promise<OSS> {
     const sts = await getSts();
-    console.log("sts", sts.region || "", sts.AccessKeyId);
-
     if (!ossClient || currentAccessKeyId !== sts.AccessKeyId) {
         ossClient = new OSS({
             region: sts.region,
@@ -78,31 +61,25 @@ async function getClient(): Promise<OSS> {
 export function useOssUpload() {
     // 上传文件
     const upload = async (file: File, options: UploadOptions = {}): Promise<string> => {
-        return new Promise(async (resolve, reject) => {
-            const client = await getClient();
-            const dir = options.dir ?? "upload";
-            const ext = file.name.substring(file.name.lastIndexOf("."));
-            const name =
-                options.fileName ?? `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`;
-            const objectKey = `${dir}/${name}`;
-            try {
-                const result = await client.put(objectKey, file, {
-                    progress(p: number) {
-                        options.onProgress?.(Math.floor(p * 100));
-                    },
-                } as any);
-                resolve(result.url);
-            } catch (error) {
-                console.log("error", error);
-                reject(error);
-            }
-            // }
-            // const result = await client.put(objectKey, file, {
-            //     progress(p: number) {
-            //         options.onProgress?.(Math.floor(p * 100));
-            //     },
-            // } as any);
-        });
+        const client = await getClient();
+        const dir = options.dir ?? "upload";
+        const ext = file.name.substring(file.name.lastIndexOf("."));
+        const name =
+            options.fileName ?? `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`;
+        const objectKey = `${dir}/${name}`;
+
+        const result = await client.put(objectKey, file, {
+            progress(p: number) {
+                options.onProgress?.(Math.floor(p * 100));
+            },
+        } as any);
+
+        // ⭐⭐ 关键：手动判断是否真的成功 ⭐⭐
+        if (!result || result.res?.status !== 200) {
+            throw new Error(`OSS upload failed, status=${result?.res?.status}`);
+        }
+
+        return result.url;
     };
 
     // 手动清空（如退出登录）

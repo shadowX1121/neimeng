@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, computed, markRaw } from "vue";
+import { ref, reactive, computed, markRaw, provide } from "vue";
 import { mockApi } from "@/api/index";
 import { isPhone } from "@/utils/validator";
 import { ElMessage } from "element-plus";
@@ -27,6 +27,14 @@ const paneList = ref<(MyPaneItem & { component: Component })[]>([
 const handleClick = (tab: TabsPaneContext, event: Event) => {
     console.log(tab, event);
 };
+
+const refreshHandlers = new Set<() => void>();
+provide("registerRefresh", (fn: () => void) => {
+    refreshHandlers.add(fn);
+});
+provide("notifyRefresh", () => {
+    refreshHandlers.forEach((fn) => fn());
+});
 </script>
 
 <template>

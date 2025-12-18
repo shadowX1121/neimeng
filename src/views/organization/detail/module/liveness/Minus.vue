@@ -1,11 +1,10 @@
 <!--活跃度评估的减分项目表格模块-->
 <script setup lang="ts">
-import { ref, reactive, watch, watchEffect } from "vue";
-import { ElMessage } from "element-plus";
-import { mockApi } from "@/api/index";
+import { ref, reactive, watch } from "vue";
 import { UploadFilled, Check } from "@element-plus/icons-vue";
-import { assessApi } from "@/api/module/assess";
+import { assessApi } from "@/api/index";
 import UploadFileDialog from "@/components/dialog/UploadFileDialog.vue";
+import DeleteFileDialog from "@/components/dialog/DeleteFileDialog.vue";
 
 const props = defineProps<{
     data: any;
@@ -21,7 +20,13 @@ watch(
             list: newVal.list.map((listItem: any) => {
                 return {
                     ...listItem,
-                    fileList: [],
+                    fileList:
+                        listItem.fileInfo.map((file: any) => {
+                            return {
+                                name: file.file_name,
+                                fileUrl: file.file_path,
+                            };
+                        }) || [],
                 };
             }),
         };
@@ -40,9 +45,38 @@ const handleUploadFile = (data: any) => {
     uploadFileDialog.visible = true;
     uploadFileDialog.data = data;
 };
+const confirmUploadFile = async (data: any) => {
+    return assessApi.uploadEvaluateFile({
+        content_id: uploadFileDialog.data.id,
+        type: uploadFileDialog.data.type,
+        files_info: JSON.stringify(
+            data.map((item: any) => {
+                return {
+                    name: item.name,
+                    path: item.fileUrl,
+                };
+            })
+        ),
+    });
+};
 
+// 删除上传文件弹窗数据
+const deleteFileDialog = reactive<{
+    visible: boolean;
+    data: any;
+}>({
+    visible: false,
+    data: {},
+});
 const handleDeleteFile = (data: any) => {
-    ElMessage.success("删除成功");
+    deleteFileDialog.visible = true;
+    deleteFileDialog.data = data;
+};
+const confirmDeleteFile = async () => {
+    return assessApi.deleteEvaluateFile({
+        content_id: deleteFileDialog.data.id,
+        type: deleteFileDialog.data.type,
+    });
 };
 </script>
 
@@ -67,9 +101,12 @@ const handleDeleteFile = (data: any) => {
                                 </el-icon>
                                 <span>上传</span>
                             </div>
-                            <div class="upload-status">
+                            <div
+                                class="upload-status"
+                                v-if="row.fileList && row.fileList.length > 0"
+                            >
                                 <el-tooltip effect="dark" content="文件已上传" placement="top-end">
-                                    <div class="triangle" @click="handleDeleteFile">
+                                    <div class="triangle" @click="handleDeleteFile(row)">
                                         <el-icon><Check /></el-icon>
                                     </div>
                                 </el-tooltip>
@@ -80,7 +117,17 @@ const handleDeleteFile = (data: any) => {
             </el-table>
         </template>
         <!--上传文件弹窗-->
-        <UploadFileDialog v-model="uploadFileDialog.visible" :data="uploadFileDialog.data" />
+        <UploadFileDialog
+            v-model="uploadFileDialog.visible"
+            :data="uploadFileDialog.data"
+            :onConfirm="confirmUploadFile"
+        />
+        <!--删除文件弹窗-->
+        <DeleteFileDialog
+            v-model="deleteFileDialog.visible"
+            :data="deleteFileDialog.data"
+            :onConfirm="confirmDeleteFile"
+        />
     </div>
 </template>
 
