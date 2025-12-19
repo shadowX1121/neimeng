@@ -1,14 +1,17 @@
 <!--活跃度评估的基础表格模块-->
 <script setup lang="ts">
-import { ref, reactive, watch, inject } from "vue";
+import { ref, reactive, computed, watch, inject } from "vue";
+import { useRoute } from "vue-router";
 import { ElMessage } from "element-plus";
-import { mockApi } from "@/api/index";
+import { assessApi } from "@/api/index";
 import CheckFileDialog from "@/components/dialog/CheckFileDialog.vue";
 import { useAssessItemReviewStatus } from "@/utils/useOptions";
 
+const route = useRoute();
 const assessReviewStatus = useAssessItemReviewStatus();
 const notifyRefresh = inject<() => void>("notifyRefresh");
 
+const orgId = computed(() => route.params.orgId);
 const props = defineProps<{
     data: any;
 }>();
@@ -43,8 +46,13 @@ const formatTableData = (projects: any[]) => {
                                 name: file.content,
                                 flag: file.flag,
                                 status: file.status,
-                                fileList: [],
-                                scoreStatus: 1,
+                                fileList: file.fileInfo.map((fileItem: any) => {
+                                    return {
+                                        fileName: fileItem.file_name,
+                                        url: fileItem.file_url,
+                                    };
+                                }),
+                                scoreStatus: !!file.score,
                                 updateScoreStatus: false,
                             }, // 评估要点数据
                         });
@@ -139,8 +147,18 @@ const viewFileDialog = reactive<{
 });
 // 查看文件点击事件
 const handleViewFile = (data: any) => {
-    viewFileDialog.data = data.gist;
-    viewFileDialog.visible = true;
+    const { gist } = data;
+    if (gist && gist.fileList && gist.fileList.length > 0) {
+        if (gist.fileList.length === 1) {
+            const url = gist.fileList[0].url;
+            window.open(`/pdfPreview?url=${url}`, "_blank");
+        } else {
+            viewFileDialog.data = gist;
+            viewFileDialog.visible = true;
+        }
+    } else {
+        console.error("未找到文件");
+    }
 };
 // 得分状态变化事件
 const scoreStatusChange = async (val: boolean, row: any) => {
@@ -150,12 +168,16 @@ const scoreStatusChange = async (val: boolean, row: any) => {
     row.gist.updateScoreStatus = true;
     try {
         // 2️⃣ 调接口
-        const { code } = await mockApi.mock(null, null);
+        const { code } = await assessApi.updateItemScoreControl({
+            account_id: orgId.value,
+            type: 4,
+            content_id: row.gist.id,
+            score: val ? 1 : -1,
+        });
         if (code === 200) {
             ElMessage.success("操作成功");
             notifyRefresh?.();
             // 通知父组件更新数据
-            // $emit("update:moduleData", );
         }
     } catch (e) {
         // 3️⃣ 失败回滚

@@ -24,7 +24,7 @@ const login = async () => {
         );
         if (code === 200) {
             ElMessage.success("登录成功");
-            router.push("/about");
+            router.push("/admin");
         }
     } catch (error) {
         console.log(error);

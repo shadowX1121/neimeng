@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<!-- <script setup lang="ts">
 import { ref, reactive, computed, markRaw, provide } from "vue";
 import { mockApi } from "@/api/index";
 import { isPhone } from "@/utils/validator";
@@ -72,4 +72,4 @@ provide("notifyRefresh", () => {
         }
     }
 }
-</style>
+</style> -->

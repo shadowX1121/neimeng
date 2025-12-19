@@ -97,4 +97,20 @@ export const assessApi = {
             params,
         });
     },
+    // 获取星级相关信息
+    getStarInfo: (params: any): Promise<ResponseData<any>> => {
+        return request.request({
+            url: `/get_star_info`,
+            method: "GET",
+            params,
+        });
+    },
+    // 得分/取消得分操作
+    updateItemScoreControl: (params: any): Promise<ResponseData<any>> => {
+        return request.request({
+            url: `/add_score`,
+            method: "POST",
+            data: params,
+        });
+    },
 };

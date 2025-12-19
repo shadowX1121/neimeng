@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, watch } from "vue";
-import { ElMessage } from "element-plus";
-import { useRouter } from "vue-router";
-
-const router = useRouter();
+import { ref, watch } from "vue";
 
 const props = defineProps<{
     modelValue: boolean;

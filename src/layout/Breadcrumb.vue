@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, onMounted, nextTick } from "vue";
 import { useRoute } from "vue-router";
 import { useMetaTitleStore } from "@/store/useMetaTitleStore";
 
@@ -11,6 +11,9 @@ interface BreadItem {
 const route = useRoute();
 const metaTitleStore = useMetaTitleStore();
 
+const rootRef = ref<HTMLElement | null>(null);
+const height = ref(0);
+
 const breadList = ref<BreadItem[]>([]);
 
 // 监听path属性
@@ -20,17 +23,11 @@ watch(
         const { matched = [] } = route;
         console.log(
             "数组",
-            matched.filter(
-                (item) =>
-                    item.meta && (item.meta.title || item.meta.isDynamicTitle)
-            )
+            matched.filter((item) => item.meta && (item.meta.title || item.meta.isDynamicTitle))
         );
 
         breadList.value = matched
-            .filter(
-                (item) =>
-                    item.meta && (item.meta.title || item.meta.isDynamicTitle)
-            )
+            .filter((item) => item.meta && (item.meta.title || item.meta.isDynamicTitle))
             .map((item) => {
                 const title = item.meta.isDynamicTitle
                     ? metaTitleStore.urlMapTitle[item.path] || ""
@@ -44,13 +41,26 @@ watch(
     },
     { immediate: true }
 );
+
+onMounted(async () => {
+    await nextTick();
+    height.value = rootRef.value?.offsetHeight ?? 0;
+});
+/**
+ * 👇 暴露给父组件
+ */
+defineExpose({
+    height,
+});
 </script>
 <template>
-    <el-breadcrumb class="my-breadcrumb">
-        <el-breadcrumb-item v-for="item in breadList" :key="item.path">
-            {{ item.title }}
-        </el-breadcrumb-item>
-    </el-breadcrumb>
+    <div ref="rootRef">
+        <el-breadcrumb class="my-breadcrumb" v-if="breadList.length > 1">
+            <el-breadcrumb-item v-for="item in breadList" :key="item.path">
+                {{ item.title }}
+            </el-breadcrumb-item>
+        </el-breadcrumb>
+    </div>
 </template>
 
 <style lang="scss" scoped>

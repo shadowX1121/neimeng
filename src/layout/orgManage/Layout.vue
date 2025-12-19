@@ -2,7 +2,7 @@
 import { ref, onMounted, nextTick } from "vue";
 import router from "@/router";
 import MyMenu from "./Menu.vue";
-import MyBreadcrumb from "./Breadcrumb.vue";
+import MyBreadcrumb from "../Breadcrumb.vue";
 import { useDownloadCountStore } from "@/store/useDownloadCountStore";
 
 const downloadCountStore = useDownloadCountStore();
@@ -39,7 +39,7 @@ onMounted(async () => {
         <el-container>
             <el-header class="page-header">
                 <div class="logo">
-                    <span>内蒙古体育社会组织管理系统</span>
+                    <span>xxx俱乐部</span>
                 </div>
                 <div class="right">
                     <div class="icon download" @click="goDownload">
@@ -91,7 +91,6 @@ onMounted(async () => {
             font-size: 18px;
             font-weight: 700;
             font-family: "Times New Roman", Times, serif;
-            font-style: italic;
             color: var(--el-color-primary);
         }
         .right {
@@ -121,7 +120,7 @@ onMounted(async () => {
             padding: 0 16px;
         }
         .page-main {
-            --el-main-padding: 16px;
+            --el-main-padding: 0;
             display: flex;
             flex-direction: column;
             height: 100%;

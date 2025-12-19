@@ -1,76 +1,24 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from "vue";
+import { ref, watch, computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
 
-const menuList = ref([
-    {
-        index: "account",
-        title: "账号管理",
-        icon: "icon-logout",
-        children: [
-            {
-                index: "/admin/account/password",
-                title: "账号密码",
-            },
-        ],
-    },
-    {
-        index: "organization",
-        title: "体育社会组织管理",
-        icon: "icon-logout",
-        children: [
-            {
-                index: "/admin/organization/list",
-                title: "体育社会组织列表",
-            },
-        ],
-    },
-    {
-        index: "assess",
-        title: "评估管理",
-        icon: "icon-logout",
-        children: [
-            {
-                index: "/admin/assess/baseItem",
-                title: "评估项管理",
-            },
-            {
-                index: "/admin/assess/awardedItem",
-                title: "加分项管理",
-            },
-            {
-                index: "/admin/assess/deductionItem",
-                title: "减分项管理",
-            },
-            {
-                index: "/admin/assess/vetoItem",
-                title: "一票否决管理",
-            },
-            {
-                index: "/admin/assess/scoreAndLevel",
-                title: "积分与星级管理",
-            },
-        ],
-    },
-    {
-        index: "download",
-        title: "下载管理",
-        icon: "icon-logout",
-        children: [
-            {
-                index: "/admin/download/list",
-                title: "下载任务列表",
-            },
-        ],
-    },
-    // {
-    //     index: "other",
-    //     title: "其他管理",
-    //     icon: "",
-    // },
-]);
+const orgId = ref(route.params.orgId);
+const menuList = computed((): MyMenuType[] => {
+    return [
+        {
+            index: `/admin/orgManage/${orgId.value}/home`,
+            title: "首页",
+            icon: "icon-logout",
+        },
+        {
+            index: `/admin/orgManage/${orgId.value}/liveness`,
+            title: "活跃度评估",
+            icon: "icon-logout",
+        },
+    ];
+});
 const defaultActive = ref(""); // 默认选中的菜单项
 
 // 监听path属性
@@ -83,15 +31,20 @@ watch(
     },
     { immediate: true }
 );
+watch(
+    () => route.params.orgId,
+    (newPath) => {
+        console.log("orgId", newPath);
+    },
+    { immediate: true }
+);
 
 // 菜单选择事件
 const menuSelect = (index: string) => {
     console.log("选择的菜单项：", index);
 };
 
-onMounted(() => {
-    console.log("菜单加载完成");
-});
+onMounted(() => {});
 </script>
 <template>
     <el-menu
@@ -108,7 +61,6 @@ onMounted(() => {
             >
                 <template #title>
                     <!-- 此处添加图标 -->
-                    <i :class="['iconfont', menu.icon]"></i>
                     <span>{{ menu.title }}</span>
                 </template>
                 <el-menu-item
@@ -127,8 +79,6 @@ onMounted(() => {
                     <i :class="['iconfont', menu.icon]"></i>
                     <span>{{ menu.title }}</span>
                 </router-link>
-                <!-- 此处添加图标 -->
-                <!-- <span>{{ menu.title }}</span> -->
             </el-menu-item>
         </template>
     </el-menu>
@@ -157,14 +107,26 @@ onMounted(() => {
         .el-sub-menu__icon-arrow {
             right: 0;
         }
-        .iconfont {
-            margin-right: 8px;
-        }
     }
     .no-child-menu {
+        border-radius: 8px;
+        padding-left: 0 !important;
+        padding-right: 0;
+        > a {
+            padding: 0 12px;
+            width: 100%;
+        }
+        &.is-active {
+            background-color: #ffffff;
+            color: var(--el-color-primary);
+            font-weight: 600;
+        }
         + .el-sub-menu,
         + .no-child-menu {
             margin-top: 8px;
+        }
+        .iconfont {
+            margin-right: 8px;
         }
     }
 }

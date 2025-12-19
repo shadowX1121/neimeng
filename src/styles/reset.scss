@@ -98,6 +98,9 @@ input[type="number"]::-webkit-outer-spin-button {
 ::-webkit-scrollbar-track {
     background-color: transparent;
 }
+:root {
+    --el-border-color: #ebeef5;
+}
 
 /* ---------------------- 表格元素 ---------------------- */
 table {

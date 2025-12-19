@@ -63,7 +63,7 @@ body {
     }
 }
 .main-container {
-    padding: 16px 24px;
+    padding: 16px 24px 32px;
     padding-top: 0;
     background-color: #ffffff;
     border-radius: 10px;
@@ -85,7 +85,8 @@ body {
     }
     .main-container-wrapper {
         /* 80是顶部导航栏高度，36是面包屑高度（包含margin），32是page-main盒子的上下内边距之和，16是main-container盒子的上下内边距之和 */
-        min-height: calc(100vh - 80px - 36px - 32px - 16px);
+        // min-height: calc(100vh - 80px - 36px - 32px - 16px);
+        min-height: calc(var(--my-calc-height) - 32px);
     }
     .detail-content {
         display: flex;

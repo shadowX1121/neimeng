@@ -39,6 +39,15 @@ declare global {
         name: string;
     }
     /**
+     * 菜单类型
+     */
+    interface MyMenuType {
+        index: string;
+        title: string;
+        icon?: string;
+        children?: MyMenuType[];
+    }
+    /**
      * id，value类型
      */
     type IdValueType = number | string;

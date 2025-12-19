@@ -33,6 +33,7 @@ watch(
 
 const emit = defineEmits<{
     (e: "update:modelValue", value: boolean): void;
+    (e: "success"): void;
 }>();
 
 const close = () => emit("update:modelValue", false);
@@ -69,6 +70,7 @@ const confirmClick = async () => {
             ElMessage.success(`上传成功`);
             props.data.fileList = fileList.value;
             close();
+            emit("success");
         }
     } catch (error) {
         console.log(error);
