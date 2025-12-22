@@ -6,10 +6,13 @@ import { ElMessage } from "element-plus";
 import { CaretBottom } from "@element-plus/icons-vue";
 import { YEAR_OPTIONS, CURRENT_YEAR, PLUS_OPTIONS } from "@/constants/index";
 import CreateDownLoadDialog from "./dialog/CreateDownLoadDialog.vue";
+import CreatePlusDownDialog from "./dialog/CreatePlusDownDialog.vue";
 import Base from "./liveness/Base.vue";
 import PlusTable from "./liveness/Plus.vue";
 import MinusTable from "./liveness/Minus.vue";
 import VetoTable from "./liveness/Veto.vue";
+
+import type { TabPaneName } from "element-plus";
 
 const route = useRoute();
 const id = computed(() => route.params.orgId as string | number);
@@ -25,6 +28,16 @@ const yearChange = (command: any) => {
 };
 const loading = ref(false);
 const detailData = reactive<any>({});
+const activeClassify = ref();
+const activeClassifyType = computed(() => {
+    const type = detailData.classify.find((item: any) => item.id === activeClassify.value)?.tabType;
+    console.log(
+        "activeClassify",
+        detailData.classify,
+        detailData.classify.find((item: any) => item.id === activeClassify.value)
+    );
+    return type;
+});
 // 获取详情
 const getDetail = async () => {
     loading.value = true;
@@ -55,7 +68,7 @@ const getDetail = async () => {
                 }),
                 ...plus_list.map((item: any) => {
                     return {
-                        id: item.id,
+                        id: `plus_${item.type}`,
                         score: item.score,
                         evaluate_name: PLUS_OPTIONS[item.type as PlusValueType],
                         tabType: item.type,
@@ -63,6 +76,7 @@ const getDetail = async () => {
                     };
                 }),
             ];
+            activeClassify.value = detailData.classify.length ? detailData.classify[0].id : "";
         }
     } catch (error) {
         console.log(error);
@@ -91,7 +105,20 @@ const getTabLabel = (item: any) => {
     return label;
 };
 
+// 标签切换事件
+const handleTabChange = (name: TabPaneName) => {
+    console.log(name, activeClassify.value);
+};
+
 const downloadFileDialog = reactive<{
+    visible: boolean;
+    data: any;
+}>({
+    visible: false,
+    data: {},
+});
+// plus类型
+const plusDownFileDialog = reactive<{
     visible: boolean;
     data: any;
 }>({
@@ -100,12 +127,15 @@ const downloadFileDialog = reactive<{
 });
 // 下载文件点击事件
 const downloadClick = () => {
-    downloadFileDialog.visible = true;
-    // 将当前激活tab项的列表数据传给弹窗
-    // downloadFileDialog.data = {
-    //     id: 1,
-    //     projectData: mockData,
-    // };
+    const findItem = detailData.classify.find((item: any) => item.id === activeClassify.value);
+    if (!findItem) return;
+    if (activeClassifyType.value !== "base") {
+        plusDownFileDialog.visible = true;
+        plusDownFileDialog.data = findItem;
+    } else {
+        downloadFileDialog.visible = true;
+        downloadFileDialog.data = findItem;
+    }
 };
 
 const refresh = async () => {
@@ -173,17 +203,31 @@ provide("notifyRefresh", refresh);
                 </div>
                 <el-tabs
                     v-if="detailData.classify && detailData.classify.length > 0"
-                    class="assess-tabs"
+                    v-model="activeClassify"
+                    :class="[
+                        'assess-tabs',
+                        {
+                            'no-add': [2, 3].includes(activeClassifyType),
+                        },
+                    ]"
                     addable
                     type="border-card"
+                    @tab-change="handleTabChange"
                 >
                     <template #add-icon>
-                        <el-button type="primary" @click="downloadClick">下载文件</el-button>
+                        <el-button
+                            v-if="![2, 3].includes(activeClassifyType)"
+                            type="primary"
+                            @click="downloadClick"
+                        >
+                            下载文件
+                        </el-button>
                     </template>
                     <el-tab-pane
                         v-for="classifyItem in detailData.classify"
                         :key="classifyItem.id"
                         :label="getTabLabel(classifyItem)"
+                        :name="classifyItem.id"
                     >
                         <Base v-if="classifyItem.tabType === 'base'" :data="classifyItem" />
                         <PlusTable v-if="classifyItem.tabType === 1" :data="classifyItem" />
@@ -195,6 +239,11 @@ provide("notifyRefresh", refresh);
                 <CreateDownLoadDialog
                     v-model="downloadFileDialog.visible"
                     :data="downloadFileDialog.data"
+                />
+                <!--plus类型创建下载任务弹窗-->
+                <CreatePlusDownDialog
+                    v-model="plusDownFileDialog.visible"
+                    :data="plusDownFileDialog.data"
                 />
             </div>
         </div>

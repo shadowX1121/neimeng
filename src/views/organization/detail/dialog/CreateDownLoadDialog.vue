@@ -14,13 +14,17 @@ const assessItems = ref<any>([]);
 
 const checkAll = ref(false);
 const isIndeterminate = ref(false);
+const checkAllDisabled = computed(() => {
+    return assessItems.value.every((item: any) => item.disabled);
+});
 const checkedList = computed(() => {
     return assessItems.value.flatMap((item: any) => item.checkedList);
 });
 const allList = computed(() => {
-    return assessItems.value.flatMap((item: any) =>
-        (item.children || []).map((child: any) => child.id)
-    );
+    return assessItems.value
+        .flatMap((item: any) => item.children || [])
+        .filter((item: any) => !item.disabled)
+        .map((child: any) => child.id);
 });
 // 全选状态改变事件
 const handleCheckAllChange = (val: boolean) => {
@@ -29,15 +33,21 @@ const handleCheckAllChange = (val: boolean) => {
     // 修改所有项的状态
     assessItems.value.forEach((item: any) => {
         item.isIndeterminate = false;
-        item.checkAll = val;
-        item.checkedList = val ? item.children.map((child: any) => child.id) : [];
+        if (!item.disabled) {
+            item.checkAll = val;
+        }
+        item.checkedList = val
+            ? item.children.filter((child: any) => !child.disabled).map((child: any) => child.id)
+            : [];
     });
 };
 
 // 子项全选状态改变事件
 const handleItemCheckAllChange = (val: boolean, item: any) => {
     // 修改本组选项的状态
-    item.checkedList = val ? item.children.map((child: any) => child.id) : [];
+    item.checkedList = val
+        ? item.children.filter((child: any) => !child.disabled).map((child: any) => child.id)
+        : [];
     item.isIndeterminate = false;
     // 修改全局全选状态
     isIndeterminate.value =
@@ -46,13 +56,22 @@ const handleItemCheckAllChange = (val: boolean, item: any) => {
 };
 // 子项选中状态改变事件
 const handleItemGroupChange = (val: any[], item: any) => {
+    const canCheckedIdList = item.children
+        .filter((child: any) => !child.disabled)
+        .map((child: any) => child.id);
     // 修改本组全选状态
-    item.isIndeterminate = val.length > 0 && val.length < item.children.length;
-    item.checkAll = val.length === item.children.length;
+    item.isIndeterminate = val.length > 0 && val.length < canCheckedIdList.length;
+    item.checkAll = val.length === canCheckedIdList.length;
     // 修改全局全选状态
     isIndeterminate.value =
         checkedList.value.length > 0 && checkedList.value.length < allList.value.length;
     checkAll.value = checkedList.value.length === allList.value.length;
+};
+
+// 获取某些的disabled状态
+const getDisabled = (item: any) => {
+    const fileList = item.detail_info?.flatMap((item: any) => item.fileInfo);
+    return !(fileList && fileList.length > 0);
 };
 
 watch(
@@ -63,25 +82,39 @@ watch(
             isIndeterminate.value = false;
             if (props.data && props.data.id) {
                 assessItems.value =
-                    props.data.projectData && props.data.projectData.length > 0
-                        ? props.data.projectData.map((item: any) => {
-                              return {
-                                  id: item.id,
-                                  name: item.name,
-                                  checkAll: false,
-                                  indeterminate: false,
-                                  checkedList: [],
-                                  children:
-                                      item.assessItem && item.assessItem.length > 0
-                                          ? item.assessItem.map((child: any) => {
-                                                return {
-                                                    id: child.id,
-                                                    name: child.name,
-                                                };
-                                            })
-                                          : [],
-                              };
-                          })
+                    props.data.project_info && props.data.project_info.length > 0
+                        ? props.data.project_info
+                              .filter(
+                                  (item: any) =>
+                                      item.project_detail && item.project_detail.length > 0
+                              )
+                              .map((item: any) => {
+                                  return {
+                                      id: item.id,
+                                      name: item.evaluate_project_name,
+                                      checkAll: false,
+                                      indeterminate: false,
+                                      checkedList: [],
+                                      children:
+                                          item.project_detail && item.project_detail.length > 0
+                                              ? item.project_detail.map((child: any) => {
+                                                    return {
+                                                        id: child.id,
+                                                        name: child.evaluate_detail_name,
+                                                        disabled: getDisabled(child),
+                                                    };
+                                                })
+                                              : [],
+                                  };
+                              })
+                              .map((item: any) => {
+                                  if (item.children.some((child: any) => !child.disabled)) {
+                                      item.disabled = false;
+                                  } else {
+                                      item.disabled = true;
+                                  }
+                                  return item;
+                              })
                         : [];
             } else {
                 assessItems.value = [];
@@ -99,6 +132,10 @@ const close = () => emit("update:modelValue", false);
 
 const submitLoading = ref(false);
 const confirmClick = async (event: Event) => {
+    if (checkAllDisabled.value) {
+        ElMessage.warning(`没有可下载的选项`);
+        return;
+    }
     if (checkedList.value.length === 0) {
         ElMessage.warning(`请勾选要下载的选项`);
         return;
@@ -120,7 +157,7 @@ const confirmClick = async (event: Event) => {
             });
         }
     } catch (error) {
-        console.log(error);
+        console.error(error);
     } finally {
         submitLoading.value = false;
     }
@@ -140,10 +177,11 @@ const confirmClick = async (event: Event) => {
     >
         <div v-loading="loading">
             <div class="dialog-wrapper">
-                <div style="width: 100%">
+                <div v-if="assessItems.length > 0" style="width: 100%">
                     <el-checkbox
                         v-model="checkAll"
                         :indeterminate="isIndeterminate"
+                        :disabled="checkAllDisabled"
                         @change="handleCheckAllChange"
                     >
                         全选
@@ -154,6 +192,7 @@ const confirmClick = async (event: Event) => {
                                 <el-checkbox
                                     v-model="item.checkAll"
                                     :indeterminate="item.isIndeterminate"
+                                    :disabled="item.disabled"
                                     @change="(val: any) => handleItemCheckAllChange(val, item)"
                                 >
                                     {{ item.name }}
@@ -167,6 +206,7 @@ const confirmClick = async (event: Event) => {
                                     v-for="itemChild in item.children"
                                     :key="itemChild.id"
                                     :label="itemChild.id"
+                                    :disabled="itemChild.disabled"
                                 >
                                     {{ itemChild.name }}
                                 </el-checkbox>
@@ -174,6 +214,12 @@ const confirmClick = async (event: Event) => {
                         </div>
                     </div>
                 </div>
+                <el-empty
+                    v-else
+                    class="flex justify-content-center"
+                    :image-size="80"
+                    description="暂无可下载的项"
+                />
             </div>
             <div class="dialog-btn-box">
                 <el-button type="primary" :loading="submitLoading" @click="confirmClick">

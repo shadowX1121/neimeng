@@ -117,6 +117,7 @@ $my-widths: 108, 200, 220, 400, 432, 640, 800;
     justify-content: flex-start !important;
 }
 .justify-content-center {
+    width: 100%;
     justify-content: center !important;
 }
 .flex-align-center {
@@ -222,6 +223,11 @@ $my-widths: 108, 200, 220, 400, 432, 640, 800;
     .el-tabs__nav-wrap {
         &.is-scrollable {
             padding: 0 40px;
+        }
+    }
+    &.no-add {
+        .el-tabs__new-tab {
+            display: none;
         }
     }
 }

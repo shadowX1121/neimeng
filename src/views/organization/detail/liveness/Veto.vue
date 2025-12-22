@@ -1,10 +1,12 @@
 <!--活跃度评估的一票否决表格模块-->
 <script setup lang="ts">
-import { ref, reactive, watch } from "vue";
+import { ref, reactive, watch, inject } from "vue";
 import { UploadFilled, Check } from "@element-plus/icons-vue";
 import { assessApi } from "@/api/index";
 import UploadFileDialog from "@/components/dialog/UploadFileDialog.vue";
 import DeleteFileDialog from "@/components/dialog/DeleteFileDialog.vue";
+
+const notifyRefresh = inject<() => void>("notifyRefresh");
 
 const props = defineProps<{
     data: any;
@@ -59,6 +61,22 @@ const confirmUploadFile = async (data: any) => {
         ),
     });
 };
+// 上传成功回调
+const handleUploadSuccess = () => {
+    // 更新fileInfo数据
+    props.data.list.forEach((item: any) => {
+        if (item.id === uploadFileDialog.data.id) {
+            item.fileInfo = uploadFileDialog.data.fileList.map((file: any) => {
+                return {
+                    file_name: file.name,
+                    file_path: file.fileUrl,
+                };
+            });
+        }
+    });
+    // 通知父组件更新数据
+    notifyRefresh?.();
+};
 
 // 删除上传文件弹窗数据
 const deleteFileDialog = reactive<{
@@ -77,6 +95,17 @@ const confirmDeleteFile = async () => {
         content_id: deleteFileDialog.data.id,
         type: deleteFileDialog.data.type,
     });
+};
+// 删除文件成功回调
+const handleDeleteSuccess = () => {
+    // 更新fileInfo数据
+    props.data.list.forEach((item: any) => {
+        if (item.id === deleteFileDialog.data.id) {
+            item.fileInfo = [];
+        }
+    });
+    // 通知父组件更新数据
+    notifyRefresh?.();
 };
 </script>
 
@@ -121,12 +150,14 @@ const confirmDeleteFile = async () => {
             v-model="uploadFileDialog.visible"
             :data="uploadFileDialog.data"
             :onConfirm="confirmUploadFile"
+            @success="handleUploadSuccess"
         />
         <!--删除文件弹窗-->
         <DeleteFileDialog
             v-model="deleteFileDialog.visible"
             :data="deleteFileDialog.data"
             :onConfirm="confirmDeleteFile"
+            @success="handleDeleteSuccess"
         />
     </div>
 </template>

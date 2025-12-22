@@ -146,7 +146,7 @@ const viewFileDialog = reactive<{
     data: {},
 });
 // 查看文件点击事件
-const handleViewFile = (data: any) => {
+const handleViewFile = async (data: any) => {
     const { gist } = data;
     if (gist && gist.fileList && gist.fileList.length > 0) {
         if (gist.fileList.length === 1) {
@@ -155,6 +155,17 @@ const handleViewFile = (data: any) => {
         } else {
             viewFileDialog.data = gist;
             viewFileDialog.visible = true;
+        }
+        try {
+            const { code } = await assessApi.updateEvaluateDetailStatus({
+                type: 4,
+                content_id: gist.id,
+            });
+            if (code === 200) {
+                data.gist.status = 2;
+            }
+        } catch (e) {
+            console.error(e);
         }
     } else {
         console.error("未找到文件");
@@ -168,7 +179,7 @@ const scoreStatusChange = async (val: boolean, row: any) => {
     row.gist.updateScoreStatus = true;
     try {
         // 2️⃣ 调接口
-        const { code } = await assessApi.updateItemScoreControl({
+        const { code, data } = await assessApi.updateItemScoreControl({
             account_id: orgId.value,
             type: 4,
             content_id: row.gist.id,
@@ -176,6 +187,7 @@ const scoreStatusChange = async (val: boolean, row: any) => {
         });
         if (code === 200) {
             ElMessage.success("操作成功");
+            props.data.score = data.score;
             notifyRefresh?.();
             // 通知父组件更新数据
         }

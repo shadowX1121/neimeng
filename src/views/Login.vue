@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { mockApi } from "@/api/index";
+import { userApi } from "@/api/index";
 import router from "@/router";
+import md5 from "md5";
 import { ElMessage } from "element-plus";
 
 const name = ref(""); // 用户名
@@ -15,16 +16,13 @@ const login = async () => {
     if (submitLoading.value) return; // 二次保险
     submitLoading.value = true;
     try {
-        const { code } = await mockApi.mock(
-            {
-                name: name.value,
-                password: password.value,
-            },
-            null
-        );
+        const { code } = await userApi.login({
+            user_name: md5(`nmty.${name.value}`),
+            password: md5(`nmty.${md5(password.value)}`),
+        });
         if (code === 200) {
             ElMessage.success("登录成功");
-            router.push("/admin");
+            // router.push("/admin");
         }
     } catch (error) {
         console.log(error);

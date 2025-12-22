@@ -17,7 +17,6 @@ const moduleData = ref<any>();
 watch(
     () => props.data,
     (newVal) => {
-        console.log("我确实更新了");
         moduleData.value = {
             ...newVal,
             list: newVal.list.map((listItem: any) => {
@@ -42,7 +41,6 @@ const calcItemScore = () => {
     // 该逻辑暂时放这里了，按理应该放上传或者删除成功后的逻辑里面
     notifyRefresh?.();
     const length = moduleData.value.list.filter((item: any) => item.fileList.length).length;
-    console.log("length", length);
     props.data.score = length * 3;
 };
 

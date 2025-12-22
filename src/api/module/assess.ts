@@ -113,4 +113,12 @@ export const assessApi = {
             data: params,
         });
     },
+    // 修改评估项审核状态
+    updateEvaluateDetailStatus: (params: any): Promise<ResponseData<any>> => {
+        return request.request({
+            url: `/check_content_file`,
+            method: "POST",
+            data: params,
+        });
+    },
 };
