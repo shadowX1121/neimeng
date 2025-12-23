@@ -1,17 +1,18 @@
 <!--活跃度评估的基础表格模块-->
 <script setup lang="ts">
 import { ref, reactive, computed, watch, inject } from "vue";
+import { UploadFilled, Check } from "@element-plus/icons-vue";
 import { useRoute } from "vue-router";
 import { ElMessage } from "element-plus";
 import { assessApi } from "@/api/index";
-import CheckFileDialog from "@/components/dialog/CheckFileDialog.vue";
+import UploadFileDialog from "@/components/dialog/UploadFileDialog.vue";
+import DeleteFileDialog from "@/components/dialog/DeleteFileDialog.vue";
 import { useAssessItemReviewStatus } from "@/utils/useOptions";
 
 const route = useRoute();
 const assessReviewStatus = useAssessItemReviewStatus();
 const notifyRefresh = inject<() => void>("notifyRefresh");
 
-const orgId = computed(() => route.params.orgId);
 const props = defineProps<{
     data: any;
 }>();
@@ -52,8 +53,7 @@ const formatTableData = (projects: any[]) => {
                                         fileUrl: fileItem.file_path,
                                     };
                                 }),
-                                scoreStatus: !!file.score,
-                                updateScoreStatus: false,
+                                score: file.score,
                             }, // 评估要点数据
                         });
                     });
@@ -138,65 +138,95 @@ const cellClassName = ({ row, column, rowIndex, columnIndex }: any) => {
     }
 };
 
-const viewFileDialog = reactive<{
+const uploadFileDialog = reactive<{
     visible: boolean;
     data: any;
 }>({
     visible: false,
     data: {},
 });
-// 查看文件点击事件
-const handleViewFile = async (data: any) => {
-    const { gist } = data;
-    if (gist && gist.fileList && gist.fileList.length > 0) {
-        if (gist.fileList.length === 1) {
-            const url = gist.fileList[0].fileUrl;
-            window.open(`/pdfPreview?url=${url}`, "_blank");
-        } else {
-            viewFileDialog.data = gist;
-            viewFileDialog.visible = true;
-        }
-        try {
-            const { code } = await assessApi.updateEvaluateDetailStatus({
-                type: 4,
-                content_id: gist.id,
-            });
-            if (code === 200) {
-                data.gist.status = 2;
-            }
-        } catch (e) {
-            console.error(e);
-        }
-    } else {
-        console.error("未找到文件");
-    }
+const handleUploadFile = (data: any) => {
+    uploadFileDialog.visible = true;
+    uploadFileDialog.data = {
+        id: data.id,
+        content: data.name,
+        fileList: data.fileList,
+    };
 };
-// 得分状态变化事件
-const scoreStatusChange = async (val: boolean, row: any) => {
-    const oldValue = row.gist.scoreStatus;
-    // 1️⃣ 先更新 UI（乐观）
-    row.gist.scoreStatus = val;
-    row.gist.updateScoreStatus = true;
-    try {
-        // 2️⃣ 调接口
-        const { code, data } = await assessApi.updateItemScoreControl({
-            account_id: orgId.value,
-            type: 4,
-            content_id: row.gist.id,
-            score: val ? 1 : -1,
-        });
-        if (code === 200) {
-            ElMessage.success("操作成功");
-            props.data.score = data.score;
-            notifyRefresh?.();
-            // 通知父组件更新数据
-        }
-    } catch (e) {
-        // 3️⃣ 失败回滚
-        row.gist.scoreStatus = oldValue;
-    } finally {
-        row.gist.updateScoreStatus = false;
-    }
+const confirmUploadFile = async (data: any) => {
+    return assessApi.uploadEvaluateFile({
+        content_id: uploadFileDialog.data.id,
+        type: 4,
+        files_info: JSON.stringify(
+            data.map((item: any) => {
+                return {
+                    name: item.name,
+                    path: item.fileUrl,
+                };
+            })
+        ),
+    });
+};
+// 上传成功回调
+const handleUploadSuccess = () => {
+    // 更新fileInfo数据
+    props.data.project_info.some((item: any) =>
+        item.project_detail.some((detail: any) =>
+            detail.detail_info.some((file: any) => {
+                if (file.id === uploadFileDialog.data.id) {
+                    file.fileInfo = uploadFileDialog.data.fileList.map((fileItem: any) => ({
+                        file_name: fileItem.name,
+                        file_path: fileItem.fileUrl,
+                    }));
+                    file.score = 0;
+                    file.status = 1;
+                    return true; // 找到后立即终止所有循环
+                }
+                return false;
+            })
+        )
+    );
+    notifyRefresh?.();
+};
+
+// 删除上传文件弹窗数据
+const deleteFileDialog = reactive<{
+    visible: boolean;
+    data: any;
+}>({
+    visible: false,
+    data: {},
+});
+const handleDeleteFile = (data: any) => {
+    deleteFileDialog.visible = true;
+    deleteFileDialog.data = {
+        id: data.id,
+        fileList: data.fileList,
+    };
+};
+const confirmDeleteFile = async () => {
+    return assessApi.deleteEvaluateFile({
+        content_id: deleteFileDialog.data.id,
+        type: 4,
+    });
+};
+// 删除文件成功回调
+const handleDeleteSuccess = () => {
+    // 更新fileInfo数据
+    props.data.project_info.some((item: any) =>
+        item.project_detail.some((detail: any) =>
+            detail.detail_info.some((file: any) => {
+                if (file.id === deleteFileDialog.data.id) {
+                    file.fileInfo = [];
+                    file.score = 0;
+                    file.status = 0;
+                    return true; // 找到后立即终止所有循环
+                }
+                return false;
+            })
+        )
+    );
+    notifyRefresh?.();
 };
 </script>
 
@@ -243,19 +273,6 @@ const scoreStatusChange = async (val: boolean, row: any) => {
                         </div>
                     </template>
                 </el-table-column>
-                <el-table-column label="文件" align="center" width="100">
-                    <template #default="{ row }">
-                        <el-button
-                            v-if="row.gist.fileList.length > 0"
-                            type="primary"
-                            link
-                            @click="handleViewFile(row)"
-                        >
-                            查看
-                        </el-button>
-                        <el-button v-else disabled link>未传</el-button>
-                    </template>
-                </el-table-column>
                 <el-table-column label="状态" align="center" width="100">
                     <template #default="{ row }">
                         <span
@@ -271,45 +288,60 @@ const scoreStatusChange = async (val: boolean, row: any) => {
                         <span v-else>/</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="批阅" align="center" width="100">
+                <el-table-column label="得分" align="center" width="80">
                     <template #default="{ row }">
-                        <div class="score-status">
-                            <el-checkbox
-                                :model-value="row.gist.scoreStatus"
-                                v-loading="row.gist.updateScoreStatus"
-                                :disabled="row.gist.status !== 2"
-                                @change="(val: boolean) => scoreStatusChange(val, row)"
+                        <span v-if="row.gist.score">{{ row.gist.score }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="文件" align="center" width="100">
+                    <template #default="{ row }">
+                        <div class="file-box">
+                            <div class="upload-box" @click="handleUploadFile(row.gist)">
+                                <el-icon :size="20">
+                                    <UploadFilled />
+                                </el-icon>
+                                <span>上传</span>
+                            </div>
+                            <div
+                                class="upload-status"
+                                v-if="row.gist.fileList && row.gist.fileList.length > 0"
                             >
-                                得分
-                            </el-checkbox>
+                                <el-tooltip effect="dark" content="文件已上传" placement="top-end">
+                                    <div class="triangle" @click="handleDeleteFile(row.gist)">
+                                        <el-icon><Check /></el-icon>
+                                    </div>
+                                </el-tooltip>
+                            </div>
                         </div>
                     </template>
                 </el-table-column>
             </el-table>
         </template>
-        <!--查看文件弹窗-->
-        <CheckFileDialog v-model="viewFileDialog.visible" :data="viewFileDialog.data" />
+        <!--上传文件弹窗-->
+        <UploadFileDialog
+            v-model="uploadFileDialog.visible"
+            :data="uploadFileDialog.data"
+            :onConfirm="confirmUploadFile"
+            @success="handleUploadSuccess"
+        />
+        <!--删除文件弹窗-->
+        <DeleteFileDialog
+            v-model="deleteFileDialog.visible"
+            :data="deleteFileDialog.data"
+            :onConfirm="confirmDeleteFile"
+            @success="handleDeleteSuccess"
+        />
     </div>
 </template>
 
 <style lang="scss" scoped>
-.score-status {
+.file-box {
     display: flex;
     justify-content: center;
-    :deep(.el-checkbox__label) {
-        padding-left: 4px;
-    }
-    :deep(.el-checkbox__input) {
-        &.is-checked {
-            + .el-checkbox__label {
-                color: #000000;
-            }
-        }
-    }
-    :deep(.el-loading-spinner) {
-        svg {
-            width: 20px;
-        }
-    }
+}
+.upload-box {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
 }
 </style>

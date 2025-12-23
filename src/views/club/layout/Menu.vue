@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from "vue";
+import { ref, watch } from "vue";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
@@ -8,68 +8,19 @@ const menuList = ref([
     {
         index: "account",
         title: "账号管理",
-        icon: "icon-logout",
+        icon: "icon-zhanghaoguanli",
         children: [
             {
-                index: "/admin/account/password",
+                index: "/club/account/password",
                 title: "账号密码",
             },
         ],
     },
     {
-        index: "organization",
-        title: "体育社会组织管理",
-        icon: "icon-logout",
-        children: [
-            {
-                index: "/admin/organization/list",
-                title: "体育社会组织列表",
-            },
-        ],
+        index: "/club/liveness",
+        title: "活跃度评估",
+        icon: "icon-huoyuedupinggu",
     },
-    {
-        index: "assess",
-        title: "评估管理",
-        icon: "icon-logout",
-        children: [
-            {
-                index: "/admin/assess/baseItem",
-                title: "评估项管理",
-            },
-            {
-                index: "/admin/assess/awardedItem",
-                title: "加分项管理",
-            },
-            {
-                index: "/admin/assess/deductionItem",
-                title: "减分项管理",
-            },
-            {
-                index: "/admin/assess/vetoItem",
-                title: "一票否决管理",
-            },
-            {
-                index: "/admin/assess/scoreAndLevel",
-                title: "积分与星级管理",
-            },
-        ],
-    },
-    {
-        index: "download",
-        title: "下载管理",
-        icon: "icon-logout",
-        children: [
-            {
-                index: "/admin/download/list",
-                title: "下载任务列表",
-            },
-        ],
-    },
-    // {
-    //     index: "other",
-    //     title: "其他管理",
-    //     icon: "",
-    // },
 ]);
 const defaultActive = ref(""); // 默认选中的菜单项
 
@@ -83,23 +34,9 @@ watch(
     },
     { immediate: true }
 );
-
-// 菜单选择事件
-const menuSelect = (index: string) => {
-    console.log("选择的菜单项：", index);
-};
-
-onMounted(() => {
-    console.log("菜单加载完成");
-});
 </script>
 <template>
-    <el-menu
-        class="my-menu"
-        :default-active="defaultActive"
-        :unique-opened="true"
-        @select="menuSelect"
-    >
+    <el-menu class="my-menu" :default-active="defaultActive" :unique-opened="true">
         <template v-for="menu in menuList" :key="menu.index">
             <el-sub-menu
                 v-if="menu.children && menu.children.length > 0"

@@ -2,7 +2,7 @@
 import { ref, onMounted, nextTick } from "vue";
 import router from "@/router";
 import MyMenu from "./Menu.vue";
-import MyBreadcrumb from "../Breadcrumb.vue";
+import MyBreadcrumb from "@/components/MyBreadcrumb.vue";
 import { useDownloadCountStore } from "@/store/useDownloadCountStore";
 
 const downloadCountStore = useDownloadCountStore();
@@ -20,7 +20,7 @@ const goDownload = () => {
 // 退出登录点击事件
 const logout = () => {
     localStorage.removeItem("token");
-    router.push("/admin/login");
+    router.push("/login");
 };
 onMounted(async () => {
     await nextTick(); // 确保 DOM 已经渲染完成
@@ -72,70 +72,4 @@ onMounted(async () => {
     </div>
 </template>
 
-<style lang="scss" scoped>
-.common-layout {
-    --my-page-header-height: 80px;
-    height: 100%;
-    background: #edf2f8;
-    .el-container.is-vertical {
-        height: 100%;
-    }
-    .page-header {
-        display: flex;
-        height: var(--my-page-header-height);
-        padding: 0 24px;
-        .logo {
-            display: flex;
-            align-items: center;
-            flex: 1;
-            font-size: 18px;
-            font-weight: 700;
-            font-family: "Times New Roman", Times, serif;
-            color: var(--el-color-primary);
-        }
-        .right {
-            display: flex;
-            align-items: center;
-            flex-shrink: 0;
-            .download {
-                position: relative;
-            }
-            .icon {
-                .iconfont {
-                    color: #000000;
-                    cursor: pointer;
-                    font-size: 20px;
-                }
-                + .icon {
-                    margin-left: 24px;
-                }
-            }
-        }
-    }
-    .page-container {
-        height: calc(100% - var(--my-page-header-height));
-        .layout-aside {
-            width: 240px;
-            height: 100%;
-            padding: 0 16px;
-        }
-        .page-main {
-            --el-main-padding: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            background: #f6f9fb;
-            border-radius: 16px 0 0 0;
-        }
-    }
-}
-#download-target {
-    display: flex;
-    justify-content: center;
-    position: absolute;
-    top: -4px;
-    right: -16px;
-    height: 16px;
-    width: 32px;
-}
-</style>
+<style lang="scss" scoped></style>

@@ -7,7 +7,7 @@ const props = defineProps<{
 }>();
 
 const gistName = ref("");
-const fileList = ref<{ fileName: string; url: string }[]>([]);
+const fileList = ref<{ name: string; fileUrl: string }[]>([]);
 
 watch(
     () => props.modelValue,
@@ -47,8 +47,8 @@ const viewFile = async (url: string) => {
             <div class="file-list" v-if="fileList && fileList.length > 0">
                 <div class="file-item" v-for="(file, index) in fileList" :key="index">
                     <i class="iconfont icon-downloadbox"></i>
-                    <p class="file-name">{{ file.fileName }}</p>
-                    <el-button size="small" @click="viewFile(file.url)">查看</el-button>
+                    <p class="file-name">{{ file.name }}</p>
+                    <el-button size="small" @click="viewFile(file.fileUrl)">查看</el-button>
                 </div>
             </div>
         </div>

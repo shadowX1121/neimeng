@@ -18,7 +18,8 @@ watch(
     (newVal) => {
         if (newVal) {
             if (props.data) {
-                content.value = props.data.name || "";
+                console.log("props.data", props.data);
+                content.value = props.data.content || "";
                 fileList.value =
                     props.data.fileList.map((item: any) => {
                         return {
@@ -91,7 +92,7 @@ const confirmClick = async () => {
         :append-to-body="true"
     >
         <div class="dialog-start-wrapper">
-            <p>{{ content }}</p>
+            <p style="margin-bottom: 16px">{{ content }}</p>
             <MySimpleUpload v-model="fileList" @change="handleChangeCallback">
                 <template #default>
                     <el-button size="small" type="primary" plain>上传文件</el-button>

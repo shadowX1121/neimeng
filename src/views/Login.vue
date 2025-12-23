@@ -16,13 +16,14 @@ const login = async () => {
     if (submitLoading.value) return; // 二次保险
     submitLoading.value = true;
     try {
+        router.push("/admin");
         const { code } = await userApi.login({
             user_name: md5(`nmty.${name.value}`),
             password: md5(`nmty.${md5(password.value)}`),
         });
         if (code === 200) {
             ElMessage.success("登录成功");
-            // router.push("/admin");
+            router.push("/admin");
         }
     } catch (error) {
         console.log(error);

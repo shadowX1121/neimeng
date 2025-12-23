@@ -58,16 +58,6 @@ const routes: Array<RouteRecordRaw> = [
                                         component: () =>
                                             import("@/views/organization/AddAccount.vue"),
                                     },
-                                    // {
-                                    //     path: "detail",
-                                    //     name: "OrgDetail",
-                                    //     meta: {
-                                    //         isDynamicTitle: true,
-                                    //         activeMenu: "/organization/list",
-                                    //     },
-                                    //     component: () =>
-                                    //         import("@/views/organization/detail/Index.vue"),
-                                    // },
                                 ],
                             },
                         ],
@@ -105,18 +95,6 @@ const routes: Array<RouteRecordRaw> = [
                                             next();
                                         },
                                     },
-                                    // {
-                                    //     path: "detail",
-                                    //     name: "OrgDetail",
-                                    //     meta: {
-                                    //         isDynamicTitle: true,
-                                    //         activeMenu: "/organization/list",
-                                    //     },
-                                    //     component: () =>
-                                    //         import(
-                                    //             "@/views/organization/detail/Index.vue"
-                                    //         ),
-                                    // },
                                 ],
                             },
                             {
@@ -208,6 +186,37 @@ const routes: Array<RouteRecordRaw> = [
         ],
     },
     // 体育社会组织路由
+    {
+        path: "/club",
+        children: [
+            {
+                path: "",
+                name: "ClubLayout",
+                redirect: "/club/account",
+                component: () => import("@/views/club/layout/Layout.vue"),
+                children: [
+                    {
+                        path: "account",
+                        redirect: "/club/account/password",
+                        meta: { title: "账号管理" },
+                        children: [
+                            {
+                                path: "password",
+                                name: "ClubAccountPassword",
+                                meta: { title: "账号密码" },
+                                component: () => import("@/views/club/account/Password.vue"),
+                            },
+                        ],
+                    },
+                    {
+                        path: "liveness",
+                        name: "ClubLiveness",
+                        component: () => import("@/views/club/liveness/detail/Liveness.vue"),
+                    },
+                ],
+            },
+        ],
+    },
     {
         path: "/pdfPreview",
         name: "PdfPreview",
