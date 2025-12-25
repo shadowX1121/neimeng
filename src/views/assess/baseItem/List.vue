@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from "vue";
-import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
 import { YEAR_OPTIONS, CURRENT_YEAR } from "@/constants/index";
 import AddProjectDialog from "./dialog/AddProjectDialog.vue";
@@ -31,7 +30,7 @@ const addProjectClick = () => {
 
 // 表格模块
 const { isLoading: loading, assessData: classifyData } = storeToRefs(assessStore);
-const spanMethod = ({ row, column, rowIndex, columnIndex }: SpanMethodProps<any>) => {
+const spanMethod = ({ row, columnIndex }: SpanMethodProps<any>) => {
     if (columnIndex === 0) {
         // projectName
         return {
@@ -51,7 +50,7 @@ const spanMethod = ({ row, column, rowIndex, columnIndex }: SpanMethodProps<any>
     return { rowspan: 1, colspan: 1 };
 };
 // 单元格类名函数
-const cellClassName = ({ row, column, rowIndex, columnIndex }: any) => {
+const cellClassName = ({ row, column }: any) => {
     if (
         (column.property === "project" && row.project.isLast) ||
         ((column.property === "assessName" || column.property === "assessGist") &&
@@ -85,7 +84,7 @@ const deleteGistDialogVisible = ref(false);
 const deleteGistData = ref<any>({});
 // 删除评估要点点击事件
 const deleteAssessGistClick = (row: any) => {
-    deleteGistData.value = row;
+    deleteGistData.value = row.gist;
     deleteGistDialogVisible.value = true;
 };
 </script>
@@ -140,7 +139,7 @@ const deleteAssessGistClick = (row: any) => {
                         :label="classifyItem.evaluate_name"
                     >
                         <el-empty
-                            v-if="classifyItem.project_info.length === 0"
+                            v-if="formatProjectData(classifyItem.project_info).length === 0"
                             description="暂无数据"
                         />
                         <template v-else>
@@ -224,6 +223,7 @@ const deleteAssessGistClick = (row: any) => {
                         </template>
                     </el-tab-pane>
                 </el-tabs>
+                <el-empty v-else description="暂无数据" />
             </div>
         </div>
         <!--添加项目弹窗-->

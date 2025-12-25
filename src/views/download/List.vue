@@ -2,20 +2,20 @@
 import { ref, reactive, onMounted } from "vue";
 import { mockApi } from "@/api/index";
 import { ElMessage } from "element-plus";
-import { useRoute, useRouter } from "vue-router";
+// import { useRoute, useRouter } from "vue-router";
 import { useDownloadFilePrepareStatus } from "@/utils/useOptions";
 import { flyTo } from "@/utils/flyTo";
 
-const route = useRoute();
-const router = useRouter();
+// const route = useRoute();
+// const router = useRouter();
 const filePrepareStatus = useDownloadFilePrepareStatus();
 
 // 创建下载任务点击事件
-const createDownloadClick = (event: Event) => {
-    flyTo({
-        from: event.target as HTMLElement,
-    });
-};
+// const createDownloadClick = (event: Event) => {
+//     flyTo({
+//         from: event.target as HTMLElement,
+//     });
+// };
 
 // 表格模块
 const loading = ref(false);
@@ -160,7 +160,4 @@ onMounted(() => {
     </div>
 </template>
 
-<style lang="scss" scoped>
-.download-task-list-page {
-}
-</style>
+<style lang="scss" scoped></style>

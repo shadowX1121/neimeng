@@ -1,19 +1,15 @@
 <!--活跃度评估的加分项目表格模块-->
 <script setup lang="ts">
-import { ref, reactive, watch, computed, inject } from "vue";
+import { ref, reactive, watch, inject } from "vue";
 import { UploadFilled, Check } from "@element-plus/icons-vue";
-import { ElMessage } from "element-plus";
-import { useRoute } from "vue-router";
 import { assessApi } from "@/api/index";
 import UploadFileDialog from "@/components/dialog/UploadFileDialog.vue";
 import DeleteFileDialog from "@/components/dialog/DeleteFileDialog.vue";
 import { useAssessItemReviewStatus } from "@/utils/useOptions";
 
-const route = useRoute();
 const assessReviewStatus = useAssessItemReviewStatus();
 const notifyRefresh = inject<() => void>("notifyRefresh");
 
-const orgId = computed(() => route.params.orgId);
 const props = defineProps<{
     data: any;
 }>();
@@ -31,7 +27,7 @@ watch(
                     fileInfo: listItem.fileInfo.map((fileItem: any) => {
                         return {
                             name: fileItem.file_name,
-                            fileUrl: fileItem.file_url,
+                            fileUrl: fileItem.file_path,
                         };
                     }),
                 };

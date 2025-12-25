@@ -53,7 +53,7 @@ const routes: Array<RouteRecordRaw> = [
                                         name: "AddAccount",
                                         meta: {
                                             title: "添加账号",
-                                            activeMenu: "/organization/list",
+                                            activeMenu: "/admin/organization/list",
                                         },
                                         component: () =>
                                             import("@/views/organization/AddAccount.vue"),
@@ -81,7 +81,7 @@ const routes: Array<RouteRecordRaw> = [
                                         name: "AssessBaseItemAdd",
                                         meta: {
                                             isDynamicTitle: true,
-                                            activeMenu: "/assess/baseItem",
+                                            activeMenu: "/admin/assess/baseItem",
                                         },
                                         component: () => import("@/views/assess/baseItem/Add.vue"),
                                         beforeEnter: (to, _from, next) => {
@@ -204,7 +204,13 @@ const routes: Array<RouteRecordRaw> = [
                                 path: "password",
                                 name: "ClubAccountPassword",
                                 meta: { title: "账号密码" },
-                                component: () => import("@/views/club/account/Password.vue"),
+                                component: () => import("@/views/account/Password.vue"),
+                            },
+                            {
+                                path: "manager",
+                                name: "ClubAccountManager",
+                                meta: { title: "管理员" },
+                                component: () => import("@/views/club/account/Manager.vue"),
                             },
                         ],
                     },

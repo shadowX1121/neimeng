@@ -2,14 +2,15 @@
 import { ref, reactive, computed, onBeforeMount } from "vue";
 import { ElMessage } from "element-plus";
 import { CaretBottom } from "@element-plus/icons-vue";
+import { YEAR_OPTIONS, CURRENT_YEAR } from "@/constants/index";
 import AccountStatusDialog from "./dialog/AccountStatusDialog.vue";
 import ManagerInfoDialog from "./dialog/ManagerInfoDialog.vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useAccountStatus } from "@/utils/useOptions";
 import { mockApi } from "@/api/index";
-import dayjs from "dayjs";
 
 const route = useRoute();
+const router = useRouter();
 
 const id = computed(() => route.params.orgId as string | number);
 
@@ -35,12 +36,15 @@ const updateAccountStatusConfirm = (value: { status: number }) => {
 };
 
 // 积分管理点击事件
-const scoreManage = () => {};
-const curentYear = ref(dayjs().year());
-const yearOptions = ref([
-    { value: "2025", label: "2025" },
-    { value: "2026", label: "2026" },
-]);
+const scoreManage = () => {
+    router.push({
+        name: "OrgManageLiveness",
+        params: { orgId: id.value },
+        query: { year: curentYear.value },
+    });
+};
+const curentYear = ref(CURRENT_YEAR);
+const yearOptions = ref(YEAR_OPTIONS);
 // 年份切换事件
 const yearChange = (command: any) => {
     if (curentYear.value != command) {
@@ -49,10 +53,21 @@ const yearChange = (command: any) => {
     }
 };
 
-const managerInfoDialogVisible = ref(false);
+const editManagerDialog = reactive<{
+    visible: boolean;
+    data: any;
+}>({
+    visible: false,
+    data: {},
+});
 // 修改管理员信息点击事件
 const editManageInfo = () => {
-    managerInfoDialogVisible.value = true;
+    editManagerDialog.visible = true;
+    editManagerDialog.data = {
+        id: detailData.id,
+        userName: detailData.userName,
+        phone: detailData.phone,
+    };
 };
 // 管理员信息修改完成回调
 const updateManagerInfoConfirm = (value: { userName: string; phone: string }) => {
@@ -180,8 +195,8 @@ onBeforeMount(() => {
                 />
                 <!--修改管理员信息弹窗-->
                 <ManagerInfoDialog
-                    v-model="managerInfoDialogVisible"
-                    :account="detailData"
+                    v-model="editManagerDialog.visible"
+                    :data="editManagerDialog.data"
                     @confirm="updateManagerInfoConfirm"
                 />
             </div>

@@ -3,7 +3,6 @@ import { ref, reactive, onMounted } from "vue";
 import { assessApi } from "@/api/module/assess";
 import { YEAR_OPTIONS, CURRENT_YEAR } from "@/constants/index";
 import EditItemDialog from "./dialog/EditItemDialog.vue";
-import { ElMessage } from "element-plus";
 
 const filter = reactive({
     year: CURRENT_YEAR,

@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from "vue";
-import { mockApi } from "@/api/index";
+import { assessApi } from "@/api/index";
 import { YEAR_OPTIONS, CURRENT_YEAR } from "@/constants/index";
 import { Sort } from "@element-plus/icons-vue";
 import Draggable from "vuedraggable";
 import EditItemDialog from "./dialog/EditItemDialog.vue";
 import DeleteItemDialog from "./dialog/DeleteItemDialog.vue";
 import { ElMessage } from "element-plus";
-import { assessApi } from "@/api/module/assess";
 
 const filter = reactive({
     year: CURRENT_YEAR,
@@ -67,7 +66,13 @@ const onDragEnd = async (evt: any) => {
     disabledDrag.value = true;
     loading.value = true;
     try {
-        const { code } = await mockApi.mock(tableData.value, null);
+        const { code } = await assessApi.updatePlusSort({
+            list: JSON.stringify(
+                tableData.value.map((item: any) => {
+                    return { id: item.id, content: item.content, type: 2 };
+                })
+            ),
+        });
         if (code === 200) {
             ElMessage.success("调整成功");
         }

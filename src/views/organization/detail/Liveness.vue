@@ -12,18 +12,17 @@ import PlusTable from "./liveness/Plus.vue";
 import MinusTable from "./liveness/Minus.vue";
 import VetoTable from "./liveness/Veto.vue";
 
-import type { TabPaneName } from "element-plus";
-
 const route = useRoute();
 const id = computed(() => route.params.orgId as string | number);
+const initYear = computed(() => route.query.year as string | number);
 
-const year = ref(CURRENT_YEAR);
+const year = ref(initYear.value || CURRENT_YEAR);
 const yearOptions = ref(YEAR_OPTIONS);
 // 年份切换事件
 const yearChange = (command: any) => {
     if (year.value != command) {
         year.value = command;
-        console.log("command", command);
+        getDetail();
     }
 };
 const loading = ref(false);
@@ -31,11 +30,6 @@ const detailData = reactive<any>({});
 const activeClassify = ref();
 const activeClassifyType = computed(() => {
     const type = detailData.classify.find((item: any) => item.id === activeClassify.value)?.tabType;
-    console.log(
-        "activeClassify",
-        detailData.classify,
-        detailData.classify.find((item: any) => item.id === activeClassify.value)
-    );
     return type;
 });
 // 获取详情
@@ -79,7 +73,7 @@ const getDetail = async () => {
             activeClassify.value = detailData.classify.length ? detailData.classify[0].id : "";
         }
     } catch (error) {
-        console.log(error);
+        console.error(error);
     } finally {
         loading.value = false;
     }
@@ -103,11 +97,6 @@ const getTabLabel = (item: any) => {
         }
     }
     return label;
-};
-
-// 标签切换事件
-const handleTabChange = (name: TabPaneName) => {
-    console.log(name, activeClassify.value);
 };
 
 const downloadFileDialog = reactive<{
@@ -139,7 +128,6 @@ const downloadClick = () => {
 };
 
 const refresh = async () => {
-    console.log("通知更新");
     try {
         const { code, data } = await assessApi.getStarInfo({
             year: year.value,
@@ -148,6 +136,22 @@ const refresh = async () => {
             detailData.score = data.score;
             detailData.star = data.star;
             detailData.file_count = data.file_count;
+            detailData.classify.forEach((item: any) => {
+                const { tabType, id } = item;
+                if (tabType === "base") {
+                    const findBase = data.evaluate_list.find((itemBase: any) => itemBase.id == id);
+                    if (findBase) {
+                        item.score = findBase.score;
+                    }
+                } else {
+                    const findPlus = data.plus_list.find(
+                        (itemPlus: any) => `plus_${itemPlus.type}` == id
+                    );
+                    if (findPlus) {
+                        item.score = findPlus.score;
+                    }
+                }
+            });
         }
     } catch (e) {
         console.error(e);
@@ -212,7 +216,6 @@ provide("notifyRefresh", refresh);
                     ]"
                     addable
                     type="border-card"
-                    @tab-change="handleTabChange"
                 >
                     <template #add-icon>
                         <el-button
@@ -235,6 +238,7 @@ provide("notifyRefresh", refresh);
                         <VetoTable v-if="classifyItem.tabType === 3" :data="classifyItem" />
                     </el-tab-pane>
                 </el-tabs>
+                <el-empty v-else description="暂无数据" />
                 <!--创建下载任务弹窗-->
                 <CreateDownLoadDialog
                     v-model="downloadFileDialog.visible"

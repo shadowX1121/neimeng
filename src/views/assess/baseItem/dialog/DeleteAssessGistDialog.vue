@@ -1,12 +1,12 @@
 <!--删除评估要点提示弹窗-->
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import { mockApi } from "@/api/index";
+import { assessApi } from "@/api/index";
 import { ElMessage } from "element-plus";
 
 const props = defineProps<{
     modelValue: boolean;
-    data: AssessItemMaterialType;
+    data: any;
 }>();
 const loading = ref(false);
 const count = ref<IdValueType>("");
@@ -15,17 +15,15 @@ const getStatistics = async () => {
     if (loading.value) return;
     loading.value = true;
     try {
-        const { code, data } = await mockApi.mock(
-            {
-                id: props.data.id,
-            },
-            "getStatistics"
-        );
+        const { code, data } = await assessApi.getHasUploadFileAccountCount({
+            content_id: props.data.id,
+            type: 4,
+        });
         if (code === 200) {
-            count.value = 20;
+            count.value = data.count || 0;
         }
     } catch (error) {
-        console.log(error);
+        console.error(error);
     } finally {
         loading.value = false;
     }
@@ -52,12 +50,9 @@ const confirmClick = async () => {
     if (submitLoading.value) return; // 二次保险
     submitLoading.value = true;
     try {
-        const { code } = await mockApi.mock(
-            {
-                id: props.data.id,
-            },
-            "deleteAssessItem"
-        );
+        const { code } = await assessApi.deleteEvaluateDetailInfo({
+            id: props.data.id,
+        });
         if (code === 200) {
             ElMessage.success(`删除成功`);
             close();
@@ -91,12 +86,8 @@ const confirmClick = async () => {
                 </p>
             </div>
             <div class="dialog-btn-box">
-                <el-button @click="close"> 取消 </el-button>
-                <el-button
-                    type="danger"
-                    :loading="submitLoading"
-                    @click="confirmClick"
-                >
+                <el-button @click="close">取消</el-button>
+                <el-button type="danger" :loading="submitLoading" @click="confirmClick">
                     确定
                 </el-button>
             </div>

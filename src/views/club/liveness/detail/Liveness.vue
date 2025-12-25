@@ -91,7 +91,6 @@ const getTabLabel = (item: any) => {
 };
 
 const refresh = async () => {
-    console.log("通知更新");
     try {
         const { code, data } = await assessApi.getStarInfo({
             year: year.value,
@@ -100,6 +99,22 @@ const refresh = async () => {
             detailData.score = data.score;
             detailData.star = data.star;
             detailData.file_count = data.file_count;
+            detailData.classify.forEach((item: any) => {
+                const { tabType, id } = item;
+                if (tabType === "base") {
+                    const findBase = data.evaluate_list.find((itemBase: any) => itemBase.id == id);
+                    if (findBase) {
+                        item.score = findBase.score;
+                    }
+                } else {
+                    const findPlus = data.plus_list.find(
+                        (itemPlus: any) => `plus_${itemPlus.type}` == id
+                    );
+                    if (findPlus) {
+                        item.score = findPlus.score;
+                    }
+                }
+            });
         }
     } catch (e) {
         console.error(e);

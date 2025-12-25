@@ -1,15 +1,12 @@
 <!--活跃度评估的基础表格模块-->
 <script setup lang="ts">
-import { ref, reactive, computed, watch, inject } from "vue";
+import { ref, reactive, watch, inject } from "vue";
 import { UploadFilled, Check } from "@element-plus/icons-vue";
-import { useRoute } from "vue-router";
-import { ElMessage } from "element-plus";
 import { assessApi } from "@/api/index";
 import UploadFileDialog from "@/components/dialog/UploadFileDialog.vue";
 import DeleteFileDialog from "@/components/dialog/DeleteFileDialog.vue";
 import { useAssessItemReviewStatus } from "@/utils/useOptions";
 
-const route = useRoute();
 const assessReviewStatus = useAssessItemReviewStatus();
 const notifyRefresh = inject<() => void>("notifyRefresh");
 
@@ -109,7 +106,7 @@ watch(
     { deep: true, immediate: true }
 );
 
-const spanMethod = ({ row, column, rowIndex, columnIndex }: SpanMethodProps<any>) => {
+const spanMethod = ({ row, columnIndex }: SpanMethodProps<any>) => {
     if (columnIndex === 0) {
         // projectName
         return {
@@ -128,7 +125,7 @@ const spanMethod = ({ row, column, rowIndex, columnIndex }: SpanMethodProps<any>
     return { rowspan: 1, colspan: 1 };
 };
 // 单元格类名函数
-const cellClassName = ({ row, column, rowIndex, columnIndex }: any) => {
+const cellClassName = ({ row, column }: any) => {
     if (
         (column.property === "project" && row.project.isLast) ||
         ((column.property === "assessName" || column.property === "assessGist") &&

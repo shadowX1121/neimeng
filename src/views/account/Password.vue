@@ -1,25 +1,18 @@
 <script setup lang="ts">
 import { ref, reactive, computed } from "vue";
-import { mockApi } from "@/api/index";
+import { userApi } from "@/api/index";
+import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
 
 import type { FormInstance, FormRules } from "element-plus";
+
+const router = useRouter();
 
 const formRef = ref<FormInstance>();
 const formData = reactive({
     name: "",
     password: "",
 });
-// 名称验证
-const validateName = (_rule: any, value: string, callback: any) => {
-    if (value === "") {
-        callback(new Error("请输入账号名称"));
-    } else if (value.length > 20) {
-        callback(new Error("账号名称不能超过20个字符"));
-    } else {
-        callback();
-    }
-};
 // 密码验证
 const validatePass = (_rule: any, value: string, callback: any) => {
     if (value === "") {
@@ -31,9 +24,22 @@ const validatePass = (_rule: any, value: string, callback: any) => {
     }
 };
 const rules = reactive<FormRules<typeof formData>>({
-    name: [{ validator: validateName, trigger: "blur" }],
-    password: [{ validator: validatePass, trigger: "blur" }],
+    name: [
+        { required: true, message: "请输入账号名称", trigger: "blur" },
+        {
+            min: 1,
+            max: 20,
+            message: "账号名称不能超过20个字符",
+            trigger: "blur",
+        },
+    ],
+    password: [
+        { required: true, message: "请输入密码", trigger: "blur" },
+        { validator: validatePass, trigger: "blur" },
+    ],
 });
+const formatter = (value: string) => value;
+const parser = (value: string) => value.replace(/[^a-zA-Z0-9]/g, "");
 const submitLoading = ref(false);
 const submitDisabled = computed(() => {
     return (
@@ -45,16 +51,32 @@ const submitDisabled = computed(() => {
 });
 
 // 提交按钮点击事件
-const onSubmit = async () => {
+const handleSubmit = async () => {
+    if (!formRef.value) return;
+    formRef.value.validate((valid, fields) => {
+        if (valid) {
+            submit();
+        } else {
+            console.error("error submit!", fields);
+        }
+    });
+};
+// 提交
+const submit = async () => {
     if (submitLoading.value) return; // 二次保险
     submitLoading.value = true;
     try {
-        const { code } = await mockApi.mock(formData, null);
+        const { code } = await userApi.update({
+            account_name: formData.name,
+            password: formData.password,
+        });
         if (code === 200) {
-            ElMessage.success("修改成功");
+            ElMessage.success("修改成功，请重新登录");
+            localStorage.clear();
+            router.push("/login");
         }
     } catch (error) {
-        console.log(error);
+        console.error(error);
     } finally {
         submitLoading.value = false;
     }
@@ -76,7 +98,7 @@ const onSubmit = async () => {
                     label-position="top"
                     require-asterisk-position="right"
                 >
-                    <el-form-item required label="账号名称" prop="name">
+                    <el-form-item label="账号名称" prop="name">
                         <el-input
                             v-model="formData.name"
                             :model-modifiers="{ trim: true }"
@@ -86,26 +108,25 @@ const onSubmit = async () => {
                             autocomplete="off"
                         />
                     </el-form-item>
-                    <el-form-item required label="修改新密码" prop="password">
+                    <el-form-item label="修改新密码" prop="password">
                         <el-input
                             v-model="formData.password"
                             :model-modifiers="{ trim: true }"
                             type="password"
-                            :show-password="true"
+                            show-password
                             maxlength="20"
+                            :formatter="formatter"
+                            :parser="parser"
                             placeholder="请输入新密码6位至20位以内（仅限字母及数字）"
                             autocomplete="new-password"
                         />
                     </el-form-item>
-                    <el-form-item
-                        style="margin-top: 48px"
-                        class="button-form-item"
-                    >
+                    <el-form-item style="margin-top: 48px" class="button-form-item">
                         <el-button
                             type="primary"
                             :loading="submitLoading"
                             :disabled="submitDisabled || submitLoading"
-                            @click="onSubmit"
+                            @click="handleSubmit"
                         >
                             确定
                         </el-button>

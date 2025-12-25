@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from "vue";
+import { ref, watch } from "vue";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
@@ -8,7 +8,7 @@ const menuList = ref([
     {
         index: "account",
         title: "账号管理",
-        icon: "icon-logout",
+        icon: "icon-zhanghaoguanli",
         children: [
             {
                 index: "/admin/account/password",
@@ -19,7 +19,7 @@ const menuList = ref([
     {
         index: "organization",
         title: "体育社会组织管理",
-        icon: "icon-logout",
+        icon: "icon-zuzhijibenxinxi",
         children: [
             {
                 index: "/admin/organization/list",
@@ -30,7 +30,7 @@ const menuList = ref([
     {
         index: "assess",
         title: "评估管理",
-        icon: "icon-logout",
+        icon: "icon-pingguguanli",
         children: [
             {
                 index: "/admin/assess/baseItem",
@@ -57,7 +57,7 @@ const menuList = ref([
     {
         index: "download",
         title: "下载管理",
-        icon: "icon-logout",
+        icon: "icon-xiazaiguanli",
         children: [
             {
                 index: "/admin/download/list",
@@ -83,23 +83,9 @@ watch(
     },
     { immediate: true }
 );
-
-// 菜单选择事件
-const menuSelect = (index: string) => {
-    console.log("选择的菜单项：", index);
-};
-
-onMounted(() => {
-    console.log("菜单加载完成");
-});
 </script>
 <template>
-    <el-menu
-        class="my-menu"
-        :default-active="defaultActive"
-        :unique-opened="true"
-        @select="menuSelect"
-    >
+    <el-menu class="my-menu" :default-active="defaultActive" :unique-opened="true">
         <template v-for="menu in menuList" :key="menu.index">
             <el-sub-menu
                 v-if="menu.children && menu.children.length > 0"

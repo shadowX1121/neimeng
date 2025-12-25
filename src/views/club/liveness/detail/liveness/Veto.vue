@@ -1,12 +1,7 @@
-<!--活跃度评估的一票否决表格模块-->
+<!--活跃度评估的减分项目表格模块-->
 <script setup lang="ts">
-import { ref, reactive, watch, inject } from "vue";
-import { UploadFilled, Check } from "@element-plus/icons-vue";
-import { assessApi } from "@/api/index";
-import UploadFileDialog from "@/components/dialog/UploadFileDialog.vue";
-import DeleteFileDialog from "@/components/dialog/DeleteFileDialog.vue";
-
-const notifyRefresh = inject<() => void>("notifyRefresh");
+import { ref, reactive, watch } from "vue";
+import CheckFileDialog from "@/components/dialog/CheckFileDialog.vue";
 
 const props = defineProps<{
     data: any;
@@ -19,93 +14,49 @@ watch(
     (newVal) => {
         moduleData.value = {
             ...newVal,
-            list: newVal.list.map((listItem: any) => {
-                return {
-                    ...listItem,
-                    fileList:
-                        listItem.fileInfo.map((file: any) => {
+            list: newVal.list
+                .filter((item: any) => item.fileInfo && item.fileInfo.length > 0)
+                .map((listItem: any) => {
+                    return {
+                        ...listItem,
+                        fileInfo: listItem.fileInfo.map((fileItem: any) => {
                             return {
-                                name: file.file_name,
-                                fileUrl: file.file_path,
+                                name: fileItem.file_name,
+                                fileUrl: fileItem.file_path,
                             };
-                        }) || [],
-                };
-            }),
+                        }),
+                    };
+                }),
         };
     },
     { deep: true, immediate: true }
 );
 
-const uploadFileDialog = reactive<{
+const viewFileDialog = reactive<{
     visible: boolean;
     data: any;
 }>({
     visible: false,
     data: {},
 });
-const handleUploadFile = (data: any) => {
-    uploadFileDialog.visible = true;
-    uploadFileDialog.data = data;
-};
-const confirmUploadFile = async (data: any) => {
-    return assessApi.uploadEvaluateFile({
-        content_id: uploadFileDialog.data.id,
-        type: uploadFileDialog.data.type,
-        files_info: JSON.stringify(
-            data.map((item: any) => {
-                return {
-                    name: item.name,
-                    path: item.fileUrl,
-                };
-            })
-        ),
-    });
-};
-// 上传成功回调
-const handleUploadSuccess = () => {
-    // 更新fileInfo数据
-    props.data.list.forEach((item: any) => {
-        if (item.id === uploadFileDialog.data.id) {
-            item.fileInfo = uploadFileDialog.data.fileList.map((file: any) => {
-                return {
-                    file_name: file.name,
-                    file_path: file.fileUrl,
-                };
-            });
+// 查看文件点击事件
+const handleViewFile = async (data: any) => {
+    const { fileInfo } = data;
+    console.log(fileInfo);
+    if (fileInfo && fileInfo.length > 0) {
+        if (fileInfo.length === 1) {
+            const url = fileInfo[0].fileUrl;
+            window.open(`/pdfPreview?url=${url}`, "_blank");
+        } else {
+            viewFileDialog.data = {
+                name: data.content,
+                fileList: fileInfo,
+            };
+            viewFileDialog.visible = true;
         }
-    });
-    // 通知父组件更新数据
-    notifyRefresh?.();
-};
-
-// 删除上传文件弹窗数据
-const deleteFileDialog = reactive<{
-    visible: boolean;
-    data: any;
-}>({
-    visible: false,
-    data: {},
-});
-const handleDeleteFile = (data: any) => {
-    deleteFileDialog.visible = true;
-    deleteFileDialog.data = data;
-};
-const confirmDeleteFile = async () => {
-    return assessApi.deleteEvaluateFile({
-        content_id: deleteFileDialog.data.id,
-        type: deleteFileDialog.data.type,
-    });
-};
-// 删除文件成功回调
-const handleDeleteSuccess = () => {
-    // 更新fileInfo数据
-    props.data.list.forEach((item: any) => {
-        if (item.id === deleteFileDialog.data.id) {
-            item.fileInfo = [];
-        }
-    });
-    // 通知父组件更新数据
-    notifyRefresh?.();
+    } else {
+        console.error("未找到文件");
+    }
 };
 </script>
 
@@ -123,77 +74,21 @@ const handleDeleteSuccess = () => {
                 />
                 <el-table-column label="文件" align="center" width="100">
                     <template #default="{ row }">
-                        <div class="file-box">
-                            <div class="upload-box" @click="handleUploadFile(row)">
-                                <el-icon :size="20">
-                                    <UploadFilled />
-                                </el-icon>
-                                <span>上传</span>
-                            </div>
-                            <div
-                                class="upload-status"
-                                v-if="row.fileList && row.fileList.length > 0"
-                            >
-                                <el-tooltip effect="dark" content="文件已上传" placement="top-end">
-                                    <div class="triangle" @click="handleDeleteFile(row)">
-                                        <el-icon><Check /></el-icon>
-                                    </div>
-                                </el-tooltip>
-                            </div>
-                        </div>
+                        <el-button
+                            v-if="row.fileInfo.length > 0"
+                            type="primary"
+                            link
+                            @click="handleViewFile(row)"
+                        >
+                            查看
+                        </el-button>
                     </template>
                 </el-table-column>
             </el-table>
         </template>
-        <!--上传文件弹窗-->
-        <UploadFileDialog
-            v-model="uploadFileDialog.visible"
-            :data="uploadFileDialog.data"
-            :onConfirm="confirmUploadFile"
-            @success="handleUploadSuccess"
-        />
-        <!--删除文件弹窗-->
-        <DeleteFileDialog
-            v-model="deleteFileDialog.visible"
-            :data="deleteFileDialog.data"
-            :onConfirm="confirmDeleteFile"
-            @success="handleDeleteSuccess"
-        />
+        <!--查看文件弹窗-->
+        <CheckFileDialog v-model="viewFileDialog.visible" :data="viewFileDialog.data" />
     </div>
 </template>
 
-<style lang="scss" scoped>
-.file-box {
-    display: flex;
-    justify-content: center;
-}
-.upload-box {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-}
-.upload-status {
-    position: absolute;
-    width: 32px;
-    height: 32px;
-    right: 0;
-    top: 0;
-    .triangle {
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 100%;
-        height: 100%;
-        clip-path: polygon(100% 0, 100% 100%, 0 0);
-        cursor: pointer;
-        z-index: 1;
-        background-color: #009f4d;
-        .el-icon {
-            position: absolute;
-            right: 2px;
-            top: 4px;
-            color: #fff;
-        }
-    }
-}
-</style>
+<style lang="scss" scoped></style>

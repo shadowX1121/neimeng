@@ -109,7 +109,7 @@ watch(
     { deep: true, immediate: true }
 );
 
-const spanMethod = ({ row, column, rowIndex, columnIndex }: SpanMethodProps<any>) => {
+const spanMethod = ({ row, columnIndex }: SpanMethodProps<any>) => {
     if (columnIndex === 0) {
         // projectName
         return {
@@ -128,7 +128,7 @@ const spanMethod = ({ row, column, rowIndex, columnIndex }: SpanMethodProps<any>
     return { rowspan: 1, colspan: 1 };
 };
 // 单元格类名函数
-const cellClassName = ({ row, column, rowIndex, columnIndex }: any) => {
+const cellClassName = ({ row, column }: any) => {
     if (
         (column.property === "project" && row.project.isLast) ||
         ((column.property === "assessName" || column.property === "assessGist") &&
@@ -179,7 +179,7 @@ const scoreStatusChange = async (val: boolean, row: any) => {
     row.gist.updateScoreStatus = true;
     try {
         // 2️⃣ 调接口
-        const { code, data } = await assessApi.updateItemScoreControl({
+        const { code } = await assessApi.updateItemScoreControl({
             account_id: orgId.value,
             type: 4,
             content_id: row.gist.id,
@@ -187,7 +187,6 @@ const scoreStatusChange = async (val: boolean, row: any) => {
         });
         if (code === 200) {
             ElMessage.success("操作成功");
-            props.data.score = data.score;
             notifyRefresh?.();
             // 通知父组件更新数据
         }

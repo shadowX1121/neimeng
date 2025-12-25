@@ -15,7 +15,7 @@ const menuList = computed((): MyMenuType[] => {
         {
             index: `/admin/orgManage/${orgId.value}/liveness`,
             title: "活跃度评估",
-            icon: "icon-logout",
+            icon: "icon-huoyuedupinggu",
         },
     ];
 });
@@ -39,20 +39,10 @@ watch(
     { immediate: true }
 );
 
-// 菜单选择事件
-const menuSelect = (index: string) => {
-    console.log("选择的菜单项：", index);
-};
-
 onMounted(() => {});
 </script>
 <template>
-    <el-menu
-        class="my-menu"
-        :default-active="defaultActive"
-        :unique-opened="true"
-        @select="menuSelect"
-    >
+    <el-menu class="my-menu" :default-active="defaultActive" :unique-opened="true">
         <template v-for="menu in menuList" :key="menu.index">
             <el-sub-menu
                 v-if="menu.children && menu.children.length > 0"

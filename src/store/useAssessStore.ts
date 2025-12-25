@@ -1,7 +1,6 @@
 import { ref, computed, onBeforeMount } from "vue";
 import { defineStore } from "pinia";
 import { assessApi } from "@/api/module/assess";
-import { ElMessage } from "element-plus";
 export const useAssessStore = defineStore(
     "assessStore",
     () => {

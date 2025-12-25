@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, watchEffect } from "vue";
-import { mockApi } from "@/api/index";
+import { institutionApi } from "@/api/index";
 import { isPhone } from "@/utils/validator";
 import { ElMessage } from "element-plus";
 
@@ -8,7 +8,7 @@ import type { FormInstance, FormRules } from "element-plus";
 
 const props = defineProps<{
     modelValue: boolean;
-    account: OrgAccountType;
+    data: OrgAccountType;
 }>();
 
 const formRef = ref<FormInstance>();
@@ -21,16 +21,6 @@ const formData = reactive<{
     userName: "",
     phone: "",
 });
-// 管理员姓名验证
-const validateName = (_rule: any, value: string, callback: any) => {
-    if (value === "") {
-        callback(new Error("请输入管理员姓名"));
-    } else if (value.length > 10) {
-        callback(new Error("管理员姓名不能超过10个字符"));
-    } else {
-        callback();
-    }
-};
 // 手机号验证
 const validatePhone = (_rule: any, value: string, callback: any) => {
     if (value === "") {
@@ -42,14 +32,25 @@ const validatePhone = (_rule: any, value: string, callback: any) => {
     }
 };
 const rules = reactive<FormRules<typeof formData>>({
-    userName: [{ validator: validateName, trigger: "blur" }],
-    phone: [{ validator: validatePhone, trigger: "blur" }],
+    userName: [
+        { required: true, message: "请输入管理员姓名", trigger: "blur" },
+        {
+            min: 1,
+            max: 10,
+            message: "管理员姓名不能超过10个字符",
+            trigger: "blur",
+        },
+    ],
+    phone: [
+        { required: true, message: "请输入手机号", trigger: "blur" },
+        { validator: validatePhone, trigger: "blur" },
+    ],
 });
 watchEffect(() => {
     if (props.modelValue) {
-        formData.id = props.account.id;
-        formData.userName = props.account.userName;
-        formData.phone = props.account.phone;
+        formData.id = props.data.id;
+        formData.userName = props.data.userName;
+        formData.phone = props.data.phone;
     }
 });
 
@@ -76,7 +77,11 @@ const submit = async () => {
     if (submitLoading.value) return; // 二次保险
     submitLoading.value = true;
     try {
-        const { code } = await mockApi.mock(formData, null);
+        const { code } = await institutionApi.updateManager({
+            institution_id: formData.id,
+            manager_phone: formData.phone,
+            manager_name: formData.userName,
+        });
         if (code === 200) {
             ElMessage.success(`修改成功`);
             close();
@@ -97,20 +102,19 @@ const submit = async () => {
     <el-dialog
         :model-value="props.modelValue"
         title="修改管理员信息"
-        width="500"
+        width="480"
         @close="close"
         :close-on-click-modal="false"
         align-center
     >
         <el-form
-            class="w400"
             ref="formRef"
             :model="formData"
             :rules="rules"
             label-position="top"
             require-asterisk-position="right"
         >
-            <el-form-item required label="管理员姓名" prop="userName">
+            <el-form-item label="管理员姓名" prop="userName">
                 <el-input
                     v-model="formData.userName"
                     :model-modifiers="{ trim: true }"
@@ -120,7 +124,7 @@ const submit = async () => {
                     autocomplete="off"
                 />
             </el-form-item>
-            <el-form-item required label="管理员手机号" prop="phone">
+            <el-form-item label="管理员手机号" prop="phone">
                 <el-input
                     v-model="formData.phone"
                     :model-modifiers="{ trim: true }"
@@ -132,11 +136,7 @@ const submit = async () => {
         </el-form>
         <template #footer>
             <div class="dialog-footer">
-                <el-button
-                    type="primary"
-                    :loading="submitLoading"
-                    @click="confirmClick"
-                >
+                <el-button type="primary" :loading="submitLoading" @click="confirmClick">
                     确定
                 </el-button>
             </div>

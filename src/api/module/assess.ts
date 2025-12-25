@@ -33,6 +33,14 @@ export const assessApi = {
             data: params,
         });
     },
+    // 更新加减分、一票否决项排序
+    updatePlusSort: (params: any): Promise<ResponseData<any>> => {
+        return request.request({
+            url: `/update_plus_order`,
+            method: "POST",
+            data: params,
+        });
+    },
     // 获取星级列表
     getStarList: (params: any): Promise<ResponseData<any>> => {
         return request.request({
@@ -71,6 +79,14 @@ export const assessApi = {
             url: `/evaluate_detail`,
             method: "POST",
             data: params,
+        });
+    },
+    // 删除评估实证材料项
+    deleteEvaluateDetailInfo: (params: any): Promise<ResponseData<any>> => {
+        return request.request({
+            url: `/evaluate_detail_info`,
+            method: "DELETE",
+            params,
         });
     },
     // 获取活跃度评估信息
@@ -119,6 +135,14 @@ export const assessApi = {
             url: `/check_content_file`,
             method: "POST",
             data: params,
+        });
+    },
+    // 获取某个评估项已上传评估文件的单位数量
+    getHasUploadFileAccountCount: (params: any): Promise<ResponseData<any>> => {
+        return request.request({
+            url: `/get_account_count`,
+            method: "GET",
+            params,
         });
     },
 };

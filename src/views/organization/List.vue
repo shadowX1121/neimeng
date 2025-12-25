@@ -1,17 +1,14 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from "vue";
-import { mockApi } from "@/api/index";
+import { institutionApi } from "@/api/index";
 import { ElMessage } from "element-plus";
 import { Plus, Search, ArrowRight } from "@element-plus/icons-vue";
 import { useAccountStatus } from "@/utils/useOptions";
-import { useRoute, useRouter } from "vue-router";
-import { useMetaTitleStore } from "@/store/useMetaTitleStore";
-import { YEAR_OPTIONS } from "@/constants/index";
+import { useRouter } from "vue-router";
+import { YEAR_OPTIONS, CURRENT_YEAR } from "@/constants/index";
 
 const accountStatus = useAccountStatus();
-const route = useRoute();
 const router = useRouter();
-const metaTitleStore = useMetaTitleStore();
 
 // 筛选模块
 const goAddPage = () => {
@@ -20,7 +17,7 @@ const goAddPage = () => {
     });
 };
 const filter = reactive({
-    year: "",
+    year: CURRENT_YEAR,
     level: "",
     status: "",
     accountStatus: "",
@@ -45,28 +42,16 @@ const accountStatusOptions = accountStatus.options.value.filter((item) => item.v
 const loading = ref(false);
 const tableData = ref<any[]>([]);
 // 评估tag点击事件
-const pinguTagClick = (tag: any) => {
-    ElMessage.success(`点击了标签：${tag}`);
+const evaluateTagClick = (item: any) => {
+    window.open(`/admin/orgManage/${item.id}/liveness?year=${filter.year}`, "_blank");
 };
 // 修改tag点击事件
-const xiugaiTagClick = (tag: any) => {
+const reviewTagClick = (tag: any) => {
     ElMessage.success(`点击了标签：${tag}`);
 };
 // 管理点击事件
 const manageClick = (item: any) => {
-    window.open(`/admin/orgManage/${item.id}/home`, "_blank");
-    // metaTitleStore.urlMapTitle = {
-    //     ...metaTitleStore.urlMapTitle,
-    //     "/organization/list/detail": item.name,
-    // };
-
-    // router.push({
-    //     name: "OrgDetail",
-    //     query: {
-    //         id: item.id,
-    //     },
-    // });
-    // ElMessage.success(`点击了管理按钮：${item.id}`);
+    window.open(`/admin/orgManage/${item.id}/home?name=${item.name}`, "_blank");
 };
 
 // 分页模块
@@ -88,45 +73,15 @@ const handleCurrentChange = (current: number) => {
 const getTableData = async () => {
     loading.value = true;
     try {
-        const { code } = await mockApi.mock(
-            {
-                ...filter,
-                page: pagination.current,
-                size: pagination.size,
-            },
-            null
-        );
+        const { code, data } = await institutionApi.getList({
+            ...filter,
+            page: pagination.current,
+            size: pagination.size,
+        });
         if (code === 200) {
-            tableData.value = [
-                {
-                    id: 1,
-                    name: "内蒙古自治区老年人体育协会",
-                    score: "50",
-                    level: 2,
-                    pinguAudit: "1",
-                    xiugaiAudit: "1",
-                    accountStatus: 1,
-                },
-                {
-                    id: 2,
-                    name: "内蒙古自治区老年人体育协会1",
-                    score: "50",
-                    level: 0,
-                    pinguAudit: "1",
-                    xiugaiAudit: "1",
-                    accountStatus: 2,
-                },
-                {
-                    id: 2,
-                    name: "内蒙古自治区老年人体育协会2",
-                    score: "50",
-                    level: 0,
-                    pinguAudit: "1",
-                    xiugaiAudit: "1",
-                    accountStatus: 3,
-                },
-            ];
-            pagination.total = 3;
+            const { institutions, total } = data;
+            tableData.value = institutions;
+            pagination.total = total;
         }
     } catch (error) {
         console.log(error);
@@ -209,12 +164,18 @@ onMounted(() => {
                             />
                         </el-select>
                         <el-input
-                            class="w220"
+                            class="w300"
                             v-model="filter.search"
+                            clearable
                             size="default"
                             placeholder="请输入体育社会组织名称"
-                            :suffix-icon="Search"
-                        />
+                            @clear="getTableData"
+                            @keyup.enter="getTableData"
+                        >
+                            <template #append>
+                                <el-button @click="getTableData" :icon="Search" />
+                            </template>
+                        </el-input>
                     </div>
                 </div>
                 <el-empty v-if="pagination.total === 0" description="暂无体育社会组织" />
@@ -223,66 +184,70 @@ onMounted(() => {
                         <el-table-column prop="name" label="体育社会组织名称" min-width="200" />
                         <el-table-column prop="score" label="年度积分" width="140" />
                         <el-table-column label="星级" width="140">
-                            <template #default="scope">
+                            <template #default="{ row }">
                                 <el-rate
-                                    v-if="scope.row.level"
-                                    v-model="scope.row.level"
-                                    :disabled="true"
-                                    :max="scope.row.level"
+                                    v-if="row.star"
+                                    v-model="row.star"
+                                    disabled
+                                    :max="row.star"
                                 />
                                 <span v-else style="color: #666666">取消评星资格</span>
                             </template>
                         </el-table-column>
                         <el-table-column label="评估审核" width="140">
-                            <template #default="scope">
+                            <template #default="{ row }">
                                 <el-tag
+                                    v-if="row.evaluate_count"
                                     class="cursor-pointer"
                                     type="danger"
                                     effect="dark"
                                     round
-                                    @click="pinguTagClick(scope.row.pinguAudit)"
+                                    @click="evaluateTagClick(row)"
                                 >
-                                    <span>{{ scope.row.pinguAudit }}条</span>
+                                    <span>{{ row.evaluate_count }}条</span>
                                     <el-icon><ArrowRight /></el-icon>
                                 </el-tag>
+                                <span v-else>/</span>
                             </template>
                         </el-table-column>
                         <el-table-column label="修改审核" width="140">
-                            <template #default="scope">
+                            <template #default="{ row }">
                                 <el-tag
+                                    v-if="row.update_review_count"
                                     class="cursor-pointer"
                                     type="danger"
                                     effect="dark"
                                     round
-                                    @click="xiugaiTagClick(scope.row.xiugaiAudit)"
+                                    @click="reviewTagClick(row.update_review_count)"
                                 >
-                                    <span>{{ scope.row.xiugaiAudit }}条</span>
+                                    <span>{{ row.update_review_count }}条</span>
                                     <el-icon><ArrowRight /></el-icon>
                                 </el-tag>
+                                <span v-else>/</span>
                             </template>
                         </el-table-column>
                         <el-table-column label="账号状态" width="140">
-                            <template #default="scope">
+                            <template #default="{ row }">
                                 <div class="account-status">
                                     <div
                                         class="dot"
                                         :style="{
                                             backgroundColor: accountStatus.getColorByValue(
-                                                scope.row.accountStatus
+                                                row.account_status
                                             ),
                                         }"
                                     ></div>
                                     <span
                                         :style="{
                                             color:
-                                                scope.row.accountStatus === 3
+                                                row.account_status === 3
                                                     ? accountStatus.getColorByValue(
-                                                          scope.row.accountStatus
+                                                          row.account_status
                                                       )
                                                     : '',
                                         }"
                                     >
-                                        {{ accountStatus.getLabelByValue(scope.row.accountStatus) }}
+                                        {{ accountStatus.getLabelByValue(row.account_status) }}
                                     </span>
                                 </div>
                             </template>

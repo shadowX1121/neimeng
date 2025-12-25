@@ -92,7 +92,7 @@ const handleSuccess = (response: any, file: any) => {
     });
 };
 // 文件上传失败时的钩子
-const handleError = (error: any, file: any, files: any[]) => {
+const handleError = (_error: any, file: any, _files: any[]) => {
     fileList.value.forEach((item) => {
         if (item.uid === file.uid) {
             item.status = file.status;
@@ -100,7 +100,7 @@ const handleError = (error: any, file: any, files: any[]) => {
     });
 };
 // 文件上传进度变化时的钩子
-const handleProgress = (event: any, file: any, files: any[]) => {
+const handleProgress = (_event: any, _file: any, _files: any[]) => {
     // console.log("Progress", file, files);
 };
 // 文件超出个数限制时的钩子

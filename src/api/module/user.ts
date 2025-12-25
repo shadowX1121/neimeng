@@ -8,4 +8,11 @@ export const userApi = {
             data: params,
         });
     },
+    update: (params: any): Promise<ResponseData<any>> => {
+        return request.request({
+            url: "/account/info",
+            method: "POST",
+            data: params,
+        });
+    },
 };

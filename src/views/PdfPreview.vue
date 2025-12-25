@@ -22,7 +22,7 @@ const renderPdf = async () => {
         const viewport = page.getViewport({ scale: 1.2 });
 
         const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d")!;
+        // const ctx = canvas.getContext("2d")!;
 
         canvas.width = viewport.width;
         canvas.height = viewport.height;

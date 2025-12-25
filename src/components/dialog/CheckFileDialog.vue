@@ -58,7 +58,6 @@ const viewFile = async (url: string) => {
 <style lang="scss" scoped>
 .file-list {
     width: 100%;
-    padding-top: 8px;
     .file-item {
         display: flex;
         align-items: center;

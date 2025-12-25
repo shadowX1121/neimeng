@@ -14,6 +14,10 @@ const menuList = ref([
                 index: "/club/account/password",
                 title: "账号密码",
             },
+            {
+                index: "/club/account/manager",
+                title: "管理员",
+            },
         ],
     },
     {

@@ -2,7 +2,7 @@
 import { ref, computed } from "vue";
 import { userApi } from "@/api/index";
 import router from "@/router";
-import md5 from "md5";
+import CryptoJS from "crypto-js";
 import { ElMessage } from "element-plus";
 
 const name = ref(""); // 用户名
@@ -16,14 +16,28 @@ const login = async () => {
     if (submitLoading.value) return; // 二次保险
     submitLoading.value = true;
     try {
-        router.push("/admin");
-        const { code } = await userApi.login({
-            user_name: md5(`nmty.${name.value}`),
-            password: md5(`nmty.${md5(password.value)}`),
+        const { code, data } = await userApi.login({
+            user_name: CryptoJS.MD5(`nmty.${name.value}`).toString(),
+            password: CryptoJS.MD5(`nmty.${CryptoJS.SHA1(password.value).toString()}`).toString(),
         });
         if (code === 200) {
+            const { _token, user_type, user_id, account_name } = data;
+            // 存储token
+            localStorage.setItem("token", _token);
+            localStorage.setItem(
+                "account",
+                JSON.stringify({
+                    name: account_name,
+                    id: user_id,
+                })
+            );
             ElMessage.success("登录成功");
-            router.push("/admin");
+            // 判断用户类型，跳转到不同角色的页面
+            if (user_type == 1) {
+                router.push("/admin");
+            } else if (user_type == 2) {
+                router.push("/club");
+            }
         }
     } catch (error) {
         console.log(error);

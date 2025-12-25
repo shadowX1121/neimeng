@@ -19,13 +19,8 @@ const breadList = ref<BreadItem[]>([]);
 // 监听path属性
 watch(
     () => route.path,
-    (newPath, oldPath) => {
+    () => {
         const { matched = [] } = route;
-        console.log(
-            "数组",
-            matched.filter((item) => item.meta && (item.meta.title || item.meta.isDynamicTitle))
-        );
-
         breadList.value = matched
             .filter((item) => item.meta && (item.meta.title || item.meta.isDynamicTitle))
             .map((item) => {
@@ -37,7 +32,6 @@ watch(
                     path: item.path,
                 };
             });
-        console.log("路径变化:", oldPath, "→", newPath, route);
     },
     { immediate: true }
 );

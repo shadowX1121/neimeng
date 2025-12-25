@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from "vue";
-import router from "@/router";
+import { ref, onMounted, nextTick, reactive } from "vue";
+import { useRouter } from "vue-router";
 import MyMenu from "./Menu.vue";
 import MyBreadcrumb from "@/components/MyBreadcrumb.vue";
 import { useDownloadCountStore } from "@/store/useDownloadCountStore";
 
 const downloadCountStore = useDownloadCountStore();
+const router = useRouter();
+
+const account = reactive<any>({
+    name: "",
+});
 
 const height = ref(0);
 const pageMainRef = ref<any>(null);
@@ -19,10 +24,15 @@ const goDownload = () => {
 };
 // 退出登录点击事件
 const logout = () => {
-    localStorage.removeItem("token");
+    localStorage.clear();
     router.push("/login");
 };
 onMounted(async () => {
+    const accuntString = localStorage.getItem("account");
+    if (accuntString) {
+        const accountObject = JSON.parse(accuntString);
+        account.name = accountObject.name;
+    }
     await nextTick(); // 确保 DOM 已经渲染完成
     const el = pageMainRef.value?.$el as HTMLElement;
     if (!el) return;
@@ -38,7 +48,7 @@ onMounted(async () => {
         <el-container>
             <el-header class="page-header">
                 <div class="logo">
-                    <span>内蒙古体育社会组织管理系统</span>
+                    <span>{{ account.name }}</span>
                 </div>
                 <div class="right">
                     <div class="icon download" @click="goDownload">

@@ -21,6 +21,7 @@ const moduleData = ref<any>();
 watch(
     () => props.data,
     (newVal) => {
+        console.log("newVal", newVal);
         moduleData.value = {
             ...newVal,
             list: newVal.list.map((listItem: any) => {
@@ -28,8 +29,8 @@ watch(
                     ...listItem,
                     fileList: listItem.fileInfo.map((fileItem: any) => {
                         return {
-                            fileName: fileItem.file_name,
-                            url: fileItem.file_url,
+                            name: fileItem.file_name,
+                            fileUrl: fileItem.file_path,
                         };
                     }),
                     scoreStatus: !!listItem.score,
@@ -48,11 +49,11 @@ const viewFileDialog = reactive<{
     visible: false,
     data: {},
 });
-const handleViewFile = (data: any) => {
+const handleViewFile = async (data: any) => {
     const { fileList = [] } = data;
     if (fileList.length > 0) {
         if (fileList.length === 1) {
-            const url = fileList[0].url;
+            const url = fileList[0].fileUrl;
             window.open(`/pdfPreview?url=${url}`, "_blank");
         } else {
             viewFileDialog.data = {
@@ -60,6 +61,17 @@ const handleViewFile = (data: any) => {
                 fileList: fileList,
             };
             viewFileDialog.visible = true;
+        }
+        try {
+            const { code } = await assessApi.updateEvaluateDetailStatus({
+                type: 1,
+                content_id: data.id,
+            });
+            if (code === 200) {
+                data.status = 2;
+            }
+        } catch (e) {
+            console.error(e);
         }
     } else {
         console.error("未找到文件");

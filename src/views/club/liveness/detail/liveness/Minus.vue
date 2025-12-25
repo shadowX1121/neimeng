@@ -1,10 +1,7 @@
 <!--活跃度评估的减分项目表格模块-->
 <script setup lang="ts">
-import { ref, reactive, watch, inject } from "vue";
-import { assessApi } from "@/api/index";
+import { ref, reactive, watch } from "vue";
 import CheckFileDialog from "@/components/dialog/CheckFileDialog.vue";
-
-const notifyRefresh = inject<() => void>("notifyRefresh");
 
 const props = defineProps<{
     data: any;
@@ -25,7 +22,7 @@ watch(
                         fileInfo: listItem.fileInfo.map((fileItem: any) => {
                             return {
                                 name: fileItem.file_name,
-                                fileUrl: fileItem.file_url,
+                                fileUrl: fileItem.file_path,
                             };
                         }),
                     };
@@ -45,6 +42,7 @@ const viewFileDialog = reactive<{
 // 查看文件点击事件
 const handleViewFile = async (data: any) => {
     const { fileInfo } = data;
+    console.log(fileInfo);
     if (fileInfo && fileInfo.length > 0) {
         if (fileInfo.length === 1) {
             const url = fileInfo[0].fileUrl;
@@ -98,38 +96,4 @@ const handleViewFile = async (data: any) => {
     </div>
 </template>
 
-<style lang="scss" scoped>
-.file-box {
-    display: flex;
-    justify-content: center;
-}
-.upload-box {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-}
-.upload-status {
-    position: absolute;
-    width: 32px;
-    height: 32px;
-    right: 0;
-    top: 0;
-    .triangle {
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 100%;
-        height: 100%;
-        clip-path: polygon(100% 0, 100% 100%, 0 0);
-        cursor: pointer;
-        z-index: 1;
-        background-color: #009f4d;
-        .el-icon {
-            position: absolute;
-            right: 2px;
-            top: 4px;
-            color: #fff;
-        }
-    }
-}
-</style>
+<style lang="scss" scoped></style>

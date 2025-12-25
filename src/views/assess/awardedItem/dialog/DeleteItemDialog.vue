@@ -1,8 +1,7 @@
 <!--删除评估项提示弹窗-->
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import { assessApi } from "@/api/module/assess";
-import { mockApi } from "@/api/module/mock";
+import { assessApi } from "@/api/index";
 import { ElMessage } from "element-plus";
 
 const props = defineProps<{
@@ -18,14 +17,12 @@ const getStatistics = async () => {
     if (loading.value) return;
     loading.value = true;
     try {
-        const { code, data } = await mockApi.mock(
-            {
-                id: props.data.id,
-            },
-            "getStatistics"
-        );
+        const { code, data } = await assessApi.getHasUploadFileAccountCount({
+            content_id: props.data.id,
+            type: 1,
+        });
         if (code === 200) {
-            count.value = 20;
+            count.value = data.count || 0;
         }
     } catch (error) {
         console.log(error);

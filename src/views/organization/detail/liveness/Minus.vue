@@ -36,14 +36,6 @@ watch(
     { deep: true, immediate: true }
 );
 
-const calcItemScore = () => {
-    // 通知父组件更新数据
-    // 该逻辑暂时放这里了，按理应该放上传或者删除成功后的逻辑里面
-    notifyRefresh?.();
-    const length = moduleData.value.list.filter((item: any) => item.fileList.length).length;
-    props.data.score = length * 3;
-};
-
 const uploadFileDialog = reactive<{
     visible: boolean;
     data: any;
@@ -82,7 +74,7 @@ const handleUploadSuccess = () => {
             });
         }
     });
-    calcItemScore();
+    notifyRefresh?.();
 };
 
 // 删除上传文件弹窗数据
@@ -111,7 +103,7 @@ const handleDeleteSuccess = () => {
             item.fileInfo = [];
         }
     });
-    calcItemScore();
+    notifyRefresh?.();
 };
 </script>
 
