@@ -46,7 +46,9 @@ const viewFile = async (url: string) => {
             <p>{{ gistName }}</p>
             <div class="file-list" v-if="fileList && fileList.length > 0">
                 <div class="file-item" v-for="(file, index) in fileList" :key="index">
-                    <i class="iconfont icon-downloadbox"></i>
+                    <svg class="my-icon" aria-hidden="true">
+                        <use xlink:href="#icon-PDF"></use>
+                    </svg>
                     <p class="file-name">{{ file.name }}</p>
                     <el-button size="small" @click="viewFile(file.fileUrl)">查看</el-button>
                 </div>
@@ -63,6 +65,7 @@ const viewFile = async (url: string) => {
         align-items: center;
         width: 100%;
         margin-top: 12px;
+        line-height: 20px;
         .file-name {
             flex: 1;
             margin-left: 8px;

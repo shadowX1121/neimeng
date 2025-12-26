@@ -1,7 +1,7 @@
 <!--活跃度评估的加分项目表格模块-->
 <script setup lang="ts">
 import { ref, reactive, watch, inject } from "vue";
-import { UploadFilled, Check } from "@element-plus/icons-vue";
+import { Check } from "@element-plus/icons-vue";
 import { assessApi } from "@/api/index";
 import UploadFileDialog from "@/components/dialog/UploadFileDialog.vue";
 import DeleteFileDialog from "@/components/dialog/DeleteFileDialog.vue";
@@ -157,9 +157,7 @@ const handleDeleteSuccess = () => {
                     <template #default="{ row }">
                         <div class="file-box">
                             <div class="upload-box" @click="handleUploadFile(row)">
-                                <el-icon :size="20">
-                                    <UploadFilled />
-                                </el-icon>
+                                <i class="iconfont icon-Upload" style="margin-right: 4px"></i>
                                 <span>上传</span>
                             </div>
                             <div

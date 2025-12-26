@@ -51,7 +51,7 @@ const reviewTagClick = (tag: any) => {
 };
 // 管理点击事件
 const manageClick = (item: any) => {
-    window.open(`/admin/orgManage/${item.id}/home?name=${item.name}`, "_blank");
+    window.open(`/admin/orgManage/${item.id}/home`, "_blank");
 };
 
 // 分页模块

@@ -1,17 +1,41 @@
 <script setup lang="ts">
-import { ref, onMounted, nextTick, reactive } from "vue";
-import router from "@/router";
-import { useRoute } from "vue-router";
+import { ref, onMounted, nextTick, reactive, watch } from "vue";
+import { institutionApi } from "@/api/index";
+import { useRoute, useRouter } from "vue-router";
 import MyMenu from "./Menu.vue";
 import MyBreadcrumb from "@/components/MyBreadcrumb.vue";
 import { useDownloadCountStore } from "@/store/useDownloadCountStore";
 
 const route = useRoute();
+const router = useRouter();
 const downloadCountStore = useDownloadCountStore();
 
 const account = reactive<any>({
     name: "",
 });
+// 获取详情
+const getDetail = async (id: any) => {
+    try {
+        const { code, data } = await institutionApi.getDetail({
+            institution_id: id,
+        });
+        if (code === 200) {
+            account.name = data.name;
+        }
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+watch(
+    () => route.params.orgId,
+    (newId) => {
+        if (newId) {
+            getDetail(newId);
+        }
+    },
+    { immediate: true }
+);
 
 const height = ref(0);
 const pageMainRef = ref<any>(null);
@@ -28,8 +52,8 @@ const logout = () => {
     localStorage.clear();
     router.push("/login");
 };
+
 onMounted(async () => {
-    account.name = route.query.name || "";
     await nextTick(); // 确保 DOM 已经渲染完成
     const el = pageMainRef.value?.$el as HTMLElement;
     if (!el) return;

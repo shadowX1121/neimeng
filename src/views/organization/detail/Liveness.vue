@@ -2,7 +2,6 @@
 import { ref, reactive, computed, onMounted, provide } from "vue";
 import { useRoute } from "vue-router";
 import { assessApi } from "@/api/index";
-import { ElMessage } from "element-plus";
 import { CaretBottom } from "@element-plus/icons-vue";
 import { YEAR_OPTIONS, CURRENT_YEAR, PLUS_OPTIONS } from "@/constants/index";
 import CreateDownLoadDialog from "./dialog/CreateDownLoadDialog.vue";
@@ -48,7 +47,6 @@ const getDetail = async () => {
                 star = 0,
                 file_count = 0,
             } = data;
-            ElMessage.success(`请求成功`);
             detailData.id = id.value;
             detailData.score = score;
             detailData.star = star;

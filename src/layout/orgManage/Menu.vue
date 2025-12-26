@@ -10,7 +10,7 @@ const menuList = computed((): MyMenuType[] => {
         {
             index: `/admin/orgManage/${orgId.value}/home`,
             title: "首页",
-            icon: "icon-logout",
+            icon: "icon-home",
         },
         {
             index: `/admin/orgManage/${orgId.value}/liveness`,

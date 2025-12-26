@@ -54,11 +54,15 @@ const handleSubmit = async () => {
 };
 // 提交修改
 const submit = async () => {
+    const accountJson = localStorage.getItem("account");
+    if (!accountJson) return;
+    const accountObject = JSON.parse(accountJson);
+    if (!accountObject || !accountObject.id) return;
     if (submitLoading.value) return; // 二次保险
     submitLoading.value = true;
     try {
         const { code } = await institutionApi.updateManager({
-            // institution_id: formData.id,
+            institution_id: accountObject.id,
             manager_phone: formData.phone,
             manager_name: formData.userName,
         });

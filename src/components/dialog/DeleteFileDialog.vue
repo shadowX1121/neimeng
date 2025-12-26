@@ -63,7 +63,9 @@ const confirmClick = async () => {
             <div class="file-list" v-if="fileList && fileList.length > 0">
                 <div class="file-item" v-for="(file, index) in fileList" :key="index">
                     <div class="file-content">
-                        <i class="iconfont icon-downloadbox"></i>
+                        <svg class="my-icon" aria-hidden="true">
+                            <use xlink:href="#icon-PDF"></use>
+                        </svg>
                         <p class="file-name">{{ file.name }}</p>
                     </div>
                 </div>
