@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, computed } from "vue";
+import { ref, reactive, computed, onMounted } from "vue";
 import { userApi } from "@/api/index";
 import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
@@ -12,6 +12,13 @@ const formRef = ref<FormInstance>();
 const formData = reactive({
     name: "",
     password: "",
+});
+onMounted(() => {
+    const accuntString = localStorage.getItem("account");
+    if (accuntString) {
+        const accountObject = JSON.parse(accuntString);
+        formData.name = accountObject.name;
+    }
 });
 // 密码验证
 const validatePass = (_rule: any, value: string, callback: any) => {

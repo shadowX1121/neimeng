@@ -1,27 +1,26 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onBeforeMount } from "vue";
-import { ElMessage } from "element-plus";
 import { CaretBottom } from "@element-plus/icons-vue";
 import { YEAR_OPTIONS, CURRENT_YEAR } from "@/constants/index";
 import AccountStatusDialog from "./dialog/AccountStatusDialog.vue";
 import ManagerInfoDialog from "./dialog/ManagerInfoDialog.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAccountStatus } from "@/utils/useOptions";
-import { mockApi } from "@/api/index";
+import { institutionApi } from "@/api/index";
 
 const route = useRoute();
 const router = useRouter();
 
 const id = computed(() => route.params.orgId as string | number);
 
-const detailData = reactive<OrgAccountType>({
+const detailData = reactive<any>({
     id: id.value,
-    name: "锡林浩特市羽毛球协会",
-    status: 1,
-    score: 35,
-    level: 2,
-    userName: "李泉",
-    phone: "17866509980",
+    name: "",
+    status: "",
+    score: "",
+    level: "",
+    userName: "",
+    phone: "",
 });
 
 const accountStatus = useAccountStatus();
@@ -46,10 +45,21 @@ const scoreManage = () => {
 const curentYear = ref(CURRENT_YEAR);
 const yearOptions = ref(YEAR_OPTIONS);
 // 年份切换事件
-const yearChange = (command: any) => {
+const yearChange = async (command: any) => {
     if (curentYear.value != command) {
         curentYear.value = command;
-        console.log("command", command);
+        try {
+            const { code, data } = await institutionApi.getScore({
+                institution_id: id.value,
+                year: command,
+            });
+            if (code === 200) {
+                detailData.score = data.score;
+                detailData.level = data.star;
+            }
+        } catch (error) {
+            console.log(error);
+        }
     }
 };
 
@@ -80,14 +90,16 @@ const resetPassword = () => {};
 // 获取详情
 const getDetail = async () => {
     try {
-        const { code } = await mockApi.mock(
-            {
-                id: id,
-            },
-            null
-        );
+        const { code, data } = await institutionApi.getDetail({
+            institution_id: id.value,
+        });
         if (code === 200) {
-            ElMessage.success(`请求成功`);
+            detailData.name = data.name;
+            detailData.status = data.account_status;
+            detailData.score = data.score;
+            detailData.level = data.star;
+            detailData.userName = data.manager_name;
+            detailData.phone = data.manager_phone;
         }
     } catch (error) {
         console.log(error);

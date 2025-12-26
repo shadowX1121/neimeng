@@ -109,8 +109,8 @@ const rules = reactive<FormRules<typeof formData>>({
         },
     ],
 });
-const submitLoading = ref(false);
 
+const submitLoading = ref(false);
 // 提交按钮点击事件
 const onSubmit = async () => {
     if (!formRef.value) return;

@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { ref, reactive, watch } from "vue";
 import { Sort, Edit, Delete } from "@element-plus/icons-vue";
-// import MySimpleUpload from "@/components/upload/MySimpleUpload.vue";
+import DeleteAssessGistDialog from "../dialog/DeleteAssessGistDialog.vue";
 import EditFileNameDialog from "../dialog/EditFileNameDialog.vue";
 import Draggable from "vuedraggable";
+// import { useAssessStore } from "@/store/useAssessStore";
 
 interface Props {
     modelValue?: any[];
 }
+
+// const assessStore = useAssessStore();
 
 const props = withDefaults(defineProps<Props>(), {
     modelValue: () => [],
@@ -75,14 +78,33 @@ const editNameConfirm = (itemData: any) => {
 };
 // 删除点击事件
 const deleteClick = (index: number) => {
+    // const current = contentList.value[index];
+    // if (!current) return;
+    // if (current.id) {
+    //     deleteItemDialog.visible = true;
+    //     deleteItemDialog.index = index;
+    //     deleteItemDialog.data = current;
+    // } else {
+    //     contentList.value.splice(index, 1);
+    //     update();
+    // }
     contentList.value.splice(index, 1);
+    update();
+};
+const deleteItemDialog = reactive({
+    visible: false,
+    index: 0,
+    data: {},
+});
+// 删除成功回调
+const deleteItemSuccess = () => {
+    contentList.value.splice(deleteItemDialog.index, 1);
     update();
 };
 </script>
 
 <template>
     <div>
-        <!-- <MySimpleUpload v-model="contentList" @change="update" /> -->
         <el-button size="small" type="primary" @click="handleAddItem">点击添加</el-button>
         <draggable
             class="file-list"
@@ -130,6 +152,12 @@ const deleteClick = (index: number) => {
             :all-data="editItemDialog.allData"
             :index="editItemDialog.index"
             @confirm="editNameConfirm"
+        />
+        <!--删除项目弹窗-->
+        <DeleteAssessGistDialog
+            v-model="deleteItemDialog.visible"
+            :data="deleteItemDialog.data"
+            @confirm="deleteItemSuccess"
         />
     </div>
 </template>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watchEffect } from "vue";
 import { useAccountStatus } from "@/utils/useOptions";
-import { mockApi } from "@/api/index";
+import { institutionApi } from "@/api/index";
 import { ElMessage } from "element-plus";
 
 const props = defineProps<{
@@ -29,13 +29,10 @@ const confirm = async () => {
     if (submitLoading.value) return; // 二次保险
     submitLoading.value = true;
     try {
-        const { code } = await mockApi.mock(
-            {
-                id: props.accountId,
-                status: status.value,
-            },
-            null
-        );
+        const { code } = await institutionApi.updateStatus({
+            institution_id: props.accountId,
+            account_status: status.value,
+        });
         if (code === 200) {
             ElMessage.success(`修改成功`);
             close();
@@ -59,24 +56,14 @@ const confirm = async () => {
         align-center
     >
         <el-radio-group class="status-group" v-model="status">
-            <el-radio
-                v-for="item in options"
-                :key="item.value"
-                :value="item.value"
-            >
+            <el-radio v-for="item in options" :key="item.value" :value="item.value">
                 <span class="label">{{ item.label }}</span>
                 <span class="description">{{ item.description }}</span>
             </el-radio>
         </el-radio-group>
         <template #footer>
             <div class="dialog-footer">
-                <el-button
-                    type="primary"
-                    :loading="submitLoading"
-                    @click="confirm"
-                >
-                    确定
-                </el-button>
+                <el-button type="primary" :loading="submitLoading" @click="confirm">确定</el-button>
             </div>
         </template>
     </el-dialog>
