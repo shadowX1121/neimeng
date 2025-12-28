@@ -15,4 +15,20 @@ export const userApi = {
             data: params,
         });
     },
+    // 创建下载任务
+    createDownload: (params: any): Promise<ResponseData<any>> => {
+        return request.request({
+            url: "/create_evaluate_download",
+            method: "POST",
+            data: params,
+        });
+    },
+    // 获取下载列表
+    getDownloadList: (params: any): Promise<ResponseData<any>> => {
+        return request.request({
+            url: "/get_download_list",
+            method: "GET",
+            params,
+        });
+    },
 };

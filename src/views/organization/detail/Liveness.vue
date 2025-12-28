@@ -100,17 +100,21 @@ const getTabLabel = (item: any) => {
 const downloadFileDialog = reactive<{
     visible: boolean;
     data: any;
+    other: any;
 }>({
     visible: false,
     data: {},
+    other: {},
 });
 // plus类型
 const plusDownFileDialog = reactive<{
     visible: boolean;
     data: any;
+    other: any;
 }>({
     visible: false,
     data: {},
+    other: {},
 });
 // 下载文件点击事件
 const downloadClick = () => {
@@ -119,9 +123,17 @@ const downloadClick = () => {
     if (activeClassifyType.value !== "base") {
         plusDownFileDialog.visible = true;
         plusDownFileDialog.data = findItem;
+        plusDownFileDialog.other = {
+            year: year,
+            account_id: id.value,
+        };
     } else {
         downloadFileDialog.visible = true;
         downloadFileDialog.data = findItem;
+        downloadFileDialog.other = {
+            year: year,
+            account_id: id.value,
+        };
     }
 };
 
@@ -241,11 +253,13 @@ provide("notifyRefresh", refresh);
                 <CreateDownLoadDialog
                     v-model="downloadFileDialog.visible"
                     :data="downloadFileDialog.data"
+                    :other="downloadFileDialog.other"
                 />
                 <!--plus类型创建下载任务弹窗-->
                 <CreatePlusDownDialog
                     v-model="plusDownFileDialog.visible"
                     :data="plusDownFileDialog.data"
+                    :other="plusDownFileDialog.other"
                 />
             </div>
         </div>

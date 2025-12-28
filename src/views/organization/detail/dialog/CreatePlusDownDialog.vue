@@ -1,13 +1,14 @@
 <!--针对plus类型的创建下载弹窗-->
 <script setup lang="ts">
 import { ref, watch, computed } from "vue";
-import { mockApi } from "@/api/index";
+import { userApi } from "@/api/index";
 import { ElMessage } from "element-plus";
 import { flyTo } from "@/utils/flyTo";
 
 const props = defineProps<{
     modelValue: boolean;
     data: any;
+    other?: any;
 }>();
 
 const loading = ref(false);
@@ -86,12 +87,16 @@ const confirmClick = async (event: Event) => {
     if (submitLoading.value) return; // 二次保险
     submitLoading.value = true;
     try {
-        const { code } = await mockApi.mock(
-            {
-                ids: checkedList.value,
-            },
-            null
-        );
+        const { code } = await userApi.createDownload({
+            ...props.other,
+            project_ids: JSON.stringify(
+                checkedList.value.map((item: any) => {
+                    return {
+                        id: item,
+                    };
+                })
+            ),
+        });
         if (code === 200) {
             ElMessage.success(`下载任务创建成功`);
             close();

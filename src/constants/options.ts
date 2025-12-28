@@ -33,12 +33,12 @@ export const DOWNLOAD_FILE_PREPARE_STATUS_OPTIONS: LabelOption[] = [
         color: "#009F4D",
     },
     {
-        value: 2,
+        value: 0,
         label: "准备中",
         color: "#E97800",
     },
     {
-        value: 3,
+        value: 2,
         label: "准备失败",
         color: "#FF4B4B",
     },

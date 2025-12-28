@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from "vue";
-import { mockApi } from "@/api/index";
+import { userApi } from "@/api/index";
 import { ElMessage } from "element-plus";
 // import { useRoute, useRouter } from "vue-router";
 import { useDownloadFilePrepareStatus } from "@/utils/useOptions";
-import { flyTo } from "@/utils/flyTo";
+import { useDownloadCountStore } from "@/store/useDownloadCountStore";
 
 // const route = useRoute();
 // const router = useRouter();
 const filePrepareStatus = useDownloadFilePrepareStatus();
+const downloadCountStore = useDownloadCountStore();
 
 // 创建下载任务点击事件
 // const createDownloadClick = (event: Event) => {
@@ -21,11 +22,14 @@ const filePrepareStatus = useDownloadFilePrepareStatus();
 const loading = ref(false);
 const tableData = ref<any[]>([]);
 // 下载点击事件
-const manageClick = (event: Event, item: any) => {
+const manageClick = (_event: Event, item: any) => {
     ElMessage.success(`点击了下载按钮：${item.id}`);
-    flyTo({
-        from: event.target as HTMLElement,
-    });
+    const url = item.url;
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "";
+    a.target = "_blank";
+    a.click();
 };
 
 // 分页模块
@@ -47,46 +51,22 @@ const handleCurrentChange = (current: number) => {
 const getTableData = async () => {
     loading.value = true;
     try {
-        const { code } = await mockApi.mock(
-            {
-                page: pagination.current,
-                size: pagination.size,
-            },
-            null
-        );
+        const { code, data } = await userApi.getDownloadList({
+            page: pagination.current,
+            page_size: pagination.size,
+        });
         if (code === 200) {
-            tableData.value = [
-                {
-                    id: 1,
-                    createdTime: "2025-09-29 14:30",
-                    source: "内蒙古游泳协会/活跃度评估",
-                    content: "全部内容",
-                    readyStatus: 1,
-                },
-                {
-                    id: 2,
-                    createdTime: "2025-09-29 14:30",
-                    source: "内蒙古游泳协会/活跃度评估",
-                    content: "全部内容",
-                    readyStatus: 2,
-                },
-                {
-                    id: 3,
-                    createdTime: "2025-09-29 14:30",
-                    source: "内蒙古游泳协会/活跃度评估",
-                    content: "全部内容",
-                    readyStatus: 3,
-                },
-            ];
-            pagination.total = 1;
+            tableData.value = data.data;
+            pagination.total = data.total;
         }
     } catch (error) {
-        console.log(error);
+        console.error(error);
     } finally {
         loading.value = false;
     }
 };
 onMounted(() => {
+    downloadCountStore.count = 0;
     getTableData();
 });
 </script>
@@ -111,7 +91,7 @@ onMounted(() => {
                 <el-empty v-if="pagination.total === 0" description="暂无下载任务" />
                 <template v-else>
                     <el-table v-loading="loading" :data="tableData" border style="width: 100%">
-                        <el-table-column prop="createdTime" label="创建任务时间" width="160" />
+                        <el-table-column prop="created_at" label="创建任务时间" width="180" />
                         <el-table-column prop="source" label="下载文件来源" min-width="200" />
                         <el-table-column prop="content" label="文件内容" min-width="200" />
                         <el-table-column label="数据准备" width="140">
@@ -119,20 +99,18 @@ onMounted(() => {
                                 <span
                                     :style="[
                                         {
-                                            color: filePrepareStatus.getColorByValue(
-                                                row.readyStatus
-                                            ),
+                                            color: filePrepareStatus.getColorByValue(row.status),
                                         },
                                     ]"
                                 >
-                                    {{ filePrepareStatus.getLabelByValue(row.readyStatus) }}
+                                    {{ filePrepareStatus.getLabelByValue(row.status) }}
                                 </span>
                             </template>
                         </el-table-column>
                         <el-table-column label="操作" align="center" width="80">
                             <template #default="{ row }">
                                 <el-button
-                                    v-if="row.readyStatus == 1"
+                                    v-if="row.status == 1"
                                     type="primary"
                                     link
                                     @click="(event: Event) => manageClick(event, row)"
