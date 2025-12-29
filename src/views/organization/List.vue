@@ -31,11 +31,11 @@ const levelOptions = ref([
     { value: "3", label: "三星" },
     { value: "4", label: "无星级" },
 ]);
-const statusOptions = ref([
-    { value: "0", label: "待审核" },
-    { value: "1", label: "审核通过" },
-    { value: "2", label: "审核未通过" },
-]);
+// const statusOptions = ref([
+//     { value: "0", label: "待审核" },
+//     { value: "1", label: "审核通过" },
+//     { value: "2", label: "审核未通过" },
+// ]);
 const accountStatusOptions = accountStatus.options.value.filter((item) => item.value !== 4);
 
 // 表格模块
@@ -74,9 +74,12 @@ const getTableData = async () => {
     loading.value = true;
     try {
         const { code, data } = await institutionApi.getList({
-            ...filter,
-            page: pagination.current,
-            size: pagination.size,
+            start: (pagination.current - 1) * pagination.size,
+            count: pagination.size,
+            account_status: filter.accountStatus,
+            year: filter.year,
+            star: filter.level,
+            serach: filter.search,
         });
         if (code === 200) {
             const { institutions, total } = data;
@@ -84,7 +87,7 @@ const getTableData = async () => {
             pagination.total = total;
         }
     } catch (error) {
-        console.log(error);
+        console.error(error);
     } finally {
         loading.value = false;
     }
@@ -136,7 +139,7 @@ onMounted(() => {
                                 :value="item.value"
                             />
                         </el-select>
-                        <el-select
+                        <!-- <el-select
                             class="w108"
                             v-model="filter.status"
                             clearable
@@ -149,7 +152,7 @@ onMounted(() => {
                                 :label="item.label"
                                 :value="item.value"
                             />
-                        </el-select>
+                        </el-select> -->
                         <el-select
                             class="w108"
                             v-model="filter.accountStatus"
@@ -165,7 +168,7 @@ onMounted(() => {
                         </el-select>
                         <el-input
                             class="w300"
-                            v-model="filter.search"
+                            v-model.trim="filter.search"
                             clearable
                             size="default"
                             placeholder="请输入体育社会组织名称"
