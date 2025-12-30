@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from "vue";
 import { userApi } from "@/api/index";
-import { ElMessage } from "element-plus";
 // import { useRoute, useRouter } from "vue-router";
 import { useDownloadFilePrepareStatus } from "@/utils/useOptions";
 import { useDownloadCountStore } from "@/store/useDownloadCountStore";
@@ -23,8 +22,8 @@ const loading = ref(false);
 const tableData = ref<any[]>([]);
 // 下载点击事件
 const manageClick = (_event: Event, item: any) => {
-    ElMessage.success(`点击了下载按钮：${item.id}`);
-    const url = item.url;
+    const url = item.file_path;
+    if (!url) return;
     const a = document.createElement("a");
     a.href = url;
     a.download = "";
@@ -80,7 +79,7 @@ onMounted(() => {
             <div class="download-task-list-page">
                 <div class="table-filter">
                     <div class="table-filter_select flex-start">
-                        <p class="flex flex-align-center">下载任务：2 个</p>
+                        <p class="flex flex-align-center">下载任务：{{ pagination.total }} 个</p>
                     </div>
                     <!-- <div class="table-filter_button flex-start">
                         <el-button type="primary" @click="createDownloadClick">

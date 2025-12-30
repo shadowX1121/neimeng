@@ -25,7 +25,6 @@ const classifyData = assessStore.assessData.map((item) => {
 const defaultActive = ref();
 // 菜单选择事件
 const menuSelect = (index: string) => {
-    console.log("选择的菜单项：", index);
     defaultActive.value = index;
 };
 const formRef = ref<FormInstance>();
@@ -184,7 +183,7 @@ const submit = async () => {
     try {
         const { code } = await mockApi.mock(formData, null);
         if (code === 200) {
-            ElMessage.success(`添加成功`);
+            ElMessage.success(`操作成功`);
             close();
             emit("confirm");
         }
@@ -323,7 +322,7 @@ const submit = async () => {
 .edit-project-tab-box {
     display: flex;
     .edit-project-menu {
-        width: 132px;
+        width: 133px;
         flex-shrink: 0;
     }
     .edit-project-wrapper {

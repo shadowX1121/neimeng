@@ -45,7 +45,9 @@ const breadRef = ref<{
 } | null>(null);
 // 下载点击事件
 const goDownload = () => {
-    console.log("下载点击事件");
+    router.push({
+        name: "DownloadList",
+    });
 };
 // 退出登录点击事件
 const logout = () => {

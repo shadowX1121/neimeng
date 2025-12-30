@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted, nextTick, reactive } from "vue";
-import router from "@/router";
 import MyMenu from "./Menu.vue";
 import MyBreadcrumb from "@/components/MyBreadcrumb.vue";
 import { useDownloadCountStore } from "@/store/useDownloadCountStore";
+import { useRouter } from "vue-router";
 
 const downloadCountStore = useDownloadCountStore();
+const router = useRouter();
 
 const account = reactive<any>({
     name: "",
@@ -19,7 +20,9 @@ const breadRef = ref<{
 } | null>(null);
 // 下载点击事件
 const goDownload = () => {
-    console.log("下载点击事件");
+    router.push({
+        name: "DownloadList",
+    });
 };
 // 退出登录点击事件
 const logout = () => {

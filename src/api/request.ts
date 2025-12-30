@@ -38,6 +38,8 @@ request.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 request.interceptors.response.use(
     (response: AxiosResponse) => {
         const { code, msg } = response.data;
+        console.log("response", response);
+
         if (code === 200) {
             return response.data;
         } else {

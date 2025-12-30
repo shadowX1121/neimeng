@@ -56,7 +56,7 @@ watch(
                     if (nextStar.start === "null") {
                         starData.minLimit = starLimit.min;
                     } else {
-                        starData.minLimit = Math.max(starLimit.min, Number(nextStar.start));
+                        starData.minLimit = Math.max(starLimit.min, Number(nextStar.start) + 1);
                     }
                 }
             }

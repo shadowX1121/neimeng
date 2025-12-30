@@ -3,9 +3,9 @@ import { ref, onMounted, nextTick, reactive } from "vue";
 import { useRouter } from "vue-router";
 import MyMenu from "./Menu.vue";
 import MyBreadcrumb from "@/components/MyBreadcrumb.vue";
-import { useDownloadCountStore } from "@/store/useDownloadCountStore";
+// import { useDownloadCountStore } from "@/store/useDownloadCountStore";
 
-const downloadCountStore = useDownloadCountStore();
+// const downloadCountStore = useDownloadCountStore();
 const router = useRouter();
 
 const account = reactive<any>({
@@ -19,9 +19,11 @@ const breadRef = ref<{
     height: number;
 } | null>(null);
 // 下载点击事件
-const goDownload = () => {
-    console.log("下载点击事件");
-};
+// const goDownload = () => {
+//     router.push({
+//         name: "DownloadList",
+//     });
+// };
 // 退出登录点击事件
 const logout = () => {
     localStorage.clear();
@@ -51,7 +53,7 @@ onMounted(async () => {
                     <span>{{ account.name }}</span>
                 </div>
                 <div class="right">
-                    <div class="icon download" @click="goDownload">
+                    <!-- <div class="icon download" @click="goDownload">
                         <i class="iconfont icon-downloadbox"></i>
                         <div id="download-target">
                             <p class="down-count" v-if="downloadCountStore.count">
@@ -60,7 +62,7 @@ onMounted(async () => {
                                 }}
                             </p>
                         </div>
-                    </div>
+                    </div> -->
                     <div class="icon" @click="logout">
                         <i class="iconfont icon-logout"></i>
                     </div>
