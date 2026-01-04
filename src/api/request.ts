@@ -3,7 +3,6 @@ import axios, {
     type InternalAxiosRequestConfig,
     type AxiosResponse,
 } from "axios";
-import { removeUndefined } from "@/utils/common";
 import { ElMessage } from "element-plus";
 const request: AxiosInstance = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL || "/api",
