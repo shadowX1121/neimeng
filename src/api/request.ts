@@ -9,7 +9,7 @@ const request: AxiosInstance = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL || "/api",
     timeout: 30000,
     headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json;charset=UTF-8",
     },
 });
 
@@ -18,19 +18,20 @@ request.interceptors.request.use((config: InternalAxiosRequestConfig) => {
     const token = localStorage.getItem("token");
     // if (token) config.headers.Authorization = `Bearer ${token}`;
     // 处理 GET 参数（params）
-    if (config.params) {
-        config.params = removeUndefined(config.params);
-        if (!config.params.hasOwnProperty("_token")) {
-            config.params._token = token || "";
-        }
-    }
-    // 处理 POST / PUT / DELETE 提交的数据（data）
-    if (config.data) {
-        config.data = removeUndefined(config.data);
-        if (!config.data.hasOwnProperty("_token")) {
-            config.data._token = token || "";
-        }
-    }
+    // if (config.params) {
+    //     config.params = removeUndefined(config.params);
+    //     if (!config.params.hasOwnProperty("_token")) {
+    //         config.params._token = token || "";
+    //     }
+    // }
+    // // 处理 POST / PUT / DELETE 提交的数据（data）
+    // if (config.data) {
+    //     config.data = removeUndefined(config.data);
+    //     if (!config.data.hasOwnProperty("_token")) {
+    //         config.data._token = token || "";
+    //     }
+    // }
+    token && (config.headers["X-CSRF-TOKEN"] = token);
     return config;
 });
 
