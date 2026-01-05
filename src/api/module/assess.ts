@@ -73,6 +73,14 @@ export const assessApi = {
             data: params,
         });
     },
+    // 修改项目
+    updateEvaluate: (params: any): Promise<ResponseData<any>> => {
+        return request.request({
+            url: `/update_evaluate`,
+            method: "POST",
+            data: params,
+        });
+    },
     // 添加评估项
     addEvaluateDetail: (params: any): Promise<ResponseData<any>> => {
         return request.request({

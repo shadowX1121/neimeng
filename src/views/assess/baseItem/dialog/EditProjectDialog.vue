@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, computed, watch, watchEffect } from "vue";
-import { mockApi } from "@/api/index";
+import { assessApi } from "@/api/index";
 import { ElMessage } from "element-plus";
 import { CirclePlus, Delete } from "@element-plus/icons-vue";
 import { useAssessStore } from "@/store/useAssessStore";
@@ -181,7 +181,18 @@ const submit = async () => {
     if (submitLoading.value) return; // 二次保险
     submitLoading.value = true;
     try {
-        const { code } = await mockApi.mock(formData, null);
+        const { code } = await assessApi.updateEvaluate({
+            id: formData.value.id,
+            evaluate_name: formData.value.evaluate_name,
+            project_info: JSON.stringify(
+                formData.value.project_info.map((item: any) => {
+                    return {
+                        id: item.id,
+                        evaluate_project_name: item.evaluate_project_name,
+                    };
+                })
+            ),
+        });
         if (code === 200) {
             ElMessage.success(`操作成功`);
             close();

@@ -13,7 +13,7 @@ const router = useRouter();
 const assessStore = useAssessStore();
 
 const filter = reactive({
-    year: CURRENT_YEAR,
+    year: assessStore.year || CURRENT_YEAR,
 });
 const yearOptions = ref(YEAR_OPTIONS);
 
