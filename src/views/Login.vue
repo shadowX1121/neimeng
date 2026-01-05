@@ -4,6 +4,7 @@ import { userApi } from "@/api/index";
 import router from "@/router";
 import CryptoJS from "crypto-js";
 import { ElMessage } from "element-plus";
+import { setCookie } from "@/utils/common";
 
 const name = ref(""); // 用户名
 const password = ref(""); // 密码
@@ -22,6 +23,7 @@ const login = async () => {
         });
         if (code === 200) {
             const { _token, user_type, user_id, account_name } = data;
+            setCookie("_token", _token);
             // 存储token
             localStorage.setItem("token", _token);
             localStorage.setItem(
@@ -31,6 +33,7 @@ const login = async () => {
                     id: user_id,
                 })
             );
+
             ElMessage.success("登录成功");
             // 判断用户类型，跳转到不同角色的页面
             if (user_type == 1) {

@@ -6,7 +6,8 @@ import AccountStatusDialog from "./dialog/AccountStatusDialog.vue";
 import ManagerInfoDialog from "./dialog/ManagerInfoDialog.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAccountStatus } from "@/utils/useOptions";
-import { institutionApi } from "@/api/index";
+import { institutionApi, userApi } from "@/api/index";
+import { ElMessage } from "element-plus";
 
 const route = useRoute();
 const router = useRouter();
@@ -86,7 +87,18 @@ const updateManagerInfoConfirm = (value: { userName: string; phone: string }) =>
 };
 
 // 重置密码点击事件
-const resetPassword = () => {};
+const resetPassword = async () => {
+    try {
+        const { code } = await userApi.update({
+            password: detailData.phone.slice(-6),
+        });
+        if (code === 200) {
+            ElMessage.success("密码重置成功");
+        }
+    } catch (error) {
+        console.log(error);
+    }
+};
 // 获取详情
 const getDetail = async () => {
     try {
