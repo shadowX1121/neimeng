@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from "vue";
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
-import pdfWorker from "pdfjs-dist/legacy/build/pdf.worker?url";
+import pdfWorker from "pdfjs-dist/legacy/build/pdf.worker.mjs?url";
 import { useRoute } from "vue-router";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
