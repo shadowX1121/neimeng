@@ -118,7 +118,7 @@ const scoreStatusChange = async (val: boolean, row: any) => {
                     min-width="200"
                 />
 
-                <el-table-column label="文件" align="center" width="100">
+                <el-table-column label="文件" align="center" width="80">
                     <template #default="{ row }">
                         <el-button
                             v-if="row.fileList.length > 0"
@@ -131,7 +131,7 @@ const scoreStatusChange = async (val: boolean, row: any) => {
                         <el-button v-else disabled link>未传</el-button>
                     </template>
                 </el-table-column>
-                <el-table-column label="状态" align="center" width="100">
+                <el-table-column label="状态" align="center" width="80">
                     <template #default="{ row }">
                         <span
                             v-if="row.status"

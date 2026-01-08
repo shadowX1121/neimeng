@@ -96,6 +96,7 @@ watch(
     (newVal, _oldVal) => {
         if (newVal) {
             errorList.value = [];
+            formData.name = "";
             formData.project = [{ name: "" }];
         }
     }

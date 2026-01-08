@@ -133,7 +133,7 @@ const handleDeleteSuccess = () => {
                     align="center"
                     min-width="200"
                 />
-                <el-table-column label="状态" align="center" width="100">
+                <el-table-column label="状态" align="center" width="80">
                     <template #default="{ row }">
                         <span
                             v-if="row.status"
@@ -153,7 +153,7 @@ const handleDeleteSuccess = () => {
                         <span v-if="row.score">{{ row.score }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="文件" align="center" width="100">
+                <el-table-column label="文件" align="center" width="80">
                     <template #default="{ row }">
                         <div class="file-box">
                             <div class="upload-box" @click="handleUploadFile(row)">

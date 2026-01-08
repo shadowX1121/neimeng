@@ -270,7 +270,7 @@ const handleDeleteSuccess = () => {
                         </div>
                     </template>
                 </el-table-column>
-                <el-table-column label="状态" align="center" width="100">
+                <el-table-column label="状态" align="center" width="80">
                     <template #default="{ row }">
                         <span
                             v-if="row.gist.status"

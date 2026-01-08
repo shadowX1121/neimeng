@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref, reactive, computed } from "vue";
+import { ref, reactive, computed, onMounted } from "vue";
 import { institutionApi } from "@/api/index";
 import { ElMessage } from "element-plus";
 import { isPhone } from "@/utils/validator";
 
 import type { FormInstance, FormRules } from "element-plus";
 
+const id = ref("");
 const formRef = ref<FormInstance>();
 const formData = reactive({
     userName: "",
@@ -39,6 +40,31 @@ const rules = reactive<FormRules<typeof formData>>({
 const submitLoading = ref(false);
 const submitDisabled = computed(() => {
     return !formData.userName || !isPhone(formData.phone);
+});
+
+// 获取详情
+const getDetail = async () => {
+    try {
+        const { code, data } = await institutionApi.getDetail({
+            institution_id: id.value,
+        });
+        if (code === 200) {
+            formData.userName = data.manager_name;
+            formData.phone = data.manager_phone;
+        }
+    } catch (error) {
+        console.log(error);
+    }
+};
+onMounted(() => {
+    const accuntString = localStorage.getItem("account");
+    if (accuntString) {
+        const accountObject = JSON.parse(accuntString);
+        id.value = accountObject.id || "";
+    }
+    if (id.value) {
+        getDetail();
+    }
 });
 
 // 提交按钮点击事件
