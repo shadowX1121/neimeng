@@ -78,14 +78,17 @@ const editAssessItemClick = (row: any) => {
     });
 };
 
-// 删除评估要点弹窗显示控制
-const deleteGistDialogVisible = ref(false);
-// 要删除的评估要点数据
-const deleteGistData = ref<any>({});
+const deleteItemDialog = reactive<{
+    visible: boolean;
+    data: any;
+}>({
+    visible: false,
+    data: {},
+});
 // 删除评估要点点击事件
-const deleteAssessGistClick = (row: any) => {
-    deleteGistData.value = row.gist;
-    deleteGistDialogVisible.value = true;
+const handleDeleteItem = (row: any) => {
+    deleteItemDialog.data = row.gist;
+    deleteItemDialog.visible = true;
 };
 </script>
 
@@ -128,7 +131,12 @@ const deleteAssessGistClick = (row: any) => {
                         <el-button
                             type="primary"
                             plain
-                            @click="router.push({ name: 'AssessBaseItemAdd' })"
+                            @click="
+                                router.push({
+                                    name: 'AssessBaseItemAdd',
+                                    query: { year: filter.year },
+                                })
+                            "
                         >
                             添加评估项
                         </el-button>
@@ -213,7 +221,7 @@ const deleteAssessGistClick = (row: any) => {
                                         <el-button
                                             type="danger"
                                             link
-                                            @click="deleteAssessGistClick(row)"
+                                            @click="handleDeleteItem(row)"
                                         >
                                             删除
                                         </el-button>
@@ -227,13 +235,17 @@ const deleteAssessGistClick = (row: any) => {
             </div>
         </div>
         <!--添加项目弹窗-->
-        <AddProjectDialog v-model="addProjectDialogVisible" @confirm="getTableData" />
+        <AddProjectDialog
+            v-model="addProjectDialogVisible"
+            :year="filter.year"
+            @confirm="getTableData"
+        />
         <!--编辑项目弹窗-->
         <EditProjectDialog v-model="manageProjectDialogVisible" @confirm="getTableData" />
         <!--删除项目弹窗-->
         <DeleteAssessGistDialog
-            v-model="deleteGistDialogVisible"
-            :data="deleteGistData"
+            v-model="deleteItemDialog.visible"
+            :data="deleteItemDialog.data"
             @confirm="getTableData"
         />
     </div>

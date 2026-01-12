@@ -10,6 +10,7 @@ const props = defineProps<{
     data?: {
         id?: number | string;
         content: string;
+        year?: number | string;
     };
 }>();
 
@@ -17,6 +18,7 @@ const formRef = ref<FormInstance>();
 const formData = reactive<{
     id?: number | string;
     content: string;
+    year?: number | string;
 }>({
     content: "",
 });
@@ -40,12 +42,13 @@ watch(
     () => props.modelValue,
     (newVal) => {
         if (newVal) {
-            if (props.data) {
-                formData.id = props.data.id || "";
+            if (props.data && props.data.id) {
+                formData.id = props.data.id;
                 formData.content = props.data.content || "";
             } else {
                 formData.id = undefined;
                 formData.content = "";
+                formData.year = props.data?.year || "";
             }
         }
     }

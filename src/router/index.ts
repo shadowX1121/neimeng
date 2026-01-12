@@ -24,7 +24,6 @@ const routes: Array<RouteRecordRaw> = [
                     {
                         path: "account",
                         redirect: "/admin/account/password",
-                        meta: { title: "账号管理" },
                         children: [
                             {
                                 path: "password",
@@ -37,7 +36,6 @@ const routes: Array<RouteRecordRaw> = [
                     {
                         path: "organization",
                         redirect: "/organization/list",
-                        meta: { title: "体育社会组织管理" },
                         children: [
                             {
                                 path: "list",
@@ -65,7 +63,6 @@ const routes: Array<RouteRecordRaw> = [
                     {
                         path: "assess",
                         redirect: "/assess/baseItem",
-                        meta: { title: "评估管理" },
                         children: [
                             {
                                 path: "baseItem",
@@ -149,7 +146,6 @@ const routes: Array<RouteRecordRaw> = [
                     {
                         path: "download",
                         redirect: "/download/list",
-                        meta: { title: "下载管理" },
                         children: [
                             {
                                 path: "list",
@@ -198,7 +194,6 @@ const routes: Array<RouteRecordRaw> = [
                     {
                         path: "account",
                         redirect: "/club/account/password",
-                        meta: { title: "账号管理" },
                         children: [
                             {
                                 path: "password",

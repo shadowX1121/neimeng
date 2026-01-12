@@ -78,18 +78,16 @@ const editNameConfirm = (itemData: any) => {
 };
 // 删除点击事件
 const deleteClick = (index: number) => {
-    // const current = contentList.value[index];
-    // if (!current) return;
-    // if (current.id) {
-    //     deleteItemDialog.visible = true;
-    //     deleteItemDialog.index = index;
-    //     deleteItemDialog.data = current;
-    // } else {
-    //     contentList.value.splice(index, 1);
-    //     update();
-    // }
-    contentList.value.splice(index, 1);
-    update();
+    const current = contentList.value[index];
+    if (!current) return;
+    if (current.id) {
+        deleteItemDialog.visible = true;
+        deleteItemDialog.index = index;
+        deleteItemDialog.data = current;
+    } else {
+        contentList.value.splice(index, 1);
+        update();
+    }
 };
 const deleteItemDialog = reactive({
     visible: false,

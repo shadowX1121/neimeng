@@ -41,6 +41,7 @@ onMounted(async () => {
     const observer = new ResizeObserver(([entry]) => {
         mainHeight.value = entry?.contentRect.height || 0;
         height.value = mainHeight.value - (breadRef.value?.height ?? 0);
+        console.log("breadRef.value?.height", breadRef.value?.height);
     });
     observer.observe(el);
 });
@@ -72,7 +73,15 @@ onMounted(async () => {
                 <el-aside class="layout-aside">
                     <MyMenu />
                 </el-aside>
-                <el-main class="page-main" ref="pageMainRef">
+                <el-main
+                    class="page-main"
+                    ref="pageMainRef"
+                    :style="{
+                        ...((!breadRef || !breadRef.height || breadRef.height === 0) && {
+                            '--el-main-padding': 0,
+                        }),
+                    }"
+                >
                     <MyBreadcrumb ref="breadRef" />
                     <div class="main-container" :style="{ '--my-calc-height': height + 'px' }">
                         <router-view />

@@ -99,7 +99,9 @@ const addEditItemClick = (itemData: any) => {
         addEditDialog.data = itemData;
         addEditDialog.title = "修改一票否决项";
     } else {
-        addEditDialog.data = undefined;
+        addEditDialog.data = {
+            year: filter.year,
+        };
         addEditDialog.title = "添加一票否决项";
     }
     addEditDialog.visible = true;
@@ -145,15 +147,15 @@ const deleteItemClick = (row: { id: IdValueType }) => {
                     </div>
                 </div>
                 <div v-loading="loading">
-                    <el-empty v-if="noData" description="暂无数据" />
-                    <template v-else>
-                        <div class="el-table custom-table">
-                            <div class="custom-other-header">
-                                <p class="flex-1">一票否决规则：每有一项取消本年度星级评定资格。</p>
-                                <el-button type="primary" @click="addEditItemClick(undefined)">
-                                    添加项
-                                </el-button>
-                            </div>
+                    <div class="el-table custom-table">
+                        <div class="custom-other-header">
+                            <p class="flex-1">一票否决规则：每有一项取消本年度星级评定资格。</p>
+                            <el-button type="primary" @click="addEditItemClick(undefined)">
+                                添加项
+                            </el-button>
+                        </div>
+                        <el-empty v-if="noData" description="暂无数据" />
+                        <template v-else>
                             <div class="el-table__header-wrapper">
                                 <table class="el-table__header">
                                     <colgroup>
@@ -224,8 +226,8 @@ const deleteItemClick = (row: { id: IdValueType }) => {
                                     </draggable>
                                 </table>
                             </div>
-                        </div>
-                    </template>
+                        </template>
+                    </div>
                 </div>
             </div>
         </div>

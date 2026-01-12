@@ -15,6 +15,7 @@ const route = useRoute();
 const assessStore = useAssessStore();
 
 const id = computed(() => route.query.id || "");
+const year = computed(() => route.query.year || "");
 
 const formRef = ref<FormInstance>();
 const formData = reactive<AssessItemType>({
@@ -135,6 +136,9 @@ const submit = async () => {
         };
         if (id.value) {
             params.id = id.value;
+        }
+        if (year.value) {
+            params.year = year.value;
         }
         const { code } = await assessApi.addEvaluateDetail(params);
         if (code === 200) {

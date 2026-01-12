@@ -72,7 +72,15 @@ onMounted(async () => {
                 <el-aside class="layout-aside">
                     <MyMenu />
                 </el-aside>
-                <el-main class="page-main" ref="pageMainRef">
+                <el-main
+                    class="page-main"
+                    ref="pageMainRef"
+                    :style="{
+                        ...((!breadRef || !breadRef.height || breadRef.height === 0) && {
+                            '--el-main-padding': 0,
+                        }),
+                    }"
+                >
                     <MyBreadcrumb ref="breadRef" />
                     <div class="main-container" :style="{ '--my-calc-height': height + 'px' }">
                         <router-view />

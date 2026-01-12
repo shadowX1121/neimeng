@@ -8,6 +8,7 @@ import type { FormInstance, FormRules } from "element-plus";
 
 const props = defineProps<{
     modelValue: boolean;
+    year: number | string;
 }>();
 
 const formRef = ref<FormInstance>();
@@ -150,6 +151,7 @@ const submit = async () => {
         const { code } = await assessApi.addEvaluate({
             name: formData.name,
             project_name_list: JSON.stringify(formData.project),
+            year: props.year,
         });
         if (code === 200) {
             ElMessage.success(`添加成功`);
